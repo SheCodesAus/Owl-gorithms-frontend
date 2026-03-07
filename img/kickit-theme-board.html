@@ -1,0 +1,578 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Client Theme Board</title>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --accent: #FF5A5F;
+    --surface: #EEEAF7;
+    --body-text: #0F172A;
+    --primary-cta: #6B4EAA;
+    --cta-text: #FFFFFF;
+    --muted-text: #6B6880;
+    --dividers: #A78BFA;
+    --btn-primary: #6B4EAA;
+    --btn-secondary: #6B6880;
+    --btn-secondary-text: #0F172A;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    font-family: 'Inter', sans-serif;
+    background: #F8F6FC;
+    color: var(--body-text);
+    padding: 48px;
+    min-height: 100vh;
+  }
+
+  .board {
+    max-width: 1100px;
+    margin: 0 auto;
+    background: #FFFFFF;
+    border-radius: 24px;
+    overflow: hidden;
+    box-shadow: 0 4px 40px rgba(107, 78, 170, 0.08), 0 1px 3px rgba(0,0,0,0.04);
+  }
+
+  /* ── Header ── */
+  .header {
+    background: var(--body-text);
+    padding: 48px 56px 44px;
+    position: relative;
+    overflow: hidden;
+  }
+  .header::after {
+    content: '';
+    position: absolute;
+    top: -60px; right: -60px;
+    width: 200px; height: 200px;
+    border-radius: 50%;
+    background: var(--primary-cta);
+    opacity: 0.15;
+  }
+  .header::before {
+    content: '';
+    position: absolute;
+    bottom: -30px; left: 30%;
+    width: 120px; height: 120px;
+    border-radius: 50%;
+    background: var(--accent);
+    opacity: 0.1;
+  }
+  .header h1 {
+    font-family: 'Space Grotesk', sans-serif;
+    font-weight: 700;
+    font-size: 32px;
+    color: #FFFFFF;
+    letter-spacing: -0.5px;
+    position: relative;
+    z-index: 1;
+  }
+  .header p {
+    font-size: 14px;
+    color: var(--dividers);
+    margin-top: 8px;
+    font-weight: 500;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    position: relative;
+    z-index: 1;
+  }
+
+  /* ── Content ── */
+  .content {
+    padding: 48px 56px 56px;
+  }
+
+  .section-label {
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 2.5px;
+    text-transform: uppercase;
+    color: var(--muted-text);
+    margin-bottom: 20px;
+  }
+
+  /* ── Colour Swatches ── */
+  .swatches {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    gap: 16px;
+    margin-bottom: 48px;
+  }
+  .swatch {
+    border-radius: 16px;
+    overflow: hidden;
+    border: 1px solid rgba(167, 139, 250, 0.15);
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+  }
+  .swatch:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 8px 24px rgba(107, 78, 170, 0.12);
+  }
+  .swatch-color {
+    height: 100px;
+    position: relative;
+  }
+  .swatch-color.has-border {
+    border-bottom: 1px solid rgba(0,0,0,0.06);
+  }
+  .swatch-info {
+    padding: 14px 16px;
+    background: #fff;
+  }
+  .swatch-name {
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--body-text);
+    margin-bottom: 4px;
+  }
+  .swatch-hex {
+    font-size: 12px;
+    color: var(--muted-text);
+    font-family: 'Inter', monospace;
+    font-weight: 500;
+  }
+  .swatch-role {
+    font-size: 10px;
+    font-weight: 600;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    color: var(--dividers);
+    margin-top: 6px;
+  }
+
+  /* ── Divider ── */
+  .divider {
+    height: 1px;
+    background: linear-gradient(90deg, transparent, var(--dividers), transparent);
+    margin: 8px 0 48px;
+    opacity: 0.4;
+  }
+
+  /* ── Typography Preview ── */
+  .typo-section {
+    margin-bottom: 48px;
+  }
+  .typo-row {
+    display: flex;
+    align-items: baseline;
+    gap: 32px;
+    margin-bottom: 16px;
+  }
+  .typo-label {
+    font-size: 11px;
+    color: var(--muted-text);
+    width: 100px;
+    flex-shrink: 0;
+    font-weight: 500;
+  }
+  .typo-heading {
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: 36px;
+    font-weight: 700;
+    color: var(--body-text);
+    letter-spacing: -0.5px;
+  }
+  .typo-subheading {
+    font-size: 20px;
+    font-weight: 700;
+    color: var(--primary-cta);
+  }
+  .typo-body {
+    font-size: 15px;
+    line-height: 1.6;
+    color: var(--body-text);
+  }
+  .typo-muted {
+    font-size: 13px;
+    color: var(--muted-text);
+  }
+
+  /* ── Buttons Preview ── */
+  .buttons-section {
+    margin-bottom: 48px;
+  }
+  .buttons-row {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    flex-wrap: wrap;
+  }
+  .btn {
+    padding: 12px 32px;
+    border-radius: 10px;
+    font-family: 'Inter', sans-serif;
+    font-size: 14px;
+    font-weight: 700;
+    border: none;
+    cursor: pointer;
+    letter-spacing: 0.3px;
+    transition: all 0.2s ease;
+  }
+  .btn-primary {
+    background: var(--btn-primary);
+    color: var(--cta-text);
+  }
+  .btn-primary:hover {
+    background: #5a3f94;
+    box-shadow: 0 4px 16px rgba(107, 78, 170, 0.3);
+  }
+  .btn-secondary {
+    background: var(--btn-secondary);
+    color: var(--cta-text);
+  }
+  .btn-secondary:hover {
+    background: #5a596f;
+    box-shadow: 0 4px 16px rgba(107, 104, 128, 0.25);
+  }
+  .btn-outline {
+    background: transparent;
+    color: var(--btn-secondary-text);
+    border: 2px solid var(--dividers);
+  }
+  .btn-outline:hover {
+    background: var(--surface);
+  }
+  .btn-accent {
+    background: var(--accent);
+    color: var(--cta-text);
+  }
+  .btn-accent:hover {
+    background: #e84e53;
+    box-shadow: 0 4px 16px rgba(255, 90, 95, 0.3);
+  }
+  .btn-label {
+    font-size: 10px;
+    color: var(--muted-text);
+    text-align: center;
+    margin-top: 6px;
+    font-weight: 500;
+    letter-spacing: 0.5px;
+  }
+  .btn-group {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+
+  /* ── Card Preview ── */
+  .cards-section {
+    margin-bottom: 48px;
+  }
+  .cards-row {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 20px;
+  }
+  .card {
+    background: var(--surface);
+    border-radius: 16px;
+    padding: 28px;
+    border: 1px solid rgba(167, 139, 250, 0.2);
+  }
+  .card-dot {
+    width: 10px; height: 10px;
+    border-radius: 50%;
+    margin-bottom: 16px;
+  }
+  .card h3 {
+    font-size: 16px;
+    font-weight: 700;
+    color: var(--body-text);
+    margin-bottom: 8px;
+  }
+  .card p {
+    font-size: 13px;
+    line-height: 1.55;
+    color: var(--muted-text);
+    margin-bottom: 16px;
+  }
+  .card-link {
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--primary-cta);
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+  }
+  .card-link:hover {
+    color: var(--accent);
+  }
+
+  /* ── Borders Preview ── */
+  .borders-section {
+    margin-bottom: 16px;
+  }
+  .border-examples {
+    display: flex;
+    gap: 32px;
+    align-items: center;
+  }
+  .border-line {
+    flex: 1;
+    height: 1px;
+    background: var(--dividers);
+  }
+  .border-dashed {
+    flex: 1;
+    height: 1px;
+    border-top: 1.5px dashed var(--dividers);
+  }
+  .border-box {
+    width: 64px; height: 64px;
+    border: 2px solid var(--dividers);
+    border-radius: 12px;
+  }
+  .border-box-round {
+    width: 64px; height: 64px;
+    border: 2px solid var(--dividers);
+    border-radius: 50%;
+  }
+  .border-label {
+    font-size: 10px;
+    color: var(--muted-text);
+    text-align: center;
+    margin-top: 8px;
+    font-weight: 500;
+  }
+  .border-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+  .border-item:nth-child(1),
+  .border-item:nth-child(2) {
+    flex: 1;
+  }
+
+  /* ── Footer ── */
+  .footer {
+    padding: 32px 56px;
+    background: var(--surface);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-top: 1px solid rgba(167, 139, 250, 0.2);
+  }
+  .footer-left {
+    font-size: 12px;
+    color: var(--muted-text);
+    font-weight: 500;
+  }
+  .footer-tokens {
+    display: flex;
+    gap: 8px;
+  }
+  .token {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 6px 12px;
+    border-radius: 8px;
+    font-size: 11px;
+    font-weight: 600;
+    background: #fff;
+    color: var(--body-text);
+    border: 1px solid rgba(167, 139, 250, 0.2);
+  }
+  .token-dot {
+    width: 8px; height: 8px;
+    border-radius: 50%;
+    flex-shrink: 0;
+  }
+</style>
+</head>
+<body>
+
+<div class="board">
+  <!-- Header -->
+  <div class="header">
+    <h1>Client Theme Board</h1>
+    <p>Colour &amp; UI Reference</p>
+  </div>
+
+  <div class="content">
+    <!-- Colour Swatches -->
+    <div class="section-label">Colour Palette</div>
+    <div class="swatches">
+      <div class="swatch">
+        <div class="swatch-color" style="background: #6B4EAA;"></div>
+        <div class="swatch-info">
+          <div class="swatch-name">Primary CTA</div>
+          <div class="swatch-hex">#6B4EAA</div>
+          <div class="swatch-role">Buttons · Links</div>
+        </div>
+      </div>
+      <div class="swatch">
+        <div class="swatch-color" style="background: #FF5A5F;"></div>
+        <div class="swatch-info">
+          <div class="swatch-name">Accent / Highlight</div>
+          <div class="swatch-hex">#FF5A5F</div>
+          <div class="swatch-role">Alerts · Emphasis</div>
+        </div>
+      </div>
+      <div class="swatch">
+        <div class="swatch-color" style="background: #A78BFA;"></div>
+        <div class="swatch-info">
+          <div class="swatch-name">Dividers / Borders</div>
+          <div class="swatch-hex">#A78BFA</div>
+          <div class="swatch-role">Lines · Outlines</div>
+        </div>
+      </div>
+      <div class="swatch">
+        <div class="swatch-color" style="background: #0F172A;"></div>
+        <div class="swatch-info">
+          <div class="swatch-name">Body Text</div>
+          <div class="swatch-hex">#0F172A</div>
+          <div class="swatch-role">Headings · Copy</div>
+        </div>
+      </div>
+      <div class="swatch">
+        <div class="swatch-color" style="background: #6B6880;"></div>
+        <div class="swatch-info">
+          <div class="swatch-name">Muted Text</div>
+          <div class="swatch-hex">#6B6880</div>
+          <div class="swatch-role">Captions · Secondary</div>
+        </div>
+      </div>
+      <div class="swatch">
+        <div class="swatch-color has-border" style="background: #EEEAF7;"></div>
+        <div class="swatch-info">
+          <div class="swatch-name">Surface / Card</div>
+          <div class="swatch-hex">#EEEAF7</div>
+          <div class="swatch-role">Backgrounds · Panels</div>
+        </div>
+      </div>
+      <div class="swatch">
+        <div class="swatch-color has-border" style="background: #FFFFFF;"></div>
+        <div class="swatch-info">
+          <div class="swatch-name">CTA Text</div>
+          <div class="swatch-hex">#FFFFFF</div>
+          <div class="swatch-role">On dark fills</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="divider"></div>
+
+    <!-- Typography -->
+    <div class="section-label">Typography</div>
+    <div class="typo-section">
+      <div class="typo-row">
+        <span class="typo-label">Heading</span>
+        <span class="typo-heading">The quick brown fox</span>
+      </div>
+      <div class="typo-row">
+        <span class="typo-label">Subheading</span>
+        <span class="typo-subheading">Jumps over the lazy dog</span>
+      </div>
+      <div class="typo-row">
+        <span class="typo-label">Body</span>
+        <span class="typo-body">Lorem ipsum dolor sit amet, consectetur adipiscing elit. Suspendisse varius enim in eros elementum tristique.</span>
+      </div>
+      <div class="typo-row">
+        <span class="typo-label">Muted</span>
+        <span class="typo-muted">Supporting text and secondary information appears in muted tones.</span>
+      </div>
+    </div>
+
+    <div class="divider"></div>
+
+    <!-- Buttons -->
+    <div class="section-label">Buttons</div>
+    <div class="buttons-section">
+      <div class="buttons-row">
+        <div class="btn-group">
+          <button class="btn btn-primary">Get Started</button>
+          <span class="btn-label">Primary · #6B4EAA</span>
+        </div>
+        <div class="btn-group">
+          <button class="btn btn-secondary">Learn More</button>
+          <span class="btn-label">Secondary · #6B6880</span>
+        </div>
+        <div class="btn-group">
+          <button class="btn btn-outline">View Details</button>
+          <span class="btn-label">Outline · #A78BFA</span>
+        </div>
+        <div class="btn-group">
+          <button class="btn btn-accent">Urgent Action</button>
+          <span class="btn-label">Accent · #FF5A5F</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="divider"></div>
+
+    <!-- Card Examples -->
+    <div class="section-label">Surface / Card Examples</div>
+    <div class="cards-section">
+      <div class="cards-row">
+        <div class="card">
+          <div class="card-dot" style="background: var(--primary-cta);"></div>
+          <h3>Feature Card</h3>
+          <p>Cards use the surface colour #EEEAF7 with subtle purple border accents for depth.</p>
+          <a href="#" class="card-link">Learn more →</a>
+        </div>
+        <div class="card">
+          <div class="card-dot" style="background: var(--accent);"></div>
+          <h3>Highlight Card</h3>
+          <p>The accent red draws attention to important content and calls to action.</p>
+          <a href="#" class="card-link">View details →</a>
+        </div>
+        <div class="card">
+          <div class="card-dot" style="background: var(--dividers);"></div>
+          <h3>Info Card</h3>
+          <p>Lavender borders and dividers create a soft, cohesive hierarchy throughout the UI.</p>
+          <a href="#" class="card-link">Read more →</a>
+        </div>
+      </div>
+    </div>
+
+    <div class="divider"></div>
+
+    <!-- Borders -->
+    <div class="section-label">Dividers &amp; Borders</div>
+    <div class="borders-section">
+      <div class="border-examples">
+        <div class="border-item">
+          <div class="border-line"></div>
+          <span class="border-label">Solid Divider</span>
+        </div>
+        <div class="border-item">
+          <div class="border-dashed"></div>
+          <span class="border-label">Dashed Divider</span>
+        </div>
+        <div class="border-item">
+          <div class="border-box"></div>
+          <span class="border-label">Rounded</span>
+        </div>
+        <div class="border-item">
+          <div class="border-box-round"></div>
+          <span class="border-label">Circle</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Footer -->
+  <div class="footer">
+    <span class="footer-left">Design Tokens</span>
+    <div class="footer-tokens">
+      <span class="token"><span class="token-dot" style="background: #6B4EAA;"></span>#6B4EAA</span>
+      <span class="token"><span class="token-dot" style="background: #FF5A5F;"></span>#FF5A5F</span>
+      <span class="token"><span class="token-dot" style="background: #A78BFA;"></span>#A78BFA</span>
+      <span class="token"><span class="token-dot" style="background: #EEEAF7;"></span>#EEEAF7</span>
+      <span class="token"><span class="token-dot" style="background: #0F172A;"></span>#0F172A</span>
+      <span class="token"><span class="token-dot" style="background: #6B6880;"></span>#6B6880</span>
+    </div>
+  </div>
+</div>
+
+</body>
+</html>
