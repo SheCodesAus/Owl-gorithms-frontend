@@ -395,7 +395,7 @@ Update with actual content -- */
   line-height: 1.3;
 }
 
-.bucket-author {
+.bucket-owner {
   font-family: var(--font-body);
   font-size: 12px;
   font-weight: 500;

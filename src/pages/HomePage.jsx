@@ -126,6 +126,7 @@ function HomePage() {
               <Link to="/buckets" className="btn btn-secondary btn-lg">
                 View My Buckets →
               </Link>
+              {/* : */}
               <>
                 <Link to="/login" className="btn btn-secondary btn-lg">
                   Get Started
@@ -135,6 +136,7 @@ function HomePage() {
                   How It Works
                 </Link>
               </>
+              {/* } */}
           </div>
         </div>
       </section>
@@ -155,7 +157,7 @@ function HomePage() {
           <div className="features-grid">
             {features.map((f) => (
               <div className="feature-card" key={f.title}>
-                <div className="feature-icon">{f.icon}</div>
+                <div className="feature-icon"><img src={f.icon} alt={f.title} /></div>
                 <h3>{f.title}</h3>
                 <p>{f.desc}</p>
               </div>
@@ -195,7 +197,7 @@ function HomePage() {
                     <span className="bucket-emoji">{list.emoji}</span>
                     <div>
                       <h3>{list.title}</h3>
-                      <span className="bucket-author">@{list.author}</span>
+                      <span className="bucket-owner">@{list.owner}</span>
                     </div>
                   </div>
 
@@ -218,7 +220,8 @@ function HomePage() {
             })}
           </div>
         </div>
-      </section>.  --------------*/}
+      </section>
+      */}
 
       {/* ── CTA BANNER ── */}
       <section className="cta-banner">
