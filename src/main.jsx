@@ -9,6 +9,7 @@ import LoginPage from "./pages/LoginPage.jsx";
 import { AuthProvider } from "./components/AuthProvider.jsx"
 import GoogleOAuthCallback from "./components/GoogleOAuthCallback.jsx";
 import BucketListsPage from "./pages/BucketListsPage.jsx";
+import "./main.css"
 
 const router = createBrowserRouter([
   {

@@ -5,15 +5,16 @@ function GoogleLogin() {
   const url = `${import.meta.env.VITE_API_URL}/auth/google/login/?process=login`;
 
   const handleGoogleLogin = () => {
-    // Full-page redirect instead of popup
+    // Full-page redirect
     window.location.href = url;
   };
 
   return (
+    <div className="flex items-center justify-center w-full mt-10">
     <button
       type="button"
       onClick={handleGoogleLogin}
-      className="flex-1 py-3 cursor-pointer rounded-xl border border-gray-300 hover:bg-gray-100 transition"
+      className="w-full max-w-70 flex items-center justify-center gap-2 cursor-pointer bg-purple-700 text-white font-bold py-3 px-6 rounded-xl shadow-lg hover:scale-105 transition-transform"
     >
       <svg width="24" height="24" viewBox="0 0 24 24">
         <path
@@ -35,6 +36,7 @@ function GoogleLogin() {
       </svg>
       Continue with Google
     </button>
+    </div>
   );
 }
 
