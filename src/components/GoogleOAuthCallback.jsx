@@ -16,17 +16,17 @@ function GoogleOAuthCallback() {
       localStorage.setItem("refresh", refresh);
 
       // Optionally fetch user info from backend
-      fetch(`${import.meta.env.VITE_API_URL}/parents/me/`, {
+      fetch(`${import.meta.env.VITE_API_URL}/users/me/`, {
         headers: { Authorization: `Bearer ${access}` },
       })
         .then((res) => res.json())
         .then((user) => {
           setAuth({ access, refresh, user });
-          navigate("/account"); // redirect to dashboard
+          navigate("/"); // redirect to dashboard
         })
         .catch(() => {
           // If fetching user fails, still redirect
-          navigate("/account");
+          navigate("/");
         });
     } else {
       // If no access token, redirect to login

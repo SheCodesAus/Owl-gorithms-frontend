@@ -1,4 +1,3 @@
-import { access } from "node:fs";
 import { createContext, useState, useEffect } from "react";
 
 export const AuthContext = createContext();

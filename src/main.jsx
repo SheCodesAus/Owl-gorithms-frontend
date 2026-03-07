@@ -22,7 +22,7 @@ const router = createBrowserRouter([
       { index: true, element: <HomePage /> },
       { path: "/kickits", element: <BucketListsPage />},
       { path: "/login", element: <LoginPage />},
-      { path: "/oath/google/callback", element: <GoogleOAuthCallback /> },
+      { path: "/oauth/google/callback", element: <GoogleOAuthCallback /> },
     ],
   },
 ]);

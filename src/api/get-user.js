@@ -1,5 +1,5 @@
 async function getUser(token) {
-    const url = `${import.meta.env.VITE_API_URL}/parents/me/`;
+    const url = `${import.meta.env.VITE_API_URL}/users/me/`;
 
     const response = await fetch(url, {
         method: "GET",
