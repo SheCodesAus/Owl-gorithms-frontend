@@ -5,6 +5,7 @@ import { createBrowserRouter, RouterProvider } from "react-router-dom";
 import Layout from "./layout";
 import HomePage from "./pages/HomePage.jsx";
 import LoginPage from "./pages/LoginPage.jsx";
+import AccountPage from "./pages/AccountPage.jsx";
 
 import { AuthProvider } from "./components/AuthProvider.jsx"
 import GoogleOAuthCallback from "./components/GoogleOAuthCallback.jsx";
@@ -21,6 +22,7 @@ const router = createBrowserRouter([
     children: [
       { index: true, element: <HomePage /> },
       { path: "/login", element: <LoginPage />},
+      { path: "/dashboard", element: <AccountPage />},
       { path: "/oauth/google/callback", element: <GoogleOAuthCallback /> },
     ],
   },
