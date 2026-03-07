@@ -8,7 +8,6 @@ import LoginPage from "./pages/LoginPage.jsx";
 
 import { AuthProvider } from "./components/AuthProvider.jsx"
 import GoogleOAuthCallback from "./components/GoogleOAuthCallback.jsx";
-import BucketListsPage from "./pages/BucketListsPage.jsx";
 import "./main.css"
 
 const router = createBrowserRouter([
@@ -21,7 +20,6 @@ const router = createBrowserRouter([
     ),
     children: [
       { index: true, element: <HomePage /> },
-      { path: "/kickits", element: <BucketListsPage />},
       { path: "/login", element: <LoginPage />},
       { path: "/oauth/google/callback", element: <GoogleOAuthCallback /> },
     ],
