@@ -1,15 +1,14 @@
 import { Link, Outlet } from "react-router";
+//import { AuthProvider } from "../context/AuthContext";
+//import "./NavBar.css";
 
 function NavBar() {
   return (
-    <div>
-      <nav>
-        <Link to="/">Home</Link>
-        <Link to="/bucket-lists">Bucket Lists</Link>
-        <Link to="/login">Login</Link>
-      </nav>
-      <Outlet />
-    </div>
+      <><nav>
+      <Link to="/">Home</Link>
+      <Link to="/bucket-lists">Bucket Lists</Link>
+      <Link to="/login">Login</Link>
+    </nav><Outlet /></>
   );
 }
 
