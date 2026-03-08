@@ -6,7 +6,6 @@ import {
     updateBucketList,
     deleteBucketList,
 } from "../api/bucketlists";
-import { TorusKnotGeometry } from "three";
 
 export function useBucketLists() {
     const { auth } = useAuth();

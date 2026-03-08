@@ -1,17 +1,15 @@
-async function updateItem(itemId, data, token) {
+async function deleteItem(itemId, token) {
     const url = `${import.meta.env.VITE_API_URL}/items/${itemId}/`;
 
     const response = await fetch(url, {
-        method: "PUT",
+        method: "DELETE",
         headers: {
-            "Content-type": "application/json",
-            "Authorization": `Bearer ${token}`,
+            "Authorization": `Bearer ${token}`
         },
-        body: JSON.stringify(data),
     });
 
     if (!response.ok) {
-        const fallBackError = "Failed to update item";
+        const fallBackError = "Failed to delete this item";
 
         const data = await response.json().catch(() => {
             throw new Error(fallBackError);
@@ -21,8 +19,8 @@ async function updateItem(itemId, data, token) {
         throw new Error(errorMessage);
     }
 
-    return await response.json();
+    return true;
 
 }
 
-export default updateItem;
+export default deleteItem;
