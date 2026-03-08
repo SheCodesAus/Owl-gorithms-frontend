@@ -1,5 +1,5 @@
-async function createItem(bucketListId, data, token) {
-    const url = `${import.meta.env.VITE_API_URL}/bucketlists/${bucketListId}/items/`;
+async function submitVote(itemId, voteType, token) {
+    const url = `${import.meta.env.VITE_API_URL}/items/${itemId}/vote/`;
 
     const response = await fetch(url, {
         method: "POST",
@@ -7,11 +7,11 @@ async function createItem(bucketListId, data, token) {
             "Content-type": "application/json",
             "Authorization": `Bearer ${token}`,
         },
-        body: JSON.stringify(data),
+        body: JSON.stringify({ vote_type: voteType }),
     });
 
     if (!response.ok) {
-        const fallBackError = `Failed to create item for bucket list with id ${bucketListId}`;
+        const fallBackError = "Failed to submit vote";
 
         const data = await response.json().catch(() => {
             throw new Error(fallBackError);
@@ -22,6 +22,7 @@ async function createItem(bucketListId, data, token) {
     }
 
     return await response.json();
-}
 
-export default createItem;
+    }
+
+    export default submitVote;
