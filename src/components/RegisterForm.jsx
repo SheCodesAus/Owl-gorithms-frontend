@@ -1,6 +1,6 @@
 import { useState } from "react";
-import postRegister from "../api/post-register.js";
-import postLogin from "../api/post-login.js";
+//import postRegister from "../api/post-register.js";
+//import postLogin from "../api/post-login.js";
 import { useNavigate, useOutletContext } from "react-router-dom";
 
 function RegisterForm() {
@@ -52,23 +52,25 @@ function RegisterForm() {
         setIsLoading(true);
 
         try {
-            // Register the user
-            await postRegister(
-                formData.username,
-                formData.email,
-                formData.password,
-                formData.firstName,
-                formData.lastName
-            );
+            // Register the user COME BACK TO THIS AFTER post-register.js and post-login.js are ACTIONED
+            //await postRegister(
+                //formData.username,
+                //formData.email,
+                //formData.password,
+                //formData.firstName,
+                //formData.lastName
+            //);
 
             // Automatically log them in
-            const loginResponse = await postLogin(formData.username, formData.password);
-            window.localStorage.setItem("token", loginResponse.token);
-            window.localStorage.setItem("userId", loginResponse.user_id);
-            setIsLoggedIn(true);
+            //const loginResponse = await postLogin(formData.username, formData.password);
+            //window.localStorage.setItem("token", loginResponse.token);
+            //window.localStorage.setItem("userId", loginResponse.user_id);
+            //setIsLoggedIn(true);
     
             // Redirect to home
-            navigateTo("/account");
+            //navigateTo("/account");
+            console.log("Register from submitted", formData);
+            navigateTo("/");
         } catch (error) {
             setErrors({ general: error.message || "Registration failed. Please try again." });
         } finally {
@@ -143,7 +145,7 @@ function RegisterForm() {
                 disabled={isLoading}
             />
             {errors.password && <span className="field-error">{errors.password}</span>}
-            <p className="field-help">Password must be at least 8 characters long and not too common</p>
+            <p className="field-help">Password must be at least 8 characters long, and not too common</p>
         </div>
 
         <div className="form-group">
@@ -160,7 +162,7 @@ function RegisterForm() {
         </div>
 
             <button type="submit" className="login-button" disabled={isLoading}>
-                {isLoading ? "Creating Bucket List Account..." : "Sign Up"}
+                {isLoading ? "Creating KickIt Account..." : "Sign Up"}
             </button>
         </form>
     );
