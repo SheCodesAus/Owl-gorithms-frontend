@@ -22,7 +22,7 @@ function GoogleOAuthCallback() {
         .then((res) => res.json())
         .then((user) => {
           setAuth({ access, refresh, user });
-          navigate("/"); // redirect to dashboard
+          navigate("/dashboard"); // redirect to dashboard
         })
         .catch(() => {
           // If fetching user fails, still redirect
