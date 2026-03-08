@@ -7,7 +7,7 @@ function Dashboard({ user, setUser }) {
       <header className="mb-6">
         <h1 className="flex justify-center">Welcome, {user.first_name}!</h1>
         <p className="flex justify-center text-gray-600 text-lg">
-          Manage your children and campaigns below.
+          This will eventually be a super awesome dashboard. (hopefully)
         </p>
         </header>
         </div>
