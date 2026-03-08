@@ -253,9 +253,21 @@ export default function SingleListView() {
     useEffect(() => {
         async function fetchData() {
             try {
+                const token = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNzcyOTczMTE3LCJpYXQiOjE3NzI5Njk1MzIsImp0aSI6ImI0MjYxOTdiOTcxYjQyMTJiNDM3MGYyZDU3OGY1MjQ4IiwidXNlcl9pZCI6IjEifQ.-mJDUM68HuuN1Huab5kWN-oW21r8eRHhGreE-26Xe2o";
+
                 const [listRes, itemsRes] = await Promise.all([
-                    fetch(`${API_BASE}/bucketlists/${id}/`, { credentials: "include" }),    
-                    fetch(`${API_BASE}/bucketlists/${id}/items/`, { credentials: "include" }),
+                    fetch(`${API_BASE}/bucketlists/${id}/`, {
+                        credentials: "include",
+                        headers: {
+                            "Authorization": `Bearer ${token}`
+                        }
+                    }),
+                    fetch(`${API_BASE}/bucketlists/${id}/items/`, {
+                        credentials: "include",
+                        headers: {
+                            "Authorization": `Bearer ${token}`
+                        }
+                    }),
                 ]);
                 if (!listRes.ok || !itemsRes.ok) throw new Error("Failed to fetch data");
                 const list = await listRes.json();

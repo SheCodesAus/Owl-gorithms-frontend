@@ -11,6 +11,7 @@ import SingleListView from "./pages/SingleListView.jsx";
 import RegisterPage from "./pages/RegisterPage";
 import { AuthProvider } from "./components/AuthProvider.jsx"
 import GoogleOAuthCallback from "./components/GoogleOAuthCallback.jsx";
+import NotFound from "./pages/NotFoundPage";
 import "./main.css"
 
 const router = createBrowserRouter([
