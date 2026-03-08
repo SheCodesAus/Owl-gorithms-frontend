@@ -1,31 +1,43 @@
 import React from "react";
 import ReactDOM from "react-dom/client";
-import { createBrowserRouter, RouterProvider } from "react-router";
-import HomePage from "./pages/HomePage";
+import { createBrowserRouter, RouterProvider } from "react-router-dom";
+
+import Layout from "./layout";
+import HomePage from "./pages/HomePage.jsx";
+import LoginPage from "./pages/LoginPage.jsx";
+import AccountPage from "./pages/AccountPage.jsx";
 import BucketListsPage from "./pages/BucketListsPage";
-import SingleListView from "./pages/SingleListView";
+import SingleListView from "./pages/SingleListView.jsx";
 import RegisterPage from "./pages/RegisterPage";
-import LoginPage from "./pages/LoginPage";
-import NavBar from "./components/NavBar";
-import NotFound from "./pages/NotFoundPage";
+import { AuthProvider } from "./components/AuthProvider.jsx"
+import GoogleOAuthCallback from "./components/GoogleOAuthCallback.jsx";
+import "./main.css"
 
 const router = createBrowserRouter([
   {
     path: "/",
-    element: <NavBar />,
+    element: (
+      <>
+      <Layout />
+      </>
+    ),
     children: [
-      { path: "/", element: <HomePage /> },
-      { path: "/bucketlists/:id", element: <BucketListsPage /> },
+      { index: true, element: <HomePage /> },
       { path: "/login", element: <LoginPage />},
-      { path: "/register", element: <RegisterPage/> },
+      { path: "/register", element: <RegisterPage />},
+      { path: "/dashboard", element: <AccountPage />},
+      { path: "/oauth/google/callback", element: <GoogleOAuthCallback /> },
+      { path: "/bucketlists", element: <BucketListsPage /> },
       { path: "/bucketlists/:id", element: <SingleListView /> },
-      { path: "*",  element: <NotFound /> },
+      { path: "*", element: <NotFound /> },
     ],
   },
 ]);
 
 ReactDOM.createRoot(document.getElementById("root")).render(
   <React.StrictMode>
-    <RouterProvider router={router} />
-  </React.StrictMode>
+    <AuthProvider>
+      <RouterProvider router={router} />
+    </AuthProvider>
+  </React.StrictMode>,
 );
