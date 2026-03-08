@@ -1,0 +1,7 @@
+/* Styling for individual item card */
+
+.item-card.completed {
+  opacity: 0.5;
+  text-decoration: line-through;
+}
+.checkbox-wrapper { /* ... */ }

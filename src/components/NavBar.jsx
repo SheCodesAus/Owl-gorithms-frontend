@@ -7,6 +7,7 @@ function NavBar() {
         <Link to="/">Home</Link>
         <Link to="/bucket-lists">Bucket Lists</Link>
         <Link to="/login">Login</Link>
+        <Link to="/bucketitem"> List items</Link>
       </nav>
       <Outlet />
     </div>
