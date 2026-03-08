@@ -1,5 +1,3 @@
-const { error } = require("node:console");
-
 async function getItem(itemId, token) {
     const url = `${import.meta.env.VITE_API_URL}/items/${itemId}/`;
 
