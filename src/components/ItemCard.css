@@ -1,7 +1,64 @@
-/* Styling for individual item card */
+.item-card {
+  background: var(--surface);
+  border: 1px solid var(--dividers);
+  border-radius: var(--radius-md);
 
-.item-card.completed {
-  opacity: 0.5;
-  text-decoration: line-through;
+  padding: var(--space-md);
+  margin-bottom: var(--space-md);
+
+  cursor: pointer;
+
+  transition: transform 0.15s var(--ease),
+              box-shadow 0.15s var(--ease),
+              border-color 0.15s var(--ease);
 }
-.checkbox-wrapper { /* ... */ }
+
+.item-card:hover {
+  transform: translateY(-2px);
+  border-color: var(--purple);
+  box-shadow: 0 8px 18px rgba(15,23,42,0.08);
+}
+
+.item-card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.item-title {
+  font-family: var(--font-heading);
+  font-size: 1.05rem;
+  color: var(--body-text);
+  margin: 0;
+}
+
+/* STATUS BADGES */
+
+.status-badge {
+  font-size: 0.75rem;
+  padding: 4px 12px;
+  border-radius: var(--radius-pill);
+  text-transform: capitalize;
+}
+
+/* Status colours */
+
+.status-proposed .status-badge {
+  background: var(--lavender);
+  color: var(--navy);
+}
+
+.status-locked_in .status-badge {
+  background: var(--teal);
+  color: var(--white);
+}
+
+.status-complete .status-badge {
+  background: var(--primary);
+  color: var(--white);
+}
+
+.status-cancelled .status-badge {
+  background: var(--accent);
+  color: var(--white);
+}

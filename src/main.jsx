@@ -6,7 +6,6 @@ import HomePage from "./pages/HomePage";
 import BucketListsPage from "./pages/BucketListsPage";
 import NavBar from "./components/NavBar";
 import NotFound from "./pages/NotFoundPage";
-import ItemCard from "./components/ItemCard";
 
 const router = createBrowserRouter([
   {
@@ -17,8 +16,6 @@ const router = createBrowserRouter([
         element: <HomePage /> },
       { path: "/bucketlist/:id",
         element: <BucketListsPage /> },
-      { path: "/bucketitem/:id",
-        element: <ItemCard /> },
       { path: "*",
         element: <NotFound /> },
     ],

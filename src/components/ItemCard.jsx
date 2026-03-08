@@ -1,45 +1,24 @@
-/* Individual item card 
-Include tick
-*/
-
 import { useState } from "react";
 import { Link } from "react-router-dom";          
 import "./ItemCard.css";
 
-function ItemCard({ BucketItemData, onToggleComplete }) {
-  const [completed, setCompleted] = useState(
-    BucketItemData.completed ?? false
-  );
-
-  const handleChange = () => {
-    const next = !completed;
-    setCompleted(next);
-    if (onToggleComplete) {
-      onToggleComplete(BucketItemData.id, next);
-    }
-  };
-
-  const BucketItemLink = `/bucketitem/${BucketItemData.id}`;
-
+function ItemCard({ item, onSelect }) {
   return (
-    <div className={`item-card ${completed ? "completed" : ""}`}>
-      <label className="checkbox-wrapper">
-        <input
-          type="checkbox"
-          checked={completed}
-          onChange={handleChange}
-        />
-        <span className="checkmark" />
-      </label>
+    <div
+      className={`item-card status-${item.status}`}
+      onClick={() => onSelect(item)}
+    >
+      <div className="item-card-header">
 
-      <Link to={BucketItemLink}>
-        <h3>{BucketItemData.title}</h3>
-        <img
-          src={BucketItemData.image}
-          alt={BucketItemData.title}
-        />
-        <p>{BucketItemData.description}</p>
-      </Link>
+        <h3 className="item-title">
+          {item.title}
+        </h3>
+
+        <span className="status-badge">
+          {item.status}
+        </span>
+
+      </div>
     </div>
   );
 }
