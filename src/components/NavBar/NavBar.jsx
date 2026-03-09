@@ -71,7 +71,7 @@ function NavBar() {
                         onClick={closeAll}
                         className="tracking-tight transition-transform duration-200 hover:scale-[1.02]"
                     >
-                        <img src="../text_logo_light.png" width={100}/>
+                        <img src="/text_logo_light.png" width={100}/>
                     </NavLink>
 
                     <div className="hidden items-center gap-2 md:flex">
