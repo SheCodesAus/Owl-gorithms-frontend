@@ -137,9 +137,9 @@ function DashboardFocusPanel({ bucketList, isLoading }) {
                   <div>
                     <p className="text-sm leading-relaxed text-[var(--body-text)] sm:text-base">
                       <span className="font-semibold">
-                        {item.is_completed ? "Completed" : "Added"}:
-                      </span>{" "}
-                      {item.title}
+                        
+                      {" "}
+                      {item.title}</span>
                     </p>
 
                     {item.description ? (
