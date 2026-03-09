@@ -113,7 +113,7 @@ function DashboardFocusPanel({ bucketList, isLoading }) {
 
         <div className="flex-1 pt-5">
           <h3 className="mb-4 text-xl font-semibold text-[var(--heading-text)] sm:text-[1.6rem]">
-            Recent Updates
+            Recent
           </h3>
 
           {recentItems.length ? (
@@ -133,7 +133,7 @@ function DashboardFocusPanel({ bucketList, isLoading }) {
                   <div>
                     <p className="text-sm leading-relaxed text-[var(--body-text)] sm:text-base">
                       <span className="font-semibold">
-                        {item.is_completed ? "Completed" : "Updated"}:
+                        {item.is_completed ? "Completed" : "Added"}:
                       </span>{" "}
                       {item.title}
                     </p>
@@ -158,7 +158,7 @@ function DashboardFocusPanel({ bucketList, isLoading }) {
           type="button"
           className="primary-gradient-button mt-6 rounded-full px-6 py-3 text-base font-semibold transition sm:text-lg"
         >
-          Open Bucket List
+          Let's Go
         </button>
       </div>
     </motion.aside>

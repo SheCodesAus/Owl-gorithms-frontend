@@ -60,6 +60,7 @@ function Dashboard({ user }) {
           bucketList={selectedList}
           isLoading={isLoading}
         />
+
         </section>
     </motion.div>
   );
