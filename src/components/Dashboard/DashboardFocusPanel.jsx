@@ -1,5 +1,6 @@
 import { motion } from "framer-motion";
 import Avatar from "../UI/Avatar";
+import RelativeTime from "../UI/RelativeTime";
 
 function DashboardFocusPanel({ bucketList, isLoading }) {
   if (isLoading) {
@@ -47,7 +48,7 @@ function DashboardFocusPanel({ bucketList, isLoading }) {
     ? Math.round((completedCount / totalCount) * 100)
     : 0;
 
-  const memberCount = bucketList.members?.length ?? 1;
+  const memberCount = bucketList.memberships?.length ?? 1;
 
   const recentItems = [...items]
     .sort((a, b) => {
@@ -146,8 +147,11 @@ function DashboardFocusPanel({ bucketList, isLoading }) {
                         {item.description}
                       </p>
                     ) : null}
-                    <p className="mt-1 text-xs text-[var(--muted-text)]">
+                    <p className="mt-1 text-xs text-[var(--muted-text)] justify-right">
                       {item.creator.display_name}</p>
+                      <p className="text-black/50">
+                    <RelativeTime timestamp={item.updated_at} />
+                    </p>
                   </div>
                 </motion.div>
               ))}

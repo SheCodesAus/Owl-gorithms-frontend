@@ -1,19 +1,13 @@
 import AvatarGroup from "../UI/AvatarGroup";
 import { Lock } from "lucide-react";
+import RelativeTime from "../UI/RelativeTime";
 
 function DashboardBucketCard({ bucketList, isSelected, onSelect, index }) {
   const completedCount =
     bucketList.items?.filter((item) => item.is_completed).length ?? 0;
   const totalCount = bucketList.items?.length ?? 0;
-  const memberCount = bucketList.members?.length ?? 1;
+  const memberCount = bucketList.memberships?.length ?? 1;
   const memberUsers = bucketList.memberships?.map((membership) => membership.user) || [];
-
-  const updatedLabel = bucketList.updated_at
-    ? new Date(bucketList.updated_at).toLocaleDateString("en-AU", {
-        day: "numeric",
-        month: "short",
-      })
-    : null;
 
   return (
     <button
@@ -41,8 +35,9 @@ function DashboardBucketCard({ bucketList, isSelected, onSelect, index }) {
             <p>
               {totalCount} item{totalCount === 1 ? "" : "s"} · {completedCount} completed
             </p>
-
-            {updatedLabel ? <p>Last updated {updatedLabel}</p> : null}
+            <p className="text-white/50">
+              <RelativeTime timestamp={bucketList.updated_at} />
+              </p>
           </div>
         </div>
 
