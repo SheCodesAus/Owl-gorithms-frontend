@@ -143,11 +143,11 @@ function DashboardFocusPanel({ bucketList, isLoading }) {
                     </p>
 
                     {item.description ? (
-                      <p className="mt-1 text-sm text-[var(--muted-text)]">
+                      <p className="mt-1 text-sm text-[var(--body-text)]">
                         {item.description}
                       </p>
                     ) : null}
-                    <p className="mt-1 text-xs text-[var(--muted-text)] justify-right">
+                    <p className="mt-1 text-sm text-[var(--muted-text)] justify-right">
                       {item.creator.display_name}</p>
                       <p className="text-black/50">
                     <RelativeTime timestamp={item.updated_at} />
