@@ -1,4 +1,4 @@
-import { motion } from "framer-motion";
+import AvatarGroup from "../UI/AvatarGroup";
 import { Lock } from "lucide-react";
 
 function DashboardBucketCard({ bucketList, isSelected, onSelect, index }) {
@@ -6,6 +6,7 @@ function DashboardBucketCard({ bucketList, isSelected, onSelect, index }) {
     bucketList.items?.filter((item) => item.is_completed).length ?? 0;
   const totalCount = bucketList.items?.length ?? 0;
   const memberCount = bucketList.members?.length ?? 1;
+  const memberUsers = bucketList.memberships?.map((membership) => membership.user) || [];
 
   const updatedLabel = bucketList.updated_at
     ? new Date(bucketList.updated_at).toLocaleDateString("en-AU", {
@@ -46,14 +47,7 @@ function DashboardBucketCard({ bucketList, isSelected, onSelect, index }) {
         </div>
 
         <div className="mt-4 flex -space-x-2">
-          {[0, 1, 2].map((avatarIndex) => (
-            <div
-              key={avatarIndex}
-              className="flex h-10 w-10 items-center justify-center rounded-full border-2 border-white bg-white/25 text-sm font-semibold text-white backdrop-blur-sm"
-            >
-              {avatarIndex + 1}
-            </div>
-          ))}
+          <AvatarGroup users={memberUsers} size="xs" max={4} />
         </div>
       </div>
     </button>

@@ -23,7 +23,7 @@ function DashboardCardGrid({
         </p>
 
         <h1 className="brand-font mt-2 text-3xl font-bold tracking-tight text-[var(--heading-text)] sm:text-4xl">
-          {user?.username ? `Let's go, ${user.username}!` : "Let's go!"}
+          {user?.first_name ? `Let's go, ${user.first_name}!` : "Let's go!"}
         </h1>
       </motion.div>
 

@@ -65,9 +65,8 @@ function DashboardFocusPanel({ bucketList, isLoading }) {
     : null;
 
   const ownerName =
-    bucketList.owner?.name ||
-    bucketList.owner?.email ||
-    "Owner";
+    bucketList.owner.display_name ||
+    "";
 
   return (
     <motion.aside
@@ -84,7 +83,7 @@ function DashboardFocusPanel({ bucketList, isLoading }) {
 
           <p className="text-base text-[var(--body-text)] sm:text-lg">
             {bucketList.is_public ? "Public" : "Private"} · {memberCount} member
-            {memberCount === 1 ? "" : "s"} · Created by {ownerName}
+            {memberCount === 1 ? "" : "s"} · by {ownerName}
           </p>
 
           <p className="text-base leading-relaxed text-[var(--body-text)] sm:text-lg">
@@ -143,6 +142,8 @@ function DashboardFocusPanel({ bucketList, isLoading }) {
                         {item.description}
                       </p>
                     ) : null}
+                    <p className="mt-1 text-sm text-[var(--muted-text)]">
+                      {item.creator.display_name}</p>
                   </div>
                 </motion.div>
               ))}
