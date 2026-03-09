@@ -1,0 +1,68 @@
+import { motion } from "framer-motion";
+import { Lock } from "lucide-react";
+
+function DashboardBucketCard({ bucketList, isSelected, onSelect, index }) {
+  const completedCount =
+    bucketList.items?.filter((item) => item.is_completed).length ?? 0;
+  const totalCount = bucketList.items?.length ?? 0;
+  const memberCount = bucketList.members?.length ?? 1;
+
+  const updatedLabel = bucketList.updated_at
+    ? new Date(bucketList.updated_at).toLocaleDateString("en-AU", {
+        day: "numeric",
+        month: "short",
+      })
+    : null;
+
+  return (
+    <motion.button
+      type="button"
+      onClick={() => onSelect(bucketList.id)}
+      className={`dashboard-gradient-card min-h-[170px] p-5 text-left text-white transition sm:min-h-[185px] sm:p-6 ${
+        isSelected ? "ring-2 ring-white/80" : "ring-1 ring-transparent"
+      }`}
+      initial={{ opacity: 0, y: 16 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ delay: 0.05 * index, duration: 0.34 }}
+      whileHover={{ y: -3, scale: 1.01 }}
+      whileTap={{ scale: 0.995 }}
+    >
+      <div className="relative z-10 flex h-full flex-col justify-between">
+        <div className="space-y-3">
+          <h2 className="brand-font text-[1.5rem] font-semibold leading-tight sm:text-[1.8rem]">
+            {bucketList.title}
+          </h2>
+
+          <div className="space-y-2 text-sm text-white/92 sm:text-base">
+            <div className="flex items-center gap-2">
+              {!bucketList.is_public ? <Lock size={16} /> : null}
+              <span>
+                {bucketList.is_public ? "Public" : "Private"} · {memberCount} member
+                {memberCount === 1 ? "" : "s"}
+              </span>
+            </div>
+
+            <p>
+              {totalCount} item{totalCount === 1 ? "" : "s"} · {completedCount} completed
+            </p>
+
+            {updatedLabel ? <p>Last updated {updatedLabel}</p> : null}
+          </div>
+        </div>
+
+        <div className="mt-4 flex -space-x-2">
+          {[0, 1, 2].map((avatarIndex) => (
+            <div
+              key={avatarIndex}
+              className="flex h-10 w-10 items-center justify-center rounded-full border-2 border-white bg-white/25 text-sm font-semibold text-white backdrop-blur-sm"
+            >
+              {avatarIndex + 1}
+            </div>
+          ))}
+        </div>
+      </div>
+    </motion.button>
+  );
+}
+
+export default DashboardBucketCard;

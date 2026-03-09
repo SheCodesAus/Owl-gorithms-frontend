@@ -1,14 +1,11 @@
 import { useEffect, useMemo, useState } from "react";
+import { motion } from "framer-motion";
 import { useBucketLists } from "../../hooks/useBucketLists";
-import NotificationsBanner from "./NotificationsBanner";
-import DashboardHeader from "./DashboardHeader";
-import BucketListGrid from "./BucketListGrid";
-import BucketListPreview from "./BucketListPreview";
-import DashboardEmptyState from "./DashboardEmptyState";
-import DashboardLoadingState from "./DashboardLoadingState";
-import DashboardErrorState from "./DashboardErrorState";
+import DashboardBanner from "./DashboardBanner";
+import DashboardCardGrid from "./DashboardCardGrid";
+import DashboardFocusPanel from "./DashboardFocusPanel";
 
-function Dashboard({ user, setUser }) {
+function Dashboard({ user }) {
   const {
     bucketLists,
     isLoading,
@@ -40,37 +37,31 @@ function Dashboard({ user, setUser }) {
   }, [bucketLists, selectedListId]);
 
   return (
-    <div className="page-shell">
-      <div className="page-width space-y-6">
-        <NotificationsBanner />
+    <motion.div
+      className="flex flex-col gap-6 lg:gap-7"
+      initial={{ opacity: 0, y: 12 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.35, ease: "easeOut" }}
+    >
+      <DashboardBanner />
 
-        <section className="page-panel p-5 sm:p-6 lg:p-7">
-          {isLoading ? (
-            <DashboardLoadingState />
-          ) : bucketListsError ? (
-            <DashboardErrorState
-              message={bucketListsError}
-              onRetry={loadBucketLists}
-            />
-          ) : !bucketLists.length ? (
-            <DashboardEmptyState />
-          ) : (
-            <div className="grid gap-6 lg:grid-cols-[1.05fr_0.95fr] lg:items-start">
-              <div className="space-y-5">
-                <DashboardHeader user={user} />
-                <BucketListGrid
-                  bucketLists={bucketLists}
-                  selectedListId={selectedListId}
-                  onSelectList={setSelectedListId}
-                />
-              </div>
+      <section className="grid gap-6 xl:grid-cols-[1.7fr_1fr]">
+        <DashboardCardGrid
+          user={user}
+          bucketLists={bucketLists}
+          selectedListId={selectedListId}
+          onSelectList={setSelectedListId}
+          isLoading={isLoading}
+          error={bucketListsError}
+          onRetry={loadBucketLists}
+        />
 
-              <BucketListPreview bucketList={selectedList} />
-            </div>
-          )}
-        </section>
-      </div>
-    </div>
+        <DashboardFocusPanel
+          bucketList={selectedList}
+          isLoading={isLoading}
+        />
+      </section>
+    </motion.div>
   );
 }
 
