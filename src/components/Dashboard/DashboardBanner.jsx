@@ -13,7 +13,7 @@ function DashboardBanner() {
         <span className="h-8 w-8 shrink-0 rounded-full bg-gradient-to-br from-[#ff9a6c] to-[#ff5ea8]" />
 
         <div className="flex min-w-0 items-center gap-2">
-          <h2 className="truncate text-lg font-semibold sm:text-2xl lg:text-[1.7rem]">
+          <h2 className="truncate font-semibold sm:text-xl lg:text-xl">
             3 New Notifications
           </h2>
           <ChevronRight className="shrink-0" size={20} />

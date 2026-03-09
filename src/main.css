@@ -138,12 +138,12 @@ h6,
   position: relative;
   overflow: hidden;
   border-radius: 1.5rem;
-  border: 1px solid rgba(255, 255, 255, 0.18);
+  border: 1px solid rgba(255, 255, 255, 1);
   background:
     radial-gradient(circle at 85% 18%, rgba(255, 255, 255, 0.22), transparent 14%),
     radial-gradient(circle at 22% 100%, rgba(170, 96, 255, 0.26), transparent 30%),
     linear-gradient(135deg, #5a22b2 0%, #7c37c6 35%, #f07ca6 72%, #ffad87 100%);
-  box-shadow: 0 14px 32px rgba(94, 34, 167, 0.26);
+  box-shadow: 0 14px 32px rgba(94, 34, 167, 0.5);
 }
 
 .dashboard-gradient-card::after {
@@ -164,4 +164,16 @@ h6,
 
 .primary-gradient-button:hover {
   transform: translateY(-1px);
+  cursor: pointer;
+}
+
+.primary-gradient-button-light {
+  background: linear-gradient(90deg, #c9b3ff 0%, #e0b6ff 52%, #ffc3da 100%);
+  color: white;
+  box-shadow: 0 12px 24px rgba(110, 45, 188, 0.28);
+}
+
+.primary-gradient-button-light:hover {
+  transform: translateY(-1px);
+  cursor: pointer;
 }

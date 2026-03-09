@@ -19,11 +19,11 @@ function DashboardCardGrid({
         transition={{ delay: 0.08, duration: 0.3 }}
       >
         <p className="text-sm font-medium uppercase tracking-[0.18em] text-[var(--muted-text)]">
-          Welcome back
+            
         </p>
 
         <h1 className="brand-font mt-2 text-3xl font-bold tracking-tight text-[var(--heading-text)] sm:text-4xl">
-          {user?.username ? `${user.username}'s Dashboard` : "Dashboard"}
+          {user?.username ? `Let's go ${user.username}!` : "Let's go!"}
         </h1>
       </motion.div>
 
@@ -55,18 +55,18 @@ function DashboardCardGrid({
       ) : !bucketLists.length ? (
         <div className="section-card flex min-h-[420px] flex-col items-center justify-center gap-4 p-8 text-center">
           <h2 className="brand-font text-2xl font-semibold text-[var(--heading-text)]">
-            No bucket lists yet
+            Looking pretty empty here. Let's fix that.
           </h2>
 
           <p className="max-w-md text-[var(--muted-text)]">
-            Start your first shared adventure by creating a new bucket list.
+            Is that.. Tumbleweed?
           </p>
 
           <button
             type="button"
-            className="primary-gradient-button rounded-full px-6 py-3 font-semibold"
+            className="primary-gradient-button-light rounded-full px-6 py-3 font-semibold"
           >
-            Create Bucket List
+            <img src="./text_logo_dark.png" width={70}/>
           </button>
         </div>
       ) : (
