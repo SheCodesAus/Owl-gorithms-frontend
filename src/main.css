@@ -1,12 +1,167 @@
+@import url("https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Inter:wght@400;500;600;700&display=swap");
 @import "tailwindcss";
 
-.app-wrapper {
-  min-height: 100vh;
-  display: flex;
-  flex-direction: column;
+/* =========================
+   THEME TOKENS
+========================= */
+:root {
+  --accent: #ff5a5f;
+  --surface: #eeeaf7;
+  --surface-soft: #f7f4fc;
+  --body-text: #241b3d;
+  --heading-text: #312a46;
+  --primary-cta: #6b4eaa;
+  --primary-cta-hover: #5c4198;
+  --cta-text: #ffffff;
+  --muted-text: #6b6880;
+  --dividers: rgba(140, 113, 190, 0.18);
+  --card-border: rgba(255, 255, 255, 0.35);
+  --shadow-soft: 0 20px 60px rgba(39, 16, 76, 0.18);
+  --shadow-deep: 0 24px 80px rgba(23, 8, 49, 0.28);
 }
 
-.main-content {
-  flex: 1;
-  padding-top: 8rem;
+html,
+body,
+#root {
+  min-height: 100%;
+}
+
+body {
+  margin: 0;
+  font-family: "Inter", sans-serif;
+  color: var(--body-text);
+  background: #2a0f52;
+}
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6,
+.brand-font {
+  font-family: "Space Grotesk", sans-serif;
+}
+
+/* =========================
+   REUSABLE APP LAYERS
+========================= */
+.main-background {
+  min-height: 100vh;
+  background:
+    radial-gradient(circle at 15% 20%, rgba(255, 154, 214, 0.22), transparent 22%),
+    radial-gradient(circle at 85% 18%, rgba(255, 191, 120, 0.16), transparent 18%),
+    radial-gradient(circle at 82% 82%, rgba(204, 160, 255, 0.18), transparent 22%),
+    linear-gradient(145deg, #2d1157 0%, #3a166f 38%, #5926a2 100%);
+  position: relative;
+  overflow: hidden;
+}
+
+.main-background::before,
+.main-background::after {
+  content: "";
+  position: absolute;
+  border-radius: 999px;
+  filter: blur(70px);
+  pointer-events: none;
+}
+
+.main-background::before {
+  width: 22rem;
+  height: 22rem;
+  left: -5rem;
+  bottom: -4rem;
+  background: rgba(255, 196, 236, 0.22);
+}
+
+.main-background::after {
+  width: 18rem;
+  height: 18rem;
+  right: 4rem;
+  top: 3rem;
+  background: rgba(255, 171, 111, 0.18);
+}
+
+.app-shell {
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.28), rgba(255, 255, 255, 0.12)),
+    var(--surface);
+  border: 1px solid rgba(255, 255, 255, 0.4);
+  box-shadow: var(--shadow-deep);
+  border-radius: 2rem;
+  backdrop-filter: blur(10px);
+  overflow: hidden;
+}
+
+.app-navbar {
+  background:
+    radial-gradient(circle at 75% 25%, rgba(255, 147, 178, 0.24), transparent 22%),
+    radial-gradient(circle at 82% 38%, rgba(255, 215, 145, 0.12), transparent 16%),
+    linear-gradient(135deg, #261050 0%, #38156c 48%, #512180 100%);
+  color: white;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.12);
+}
+
+.glass-chip {
+  background: rgba(58, 25, 104, 0.85);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.08);
+  backdrop-filter: blur(8px);
+}
+
+.glass-chip-light {
+  background: rgba(197, 180, 219, 0.5);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.08);
+  backdrop-filter: blur(8px);
+}
+
+.section-card {
+  background: rgba(255, 255, 255, 0.5);
+  border: 1px solid rgba(255, 255, 255, 0.6);
+  box-shadow: var(--shadow-soft);
+  border-radius: 1.75rem;
+}
+
+.section-card-dark {
+  background: rgba(107, 78, 170, 0.5);
+  border: 1px solid rgba(255, 255, 255, 1);
+  box-shadow: var(--shadow-deep);
+  border-radius: 1.75rem;
+}
+
+.soft-divider {
+  border-color: var(--dividers);
+}
+
+.dashboard-gradient-card {
+  position: relative;
+  overflow: hidden;
+  border-radius: 1.5rem;
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  background:
+    radial-gradient(circle at 85% 18%, rgba(255, 255, 255, 0.22), transparent 14%),
+    radial-gradient(circle at 22% 100%, rgba(170, 96, 255, 0.26), transparent 30%),
+    linear-gradient(135deg, #5a22b2 0%, #7c37c6 35%, #f07ca6 72%, #ffad87 100%);
+  box-shadow: 0 14px 32px rgba(94, 34, 167, 0.26);
+}
+
+.dashboard-gradient-card::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background:
+    radial-gradient(circle at 78% 28%, rgba(255, 255, 255, 0.3), transparent 10%),
+    linear-gradient(160deg, transparent 30%, rgba(255, 255, 255, 0.1) 45%, transparent 60%);
+  pointer-events: none;
+}
+
+.primary-gradient-button {
+  background: linear-gradient(90deg, #6326c9 0%, #8b37d0 52%, #e45f9c 100%);
+  color: white;
+  box-shadow: 0 12px 24px rgba(110, 45, 188, 0.28);
+}
+
+.primary-gradient-button:hover {
+  transform: translateY(-1px);
 }
