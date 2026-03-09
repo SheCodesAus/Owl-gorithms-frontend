@@ -1,4 +1,5 @@
 import { motion } from "framer-motion";
+import Avatar from "../UI/Avatar";
 
 function DashboardFocusPanel({ bucketList, isLoading }) {
   if (isLoading) {
@@ -126,7 +127,10 @@ function DashboardFocusPanel({ bucketList, isLoading }) {
                   transition={{ delay: 0.26 + index * 0.08, duration: 0.28 }}
                 >
                   <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-[linear-gradient(135deg,#7c37c6_0%,#f07ca6_100%)] text-sm font-semibold text-white sm:h-12 sm:w-12">
-                    {index + 1}
+                    <Avatar
+                    user={item.creator}
+                    size="md"
+                    />
                   </div>
 
                   <div>
@@ -142,7 +146,7 @@ function DashboardFocusPanel({ bucketList, isLoading }) {
                         {item.description}
                       </p>
                     ) : null}
-                    <p className="mt-1 text-sm text-[var(--muted-text)]">
+                    <p className="mt-1 text-xs text-[var(--muted-text)]">
                       {item.creator.display_name}</p>
                   </div>
                 </motion.div>
