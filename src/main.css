@@ -86,7 +86,7 @@ h6,
   background:
     linear-gradient(180deg, rgba(255, 255, 255, 0.28), rgba(255, 255, 255, 0.12)),
     var(--surface);
-  border: 1px solid rgba(255, 255, 255, 0.4);
+  border: 1px solid rgba(255, 255, 255, 0.25);
   box-shadow: var(--shadow-deep);
   border-radius: 2rem;
   backdrop-filter: blur(10px);
@@ -100,6 +100,7 @@ h6,
     linear-gradient(135deg, #261050 0%, #38156c 48%, #512180 100%);
   color: white;
   border-bottom: 1px solid rgba(255, 255, 255, 0.12);
+  box-shadow: 0 8px 24px rgba(33, 12, 70, 0.35);
 }
 
 .glass-chip {
@@ -119,15 +120,34 @@ h6,
 .section-card {
   background: rgba(255, 255, 255, 0.5);
   border: 1px solid rgba(255, 255, 255, 0.6);
-  box-shadow: var(--shadow-soft);
+  box-shadow:
+    0 8px 20px rgba(0,0,0,0.06),
+    0 2px 6px rgba(0,0,0,0.04);
   border-radius: 1.75rem;
+  transition: transform 0.25s ease, box-shadow 0.25s ease;
 }
 
 .section-card-dark {
   background: rgba(107, 78, 170, 0.5);
-  border: 1px solid rgba(255, 255, 255, 1);
-  box-shadow: var(--shadow-deep);
-  border-radius: 1.75rem;
+  border: 1px solid rgba(255, 255, 255, 0.6);
+  box-shadow:
+    0 8px 20px rgba(0,0,0,0.06),
+    0 2px 6px rgba(0,0,0,0.04);
+  transition: transform 0.25s ease, box-shadow 0.25s ease;
+}
+
+.section-card:hover {
+  transform: translateY(-4px);
+  box-shadow:
+    0 14px 30px rgba(0,0,0,0.08),
+    0 6px 12px rgba(0,0,0,0.05);
+}
+
+.section-card-dark:hover {
+  transform: translateY(-4px);
+  box-shadow:
+    0 14px 30px rgba(0,0,0,0.08),
+    0 6px 12px rgba(0,0,0,0.05);
 }
 
 .soft-divider {
@@ -143,27 +163,29 @@ h6,
     radial-gradient(circle at 85% 18%, rgba(255, 255, 255, 0.22), transparent 14%),
     radial-gradient(circle at 22% 100%, rgba(170, 96, 255, 0.26), transparent 30%),
     linear-gradient(135deg, #5a22b2 0%, #7c37c6 35%, #f07ca6 72%, #ffad87 100%);
-  box-shadow: 0 14px 32px rgba(94, 34, 167, 0.5);
+  box-shadow:
+    0 8px 20px rgba(0,0,0,0.06),
+    0 2px 6px rgba(0,0,0,0.04);
+  transition: transform 0.25s ease, box-shadow 0.25s ease;
 }
 
-.dashboard-gradient-card::after {
-  content: "";
-  position: absolute;
-  inset: 0;
-  background:
-    radial-gradient(circle at 78% 28%, rgba(255, 255, 255, 0.3), transparent 10%),
-    linear-gradient(160deg, transparent 30%, rgba(255, 255, 255, 0.1) 45%, transparent 60%);
-  pointer-events: none;
+.dashboard-gradient-card:hover {
+  transform: translateY(-4px);
+  box-shadow:
+    0 14px 30px rgba(0,0,0,0.08),
+    0 6px 12px rgba(0,0,0,0.05);
 }
 
 .primary-gradient-button {
   background: linear-gradient(90deg, #6326c9 0%, #8b37d0 52%, #e45f9c 100%);
   color: white;
   box-shadow: 0 12px 24px rgba(110, 45, 188, 0.28);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
 }
 
 .primary-gradient-button:hover {
-  transform: translateY(-1px);
+  transform: translateY(-2px);
+  box-shadow: 0 18px 32px rgba(110, 45, 188, 0.32);
   cursor: pointer;
 }
 
@@ -171,9 +193,11 @@ h6,
   background: linear-gradient(90deg, #c9b3ff 0%, #e0b6ff 52%, #ffc3da 100%);
   color: white;
   box-shadow: 0 12px 24px rgba(110, 45, 188, 0.28);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
 }
 
 .primary-gradient-button-light:hover {
-  transform: translateY(-1px);
+  transform: translateY(-2px);
+  box-shadow: 0 18px 32px rgba(110, 45, 188, 0.32);
   cursor: pointer;
 }

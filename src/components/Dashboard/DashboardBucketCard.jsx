@@ -15,17 +15,12 @@ function DashboardBucketCard({ bucketList, isSelected, onSelect, index }) {
     : null;
 
   return (
-    <motion.button
+    <button
       type="button"
       onClick={() => onSelect(bucketList.id)}
-      className={`dashboard-gradient-card min-h-[170px] p-5 text-left text-white transition sm:min-h-[185px] sm:p-6 ${
+      className={`dashboard-gradient-card min-h-[170px] p-5 text-left text-white sm:min-h-[185px] sm:p-6 cursor-pointer ${
         isSelected ? "ring-2 ring-white/80" : "ring-1 ring-transparent"
       }`}
-      initial={{ opacity: 0, y: 16 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ delay: 0.05 * index, duration: 0.34 }}
-      whileHover={{ y: -3, scale: 1.01 }}
-      whileTap={{ scale: 0.995 }}
     >
       <div className="relative z-10 flex h-full flex-col justify-between">
         <div className="space-y-3">
@@ -61,7 +56,7 @@ function DashboardBucketCard({ bucketList, isSelected, onSelect, index }) {
           ))}
         </div>
       </div>
-    </motion.button>
+    </button>
   );
 }
 

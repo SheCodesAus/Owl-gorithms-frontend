@@ -45,8 +45,8 @@ function NavBar() {
         [
             "rounded-full px-4 py-2 text-sm font-semibold transition-all duration-200",
             isActive
-                ? "bg-white/16 text-white shadow-[inset_0_1px_0_rgba(255,255,255,0.14)]"
-                : "text-white/85 hover:bg-white/10 hover:text-white",
+                ? "text-white bg-[var(--accent)]/70 shadow-white/70"
+                : "text-white hover:bg-[var(--accent)]/30 hover:text-white",
         ].join(" ");
 
     const mobileLinkClass = ({ isActive }) =>

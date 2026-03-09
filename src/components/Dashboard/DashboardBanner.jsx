@@ -4,7 +4,7 @@ import { ChevronRight } from "lucide-react";
 function DashboardBanner() {
   return (
     <motion.section
-      className="dashboard-gradient-card flex items-center justify-between gap-4 px-4 py-4 sm:px-5"
+      className="dashboard-gradient-card flex items-center justify-between gap-4 px-4 py-3 sm:px-5"
       initial={{ opacity: 0, y: 14 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ delay: 0.05, duration: 0.35 }}
@@ -13,7 +13,7 @@ function DashboardBanner() {
         <span className="h-8 w-8 shrink-0 rounded-full bg-gradient-to-br from-[#ff9a6c] to-[#ff5ea8]" />
 
         <div className="flex min-w-0 items-center gap-2">
-          <h2 className="truncate font-semibold sm:text-xl lg:text-xl">
+          <h2 className="truncate font-semibold sm:text-lg lg:text-xl">
             3 New Notifications
           </h2>
           <ChevronRight className="shrink-0" size={20} />

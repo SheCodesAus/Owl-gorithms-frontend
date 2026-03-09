@@ -77,7 +77,7 @@ function DashboardFocusPanel({ bucketList, isLoading }) {
       transition={{ delay: 0.18, duration: 0.35 }}
     >
       <div className="flex h-full flex-col">
-        <div className="space-y-3 border-b pb-5 soft-divider">
+        <div className="space-y-3 border-b pb-5">
           <h2 className="brand-font text-[1.7rem] font-semibold text-[var(--heading-text)] sm:text-[2rem]">
             {bucketList.title}
           </h2>
@@ -154,14 +154,12 @@ function DashboardFocusPanel({ bucketList, isLoading }) {
           )}
         </div>
 
-        <motion.button
+        <button
           type="button"
           className="primary-gradient-button mt-6 rounded-full px-6 py-3 text-base font-semibold transition sm:text-lg"
-          whileHover={{ y: -2 }}
-          whileTap={{ scale: 0.985 }}
         >
           Open Bucket List
-        </motion.button>
+        </button>
       </div>
     </motion.aside>
   );

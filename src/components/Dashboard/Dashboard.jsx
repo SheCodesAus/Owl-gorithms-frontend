@@ -56,10 +56,12 @@ function Dashboard({ user }) {
           onRetry={loadBucketLists}
         />
 
+        <div className="section-card">
         <DashboardFocusPanel
           bucketList={selectedList}
           isLoading={isLoading}
         />
+        </div>
       </section>
     </motion.div>
   );
