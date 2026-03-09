@@ -43,7 +43,9 @@ function Dashboard({ user }) {
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.35, ease: "easeOut" }}
     >
+      <section className="section-card">
       <DashboardBanner />
+      </section>
 
       <section className="grid gap-6 xl:grid-cols-[1.7fr_1fr]">
         <DashboardCardGrid
@@ -55,14 +57,14 @@ function Dashboard({ user }) {
           error={bucketListsError}
           onRetry={loadBucketLists}
         />
+        </section>
 
-        <div className="section-card">
+        <section className="section-card">
         <DashboardFocusPanel
           bucketList={selectedList}
           isLoading={isLoading}
         />
-        </div>
-      </section>
+        </section>
     </motion.div>
   );
 }

@@ -1,5 +1,5 @@
 import { motion } from "framer-motion";
-import { ChevronRight } from "lucide-react";
+import { ChevronRight, ChevronsDown } from "lucide-react";
 
 function DashboardBanner() {
   return (
@@ -22,11 +22,11 @@ function DashboardBanner() {
 
       <motion.button
         type="button"
-        className="shrink-0 rounded-2xl bg-white/65 px-4 py-2 text-sm font-semibold text-[#4c2f6e] backdrop-blur-sm transition hover:bg-white/80 sm:px-5 sm:text-base"
+        className="shrink-0 rounded-2xl bg-white/65 px-4 py-2 text-sm font-semibold text-[#4c2f6e] backdrop-blur-sm transition hover:bg-white/80 sm:px-5 sm:text-base cursor-pointer"
         whileHover={{ y: -1 }}
         whileTap={{ scale: 0.98 }}
       >
-        View All
+        <ChevronsDown size={20} />
       </motion.button>
     </motion.section>
   );
