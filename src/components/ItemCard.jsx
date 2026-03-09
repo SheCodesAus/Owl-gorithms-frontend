@@ -1,5 +1,3 @@
-import { useState } from "react";
-import { Link } from "react-router-dom";          
 import "./ItemCard.css";
 
 function ItemCard({ item, onSelect }) {
@@ -8,14 +6,14 @@ function ItemCard({ item, onSelect }) {
       className={`item-card status-${item.status}`}
       onClick={() => onSelect(item)}
     >
-      <div className="item-card-header">
+      <div className="item-card-content">
 
         <h3 className="item-title">
           {item.title}
         </h3>
 
-        <span className="status-badge">
-          {item.status}
+        <span className="status-pill">
+          {item.status.replace("_", " ")}
         </span>
 
       </div>
@@ -24,5 +22,3 @@ function ItemCard({ item, onSelect }) {
 }
 
 export default ItemCard;
-
-

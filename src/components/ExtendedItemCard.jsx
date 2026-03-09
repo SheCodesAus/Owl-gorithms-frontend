@@ -1,12 +1,13 @@
 import "./ExtendedItemCard.css";
 
-function ExtendedItemCard({ item, onClose, onComplete }) {
+function ExtendedItemCard({ item, onClose }) {
+
   return (
-    <div className="expanded-card">
+    <div className="extended-item-card">
 
-      <div className="expanded-header">
+      <div className="extended-header">
 
-        <h2 className="expanded-title">
+        <h2 className="extended-title">
           {item.title}
         </h2>
 
@@ -14,30 +15,30 @@ function ExtendedItemCard({ item, onClose, onComplete }) {
           className="close-button"
           onClick={onClose}
         >
-          Close
+          Back
         </button>
 
       </div>
 
-      <span className={`status-badge status-${item.status}`}>
-        {item.status}
+      <span className={`status-pill status-${item.status}`}>
+        {item.status.replace("_", " ")}
       </span>
 
       {item.description && (
-        <p className="expanded-description">
+        <p className="item-description">
           {item.description}
         </p>
       )}
 
       <div className="vote-section">
 
-        <span>
-          👍 {item.upvotes || 0}
-        </span>
+        <div className="vote">
+          👍 {item.upvotes}
+        </div>
 
-        <span>
-          👎 {item.downvotes || 0}
-        </span>
+        <div className="vote">
+          👎 {item.downvotes}
+        </div>
 
       </div>
 
@@ -56,15 +57,6 @@ function ExtendedItemCard({ item, onClose, onComplete }) {
         )}
 
       </div>
-
-      {item.status === "locked_in" && (
-        <button
-          className="complete-button"
-          onClick={() => onComplete(item.id)}
-        >
-          ✓ Mark as Complete
-        </button>
-      )}
 
     </div>
   );

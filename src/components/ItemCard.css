@@ -1,64 +1,65 @@
 .item-card {
   background: var(--surface);
-  border: 1px solid var(--dividers);
-  border-radius: var(--radius-md);
-
-  padding: var(--space-md);
-  margin-bottom: var(--space-md);
-
+  border: 1px solid rgba(167, 139, 250, 0.2);
+  border-radius: 16px;
+  padding: 20px;
+  margin-bottom: 16px;
   cursor: pointer;
-
-  transition: transform 0.15s var(--ease),
-              box-shadow 0.15s var(--ease),
-              border-color 0.15s var(--ease);
+  transition: all 0.2s ease;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
 }
 
 .item-card:hover {
-  transform: translateY(-2px);
-  border-color: var(--purple);
-  box-shadow: 0 8px 18px rgba(15,23,42,0.08);
+  transform: translateY(-3px);
+  box-shadow: 0 8px 24px rgba(107, 78, 170, 0.12);
+  border-color: var(--dividers);
 }
 
-.item-card-header {
+.item-card-content {
   display: flex;
   justify-content: space-between;
   align-items: center;
 }
 
 .item-title {
-  font-family: var(--font-heading);
-  font-size: 1.05rem;
+  font-family: 'Raleway', sans-serif;
+  font-size: 16px;
+  font-weight: 700;
   color: var(--body-text);
   margin: 0;
 }
 
-/* STATUS BADGES */
+/* STATUS */
 
-.status-badge {
-  font-size: 0.75rem;
-  padding: 4px 12px;
-  border-radius: var(--radius-pill);
+.status-pill {
+  font-family: 'Raleway', sans-serif;
+  font-size: 11px;
+  font-weight: 600;
+  padding: 4px 8px;
+  border-radius: 6px;
   text-transform: capitalize;
+  letter-spacing: 0.5px;
 }
 
-/* Status colours */
+/* STATUS COLORS */
 
-.status-proposed .status-badge {
-  background: var(--lavender);
-  color: var(--navy);
+.status-proposed .status-pill {
+  background: var(--surface);
+  color: var(--body-text);
+  border: 1px solid var(--dividers);
 }
 
-.status-locked_in .status-badge {
-  background: var(--teal);
-  color: var(--white);
+.status-locked_in .status-pill {
+  background: var(--primary-cta);
+  color: var(--cta-text);
 }
 
-.status-complete .status-badge {
-  background: var(--primary);
-  color: var(--white);
-}
-
-.status-cancelled .status-badge {
+.status-complete .status-pill {
   background: var(--accent);
-  color: var(--white);
+  color: var(--cta-text);
+}
+
+.status-cancelled .status-pill {
+  background: var(--muted-text);
+  color: var(--cta-text);
 }

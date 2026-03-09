@@ -1,63 +1,110 @@
-.expanded-card {
+.extended-item-card {
   background: var(--surface);
-  border: 1px solid var(--dividers);
-  border-radius: var(--radius-lg);
-
-  padding: var(--space-lg);
-  margin-top: var(--space-lg);
+  border: 1px solid rgba(167, 139, 250, 0.2);
+  border-radius: 16px;
+  padding: 28px;
+  max-width: 600px;
+  box-shadow: 0 4px 16px rgba(107, 78, 170, 0.08);
 }
 
-.expanded-header {
+.extended-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
+  margin-bottom: 16px;
 }
 
-.expanded-title {
-  font-family: var(--font-heading);
+.extended-title {
+  font-family: 'Raleway', sans-serif;
+  font-size: 24px;
+  font-weight: 700;
   color: var(--body-text);
   margin: 0;
+  letter-spacing: -0.5px;
 }
 
 .close-button {
-  background: none;
   border: none;
-  color: var(--primary);
+  background: none;
+  color: var(--primary-cta);
   cursor: pointer;
+  font-family: 'Raleway', sans-serif;
+  font-weight: 600;
+  font-size: 14px;
+  padding: 8px 16px;
+  border-radius: 8px;
+  transition: background 0.2s ease;
 }
 
-.expanded-description {
-  margin-top: var(--space-md);
+.close-button:hover {
+  background: rgba(107, 78, 170, 0.1);
+}
+
+.status-pill {
+  font-family: 'Raleway', sans-serif;
+  font-size: 12px;
+  font-weight: 600;
+  padding: 6px 12px;
+  border-radius: 8px;
+  text-transform: capitalize;
+  display: inline-block;
+  margin-bottom: 16px;
+}
+
+.status-proposed .status-pill {
+  background: var(--surface);
   color: var(--body-text);
-  font-family: var(--font-body);
+  border: 1px solid var(--dividers);
+}
+
+.status-locked_in .status-pill {
+  background: var(--primary-cta);
+  color: var(--cta-text);
+}
+
+.status-complete .status-pill {
+  background: var(--accent);
+  color: var(--cta-text);
+}
+
+.status-cancelled .status-pill {
+  background: var(--muted-text);
+  color: var(--cta-text);
+}
+
+.item-description {
+  font-family: 'Raleway', sans-serif;
+  font-size: 15px;
+  line-height: 1.6;
+  color: var(--body-text);
+  margin-bottom: 20px;
 }
 
 .vote-section {
-  margin-top: var(--space-md);
   display: flex;
-  gap: var(--space-md);
-  font-size: 0.95rem;
+  gap: 16px;
+  margin-bottom: 20px;
+}
+
+.vote {
+  font-family: 'Raleway', sans-serif;
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--muted-text);
+  display: flex;
+  align-items: center;
+  gap: 4px;
 }
 
 .meta {
-  margin-top: var(--space-md);
-  font-size: 0.85rem;
+  font-family: 'Raleway', sans-serif;
+  font-size: 13px;
+  color: var(--muted-text);
+  line-height: 1.5;
+}
+
+.meta p {
+  margin: 4px 0;
+}
   color: var(--muted);
-}
-
-.complete-button {
-  margin-top: var(--space-lg);
-  background: var(--primary);
-  color: var(--white);
-
-  border: none;
-  padding: var(--space-sm) var(--space-md);
-  border-radius: var(--radius-pill);
-
-  cursor: pointer;
-  transition: background 0.15s var(--ease);
-}
-
-.complete-button:hover {
-  background: var(--primary-dark);
 }
