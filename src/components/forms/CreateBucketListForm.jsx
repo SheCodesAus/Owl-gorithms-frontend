@@ -61,7 +61,7 @@ const renderFieldError = (field) => {
           value={formData.title}
           onChange={handleChange}
           className="form-input"
-          placeholder="e.g. 2026 travel goals"
+          placeholder="Trip to Europe"
           required
         />
         {renderFieldError("title")}
@@ -77,7 +77,7 @@ const renderFieldError = (field) => {
           value={formData.description}
           onChange={handleChange}
           className="form-textarea"
-          placeholder="What kind of experiences belong in this list?"
+          placeholder="It's a big place. What will we do?"
         />
         {renderFieldError("description")}
       </div>
@@ -91,7 +91,7 @@ const renderFieldError = (field) => {
               Make this list public
             </p>
             <p className="mt-1 text-sm text-[var(--muted-text)]">
-              Anyone with access can view this list.
+              Solo or squad - your call 🚀
             </p>
           </div>
 
@@ -116,7 +116,7 @@ const renderFieldError = (field) => {
               Allow viewers to vote
             </p>
             <p className="mt-1 text-sm text-[var(--muted-text)]">
-              Let viewers vote on ideas without editing the list.
+              Want viewers to do more than stare? Let them cast votes 👍
             </p>
           </div>
 
@@ -133,19 +133,33 @@ const renderFieldError = (field) => {
       </div>
 
       {/* Deadline Toggle */}
-      <div className="flex items-center gap-3">
-        <input
-        type="checkbox"
-        name="has_deadline"
-        checked={formData.has_deadline}
-        onChange={handleChange}
-        />
-        <label className="form-label">Add Deadline?</label>
+      <div className="form-field">
+        <span className="form-label">DEADLINE</span>
+
+        <label className="glass-chip-light flex items-center justify-between rounded-2xl px-4 py-3">
+          <div>
+            <p className="font-semibold text-[var(--heading-text)]">
+              Add deadline
+            </p>
+            <p className="mt-1 text-sm text-[var(--muted-text)]">
+              Collect ideas and votes from friends. When the deadline ends, the top activities are frozen 🥶
+            </p>
+          </div>
+
+          <input
+            id="has_deadline"
+            name="has_deadline"
+            type="checkbox"
+            checked={formData.has_deadline}
+            onChange={handleChange}
+            className="h-5 w-5 accent-[var(--primary-cta)]"
+          />
+        </label>
+            {renderFieldError("allow_viewer_voting")}
       </div>
 
       {formData.has_deadline && (
         <div className="relative">
-            <label className="form-label">DEADLINE</label>
             <input
             type="datetime-local"
             name="decision_deadline"
