@@ -15,5 +15,5 @@ export function getRelativeTime(updatedAt) {
     if (diffMinutes < 60) return rtf.format(-diffMinutes, "minute");
     if (diffHours < 24) return rtf.format(-diffHours, "hour");
 
-    return ref.format(-diffDays, "day");
+    return rtf.format(-diffDays, "day");
 }
