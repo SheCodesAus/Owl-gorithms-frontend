@@ -151,7 +151,7 @@ const renderFieldError = (field) => {
             name="decision_deadline"
             value={formData.decision_deadline}
             onChange={handleChange}
-            className="w-full bg-gray-100 rounded-xl px-4 py-3 text-gray-600"
+            className="form-input"
             />
         </div>
       )}

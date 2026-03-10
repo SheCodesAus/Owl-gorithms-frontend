@@ -9,6 +9,7 @@ function DashboardCardGrid({
   isLoading,
   error,
   onRetry,
+  onCreateClick,
 }) {
   return (
     <div className="space-y-5">
@@ -65,6 +66,7 @@ function DashboardCardGrid({
           <button
             type="button"
             className="primary-gradient-button-light rounded-full px-6 py-3 font-semibold"
+            onClick={onCreateClick}
           >
             <img src="./text_logo_dark.png" width={70}/>
           </button>
