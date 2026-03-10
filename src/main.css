@@ -201,3 +201,160 @@ h6,
   box-shadow: 0 18px 32px rgba(110, 45, 188, 0.32);
   cursor: pointer;
 }
+
+/* =========================
+   MODALS + FORM ELEMENTS
+========================= */
+.modal-backdrop {
+  background: rgba(24, 10, 46, 0.52);
+  backdrop-filter: blur(10px);
+}
+
+.modal-shell {
+  position: relative;
+  overflow: hidden;
+  border-radius: 2rem;
+  border: 1px solid rgba(255, 255, 255, 0.42);
+  background:
+    radial-gradient(circle at top right, rgba(255, 255, 255, 0.45), transparent 18%),
+    linear-gradient(180deg, rgba(255, 255, 255, 0.82), rgba(247, 244, 252, 0.92));
+  box-shadow:
+    0 24px 80px rgba(23, 8, 49, 0.32),
+    0 8px 24px rgba(39, 16, 76, 0.12);
+  backdrop-filter: blur(14px);
+}
+
+.modal-shell::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background:
+    radial-gradient(circle at 85% 15%, rgba(255, 192, 222, 0.2), transparent 16%),
+    radial-gradient(circle at 10% 100%, rgba(183, 143, 255, 0.12), transparent 24%);
+}
+
+.modal-close-button {
+  background: rgba(255, 255, 255, 0.76);
+  border: 1px solid rgba(255, 255, 255, 0.55);
+  box-shadow: 0 8px 20px rgba(39, 16, 76, 0.1);
+  transition: transform 0.2s ease, background 0.2s ease, box-shadow 0.2s ease;
+}
+
+.modal-close-button:hover {
+  transform: translateY(-1px);
+  background: rgba(255, 255, 255, 0.94);
+  box-shadow: 0 12px 24px rgba(39, 16, 76, 0.14);
+  cursor: pointer;
+}
+
+.form-stack {
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+}
+
+.form-field {
+  display: flex;
+  flex-direction: column;
+  gap: 0.55rem;
+}
+
+.form-label {
+  font-family: "Space Grotesk", sans-serif;
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: var(--heading-text);
+  letter-spacing: 0.01em;
+}
+
+.form-helper-text {
+  font-size: 0.88rem;
+  color: var(--muted-text);
+  line-height: 1.45;
+}
+
+.form-error-text {
+  font-size: 0.88rem;
+  font-weight: 600;
+  color: #b42318;
+  line-height: 1.45;
+}
+
+.form-input,
+.form-textarea,
+.form-select {
+  width: 100%;
+  border-radius: 1.1rem;
+  border: 1px solid rgba(126, 92, 182, 0.18);
+  background: rgba(255, 255, 255, 0.92);
+  color: var(--body-text);
+  font-size: 0.98rem;
+  font-family: "Inter", sans-serif;
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.7),
+    0 6px 18px rgba(69, 36, 112, 0.06);
+  transition:
+    border-color 0.2s ease,
+    box-shadow 0.2s ease,
+    background 0.2s ease;
+}
+
+.form-input,
+.form-select {
+  min-height: 3.25rem;
+  padding: 0.9rem 1rem;
+}
+
+.form-textarea {
+  min-height: 8rem;
+  padding: 1rem;
+  resize: vertical;
+}
+
+.form-input::placeholder,
+.form-textarea::placeholder {
+  color: #8c86a3;
+}
+
+.form-input:hover,
+.form-textarea:hover,
+.form-select:hover {
+  border-color: rgba(107, 78, 170, 0.28);
+}
+
+.form-input:focus,
+.form-textarea:focus,
+.form-select:focus {
+  outline: none;
+  border-color: rgba(107, 78, 170, 0.65);
+  box-shadow:
+    0 0 0 4px rgba(107, 78, 170, 0.14),
+    0 10px 24px rgba(69, 36, 112, 0.08);
+  background: rgba(255, 255, 255, 0.98);
+}
+
+.form-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.85rem;
+  padding-top: 0.5rem;
+}
+
+.secondary-modal-button {
+  border-radius: 1rem;
+  padding: 0.85rem 1.15rem;
+  font-weight: 700;
+  color: var(--heading-text);
+  background: rgba(197, 180, 219, 0.42);
+  border: 1px solid rgba(255, 255, 255, 0.42);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.1);
+  transition: transform 0.2s ease, background 0.2s ease, box-shadow 0.2s ease;
+}
+
+.secondary-modal-button:hover {
+  transform: translateY(-1px);
+  background: rgba(197, 180, 219, 0.56);
+  box-shadow: 0 10px 22px rgba(39, 16, 76, 0.1);
+  cursor: pointer;
+}
