@@ -1,6 +1,8 @@
 import { useEffect, useMemo, useState } from "react";
 import { motion } from "framer-motion";
 import { useBucketLists } from "../../hooks/useBucketLists";
+import FormModal from "../UI/FormModal";
+import CreateBucketListForm from "../forms/CreateBucketListForm";
 import DashboardBanner from "./DashboardBanner";
 import DashboardCardGrid from "./DashboardCardGrid";
 import DashboardFocusPanel from "./DashboardFocusPanel";
@@ -14,6 +16,8 @@ function Dashboard({ user }) {
   } = useBucketLists();
 
   const [selectedListId, setSelectedListId] = useState(null);
+  const [showCreateModal, setShowCreateModal] = useState(false);
+  const [isCreating, setIsCreating] = useState(false);
 
   useEffect(() => {
     if (!bucketLists.length) {

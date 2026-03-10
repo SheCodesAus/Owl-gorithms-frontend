@@ -3,7 +3,6 @@ import {
     submitVote,
     removeVote,
 } from "../api/votes";
-import { remove } from "three/examples/jsm/libs/tween.module.js";
 
 export function useVotes() {
     const { auth } = useAuth();
