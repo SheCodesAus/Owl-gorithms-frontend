@@ -56,7 +56,7 @@ function DashboardCardGrid({
       ) : !bucketLists.length ? (
         <div className="section-card flex min-h-[320px] flex-col items-center justify-center gap-4 p-8 text-center">
           <h2 className="brand-font text-2xl font-semibold text-[var(--heading-text)]">
-            Looks pretty empty here. Let&apos;s fix that.
+            Looks pretty empty here. Let's fix that.
           </h2>
 
           <p className="max-w-md text-[var(--muted-text)]">
