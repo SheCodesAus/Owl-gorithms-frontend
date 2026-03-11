@@ -1,8 +1,7 @@
+import { Link } from "react-router-dom";
 import { motion } from "framer-motion";
-import DashboardBucketCard from "./DashboardBucketCard";
 
 function DashboardCardGrid({
-  user,
   bucketLists,
   selectedListId,
   onSelectList,
@@ -11,79 +10,65 @@ function DashboardCardGrid({
   onRetry,
   onCreateClick,
 }) {
+  if (isLoading) {
+    return <div className="p-6 text-center text-gray-300">Loading bucket lists...</div>;
+  }
+
+  if (error) {
+    return (
+      <div className="p-6 text-center">
+        <p className="text-red-400 mb-4">Unable to load bucket lists.</p>
+        <button
+          onClick={onRetry}
+          className="primary-gradient-button px-4 py-2 rounded-lg text-white"
+        >
+          Retry
+        </button>
+      </div>
+    );
+  }
+
+  if (!bucketLists.length) {
+    return (
+      <div className="p-6 text-center">
+        <p className="text-gray-300 mb-4">No bucket lists yet.</p>
+        <button
+          onClick={onCreateClick}
+          className="primary-gradient-button px-4 py-2 rounded-lg text-white"
+        >
+          Create your first list
+        </button>
+      </div>
+    );
+  }
+
   return (
-    <div className="space-y-5">
-      <motion.div
-        className="px-1"
-        initial={{ opacity: 0, y: 10 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 0.08, duration: 0.3 }}
-      >
-        <p className="text-sm font-medium uppercase tracking-[0.18em] text-[var(--muted-text)]">
-            
-        </p>
+    <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+      {bucketLists.map((list) => {
+        const isSelected = list.id === selectedListId;
 
-        <h1 className="brand-font mt-2 text-3xl font-bold tracking-tight text-[var(--heading-text)] sm:text-4xl">
-          {user?.first_name ? `Let's go, ${user.first_name}!` : "Let's go!"}
-        </h1>
-      </motion.div>
-
-      {isLoading ? (
-        <div className="section-card flex min-h-[420px] items-center justify-center p-8 text-center">
-          <div className="space-y-3">
-            <div className="mx-auto h-12 w-12 animate-spin rounded-full border-4 border-[#d8d1ee] border-t-[#6b4eaa]" />
-            <p className="text-lg font-medium text-[var(--heading-text)]">
-              Loading your bucket lists...
-            </p>
-          </div>
-        </div>
-      ) : error ? (
-        <div className="section-card flex min-h-[420px] flex-col items-center justify-center gap-4 p-8 text-center">
-          <h2 className="brand-font text-2xl font-semibold text-[var(--heading-text)]">
-            Something went wrong
-          </h2>
-
-          <p className="max-w-md text-[var(--muted-text)]">{error}</p>
-
-          <button
-            type="button"
-            onClick={onRetry}
-            className="primary-gradient-button rounded-full px-6 py-3 font-semibold"
+        return (
+          <Link
+            key={list.id}
+            to={`/bucketlists/${list.id}`}
+            onClick={() => onSelectList(list.id)}
           >
-            Try Again
-          </button>
-        </div>
-      ) : !bucketLists.length ? (
-        <div className="section-card flex min-h-[420px] flex-col items-center justify-center gap-4 p-8 text-center">
-          <h2 className="brand-font text-2xl font-semibold text-[var(--heading-text)]">
-            Looks pretty empty here. Let's fix that.
-          </h2>
-
-          <p className="max-w-md text-[var(--muted-text)]">
-            Is that.. Tumbleweed?
-          </p>
-
-          <button
-            type="button"
-            className="primary-gradient-button-light rounded-full px-6 py-3 font-semibold"
-            onClick={onCreateClick}
-          >
-            <img src="./text_logo_dark.png" width={70}/>
-          </button>
-        </div>
-      ) : (
-        <div className="grid gap-5 sm:grid-cols-2">
-          {bucketLists.map((bucketList, index) => (
-            <DashboardBucketCard
-              key={bucketList.id}
-              bucketList={bucketList}
-              index={index}
-              isSelected={bucketList.id === selectedListId}
-              onSelect={onSelectList}
-            />
-          ))}
-        </div>
-      )}
+            <motion.div
+              whileHover={{ translateY: -4 }}
+              transition={{ duration: 0.25 }}
+              className={`dashboard-gradient-card ${isSelected ? "border-indigo-500" : ""}`}
+            >
+              <h3 className="text-white text-lg font-semibold mb-2">{list.title}</h3>
+              <p className="text-white text-sm mb-2">{list.items?.length || 0} items</p>
+              {list.items?.length > 0 && (
+                <p className="text-white text-xs">
+                  {list.items.filter((i) => i.status === "completed").length} completed / {list.items.length} total
+                </p>
+              )}
+            </motion.div>
+          </Link>
+        );
+      })}
     </div>
   );
 }

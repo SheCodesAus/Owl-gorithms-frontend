@@ -7,22 +7,28 @@ import HomePage from "./pages/HomePage.jsx";
 import LoginPage from "./pages/LoginPage.jsx";
 import AccountPage from "./pages/AccountPage.jsx";
 
-import { AuthProvider } from "./components/AuthProvider.jsx"
+import { AuthProvider } from "./components/AuthProvider.jsx";
 import GoogleOAuthCallback from "./components/GoogleOAuthCallback.jsx";
-import "./main.css"
+
+// New pages
+import BucketListPage from "./pages/BucketListPage.jsx";
+import BucketListItemPage from "./pages/BucketListItemPage.jsx";
+
+import "./main.css";
 
 const router = createBrowserRouter([
   {
     path: "/",
-    element: (
-      <>
-      <Layout />
-      </>
-    ),
+    element: <Layout />,
     children: [
       { index: true, element: <HomePage /> },
-      { path: "/login", element: <LoginPage />},
-      { path: "/dashboard", element: <AccountPage />},
+      { path: "/login", element: <LoginPage /> },
+      { path: "/dashboard", element: <AccountPage /> },
+
+      // New routes for bucket lists
+      { path: "/bucketlists/:id", element: <BucketListPage /> },
+      { path: "/bucketlists/:listId/items/:itemId", element: <BucketListItemPage /> },
+
       { path: "/oauth/google/callback", element: <GoogleOAuthCallback /> },
     ],
   },
@@ -33,5 +39,5 @@ ReactDOM.createRoot(document.getElementById("root")).render(
     <AuthProvider>
       <RouterProvider router={router} />
     </AuthProvider>
-  </React.StrictMode>,
+  </React.StrictMode>
 );
