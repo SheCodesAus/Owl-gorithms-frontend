@@ -12,7 +12,7 @@ function DashboardCardGrid({
   onCreateClick,
 }) {
   return (
-    <div className="space-y-5">
+    <section className="space-y-5">
       <motion.div
         className="px-1"
         initial={{ opacity: 0, y: 10 }}
@@ -20,7 +20,7 @@ function DashboardCardGrid({
         transition={{ delay: 0.08, duration: 0.3 }}
       >
         <p className="text-sm font-medium uppercase tracking-[0.18em] text-[var(--muted-text)]">
-            
+          Your bucket lists
         </p>
 
         <h1 className="brand-font mt-2 text-3xl font-bold tracking-tight text-[var(--heading-text)] sm:text-4xl">
@@ -29,7 +29,7 @@ function DashboardCardGrid({
       </motion.div>
 
       {isLoading ? (
-        <div className="section-card flex min-h-[420px] items-center justify-center p-8 text-center">
+        <div className="section-card flex min-h-[320px] items-center justify-center p-8 text-center">
           <div className="space-y-3">
             <div className="mx-auto h-12 w-12 animate-spin rounded-full border-4 border-[#d8d1ee] border-t-[#6b4eaa]" />
             <p className="text-lg font-medium text-[var(--heading-text)]">
@@ -38,7 +38,7 @@ function DashboardCardGrid({
           </div>
         </div>
       ) : error ? (
-        <div className="section-card flex min-h-[420px] flex-col items-center justify-center gap-4 p-8 text-center">
+        <div className="section-card flex min-h-[320px] flex-col items-center justify-center gap-4 p-8 text-center">
           <h2 className="brand-font text-2xl font-semibold text-[var(--heading-text)]">
             Something went wrong
           </h2>
@@ -54,9 +54,9 @@ function DashboardCardGrid({
           </button>
         </div>
       ) : !bucketLists.length ? (
-        <div className="section-card flex min-h-[420px] flex-col items-center justify-center gap-4 p-8 text-center">
+        <div className="section-card flex min-h-[320px] flex-col items-center justify-center gap-4 p-8 text-center">
           <h2 className="brand-font text-2xl font-semibold text-[var(--heading-text)]">
-            Looks pretty empty here. Let's fix that.
+            Looks pretty empty here. Let&apos;s fix that.
           </h2>
 
           <p className="max-w-md text-[var(--muted-text)]">
@@ -67,24 +67,32 @@ function DashboardCardGrid({
             type="button"
             className="primary-gradient-button-light rounded-full px-6 py-3 font-semibold"
             onClick={onCreateClick}
+            aria-label="Create a new bucket list"
           >
-            <img src="./text_logo_dark.png" width={70}/>
+            <img src="./text_logo_dark.png" width={70} alt="Create bucket list" />
           </button>
         </div>
       ) : (
-        <div className="grid gap-5 sm:grid-cols-2">
+        <div className="grid grid-cols-1 gap-4 md:grid-cols-2 md:gap-5">
           {bucketLists.map((bucketList, index) => (
-            <DashboardBucketCard
+            <motion.div
               key={bucketList.id}
-              bucketList={bucketList}
-              index={index}
-              isSelected={bucketList.id === selectedListId}
-              onSelect={onSelectList}
-            />
+              initial={{ opacity: 0, y: 16 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: index * 0.04, duration: 0.28 }}
+              className="h-full"
+            >
+              <DashboardBucketCard
+                bucketList={bucketList}
+                index={index}
+                isSelected={bucketList.id === selectedListId}
+                onSelect={onSelectList}
+              />
+            </motion.div>
           ))}
         </div>
       )}
-    </div>
+    </section>
   );
 }
 
