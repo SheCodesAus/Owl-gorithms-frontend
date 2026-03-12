@@ -10,6 +10,7 @@ import {
 import Avatar from "../UI/Avatar";
 import AvatarGroup from "../UI/AvatarGroup";
 import RelativeTime from "../UI/RelativeTime";
+import VoteControls from "../UI/VoteControls";
 
 function DashboardFocusPanel({
   bucketList,
@@ -118,7 +119,8 @@ function DashboardFocusPanel({
                 </h2>
 
                 <p className="max-w-2xl text-sm leading-relaxed text-white/82 sm:text-base">
-                  {bucketList.description || "No description yet for this bucket list."}
+                  {bucketList.description ||
+                    "No description yet for this bucket list."}
                 </p>
               </div>
 
@@ -186,7 +188,9 @@ function DashboardFocusPanel({
 
                   <p className="inline-flex items-center gap-1.5 text-[var(--muted-text)]">
                     <CalendarDays size={14} aria-hidden="true" />
-                    {formattedDeadline ? `Deadline: ${formattedDeadline}` : "No deadline set"}
+                    {formattedDeadline
+                      ? `Deadline: ${formattedDeadline}`
+                      : "No deadline set"}
                   </p>
                 </div>
               </div>
@@ -240,7 +244,8 @@ function DashboardFocusPanel({
 
                                 <div className="mt-2 flex flex-wrap items-center gap-x-3 gap-y-1">
                                   <p className="text-xs font-medium text-[var(--heading-text)] sm:text-sm">
-                                    {item.creator?.display_name || "Unknown member"}
+                                    {item.creator?.display_name ||
+                                      "Unknown member"}
                                   </p>
 
                                   <p className="text-xs text-black/42 sm:text-sm">
@@ -249,30 +254,16 @@ function DashboardFocusPanel({
                                 </div>
                               </div>
 
-                              <div className="flex shrink-0 flex-col items-center rounded-2xl border border-[var(--card-border)] bg-white/75 px-2 py-1.5">
-                                <button
-                                  type="button"
-                                  onClick={() => onUpvoteItem?.(item)}
-                                  disabled={isVoting}
-                                  className="rounded-full p-1 text-[var(--heading-text)] transition hover:bg-[var(--surface-soft)] disabled:cursor-not-allowed disabled:opacity-50"
-                                  aria-label={`Upvote ${item.title}`}
-                                >
-                                  <ChevronUp size={18} />
-                                </button>
-
-                                <span className="min-w-[1.5rem] text-center text-sm font-semibold text-[var(--heading-text)]">
-                                  {voteScore}
-                                </span>
-
-                                <button
-                                  type="button"
-                                  onClick={() => onDownvoteItem?.(item)}
-                                  disabled={isVoting}
-                                  className="rounded-full p-1 text-[var(--heading-text)] transition hover:bg-[var(--surface-soft)] disabled:cursor-not-allowed disabled:opacity-50"
-                                  aria-label={`Downvote ${item.title}`}
-                                >
-                                  <ChevronDown size={18} />
-                                </button>
+                              <div className="shrink-0">
+                                <VoteControls
+                                  itemTitle={item.title}
+                                  score={item.score ?? 0}
+                                  activeVote={item.vote_type ?? null}
+                                  isVoting={isVotingItemId === item.id}
+                                  onUpvote={() => onUpvoteItem?.(item)}
+                                  onDownvote={() => onDownvoteItem?.(item)}
+                                  variant="panel"
+                                />
                               </div>
                             </div>
                           </div>
