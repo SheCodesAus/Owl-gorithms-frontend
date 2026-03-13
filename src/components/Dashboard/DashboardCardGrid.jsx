@@ -14,18 +14,29 @@ function DashboardCardGrid({
   return (
     <section className="space-y-5">
       <motion.div
-        className="px-1"
+        className="flex flex-col gap-4 px-1 sm:flex-row sm:items-end sm:justify-between"
         initial={{ opacity: 0, y: 10 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.08, duration: 0.3 }}
       >
-        <p className="text-sm font-medium uppercase tracking-[0.18em] text-[var(--muted-text)]">
-          Your bucket lists
-        </p>
+        <div>
+          <p className="text-sm font-medium uppercase tracking-[0.18em] text-[var(--muted-text)]">
+            Your bucket lists
+          </p>
 
-        <h1 className="brand-font mt-2 text-3xl font-bold tracking-tight text-[var(--heading-text)] sm:text-4xl">
-          {user?.first_name ? `Let's go, ${user.first_name}!` : "Let's go!"}
-        </h1>
+          <h1 className="brand-font mt-2 text-3xl font-bold tracking-tight text-[var(--heading-text)] sm:text-4xl">
+            {user?.first_name ? `Let's go, ${user.first_name}!` : "Let's go!"}
+          </h1>
+        </div>
+
+        <button
+          type="button"
+          onClick={onCreateClick}
+          className="primary-gradient-button rounded-full px-6 py-3 font-semibold whitespace-nowrap"
+          aria-label="Create a new bucket list"
+        >
+          + Create List
+        </button>
       </motion.div>
 
       {isLoading ? (
@@ -65,11 +76,11 @@ function DashboardCardGrid({
 
           <button
             type="button"
-            className="primary-gradient-button-light rounded-full px-6 py-3 font-semibold"
+            className="primary-gradient-button rounded-full px-6 py-3 font-semibold"
             onClick={onCreateClick}
             aria-label="Create a new bucket list"
           >
-            <img src="./text_logo_dark.png" width={70} alt="Create bucket list" />
+            + Create Your First List
           </button>
         </div>
       ) : (

@@ -35,6 +35,7 @@ function Avatar({ user, size = "sm", className = "", alt = "" }) {
       <img
         src={profileImage}
         alt={alt || `${displayName} avatar`}
+        referrerPolicy="no-referrer"
         className={`rounded-full border border-white/70 object-cover shadow-sm ${sizeClasses[size]} ${className}`}
         onError={() => setImageFailed(true)}
       />
