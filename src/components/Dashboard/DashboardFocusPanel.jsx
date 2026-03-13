@@ -1,15 +1,9 @@
 import { AnimatePresence, motion } from "framer-motion";
-import {
-  Lock,
-  Globe,
-  CalendarDays,
-  CheckCircle2,
-  ChevronUp,
-  ChevronDown,
-} from "lucide-react";
+import { Lock, Globe, CalendarDays, CheckCircle2, Plus } from "lucide-react";
 import Avatar from "../UI/Avatar";
 import AvatarGroup from "../UI/AvatarGroup";
 import RelativeTime from "../UI/RelativeTime";
+import VoteControls from "../UI/VoteControls";
 
 function DashboardFocusPanel({
   bucketList,
@@ -17,6 +11,7 @@ function DashboardFocusPanel({
   onUpvoteItem,
   onDownvoteItem,
   isVotingItemId,
+  onAddItemClick,
 }) {
   if (isLoading) {
     return (
@@ -102,29 +97,15 @@ function DashboardFocusPanel({
           transition={{ duration: 0.2 }}
         >
           {/* Integrated top band */}
-          <div className="relative overflow-hidden border-b border-white/12">
-            <div className="absolute inset-0 bg-[linear-gradient(135deg,rgba(99,38,201,0.92)_0%,rgba(141,66,208,0.82)_52%,rgba(244,140,147,0.72)_100%)]" />
-            <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_right,rgba(255,255,255,0.18),transparent_42%)]" />
-            <div className="absolute inset-0 bg-[linear-gradient(to_bottom,rgba(255,255,255,0.06),rgba(255,255,255,0.02))]" />
+          <div className="dashboard-focus-band relative border-b border-white/12">
+            <div className="relative z-10 px-5 py-5 text-white sm:px-6 sm:py-6">
+              <div className="flex h-full flex-col gap-5">
+                <div className="flex flex-wrap items-center gap-x-3 gap-y-2">
+                  <p className="mr-2 text-[0.72rem] font-semibold uppercase tracking-[0.2em] text-white/68">
+                    Overview
+                  </p>
 
-            <div className="relative z-10 space-y-5 px-5 py-5 text-white sm:px-6 sm:py-6">
-              <div className="space-y-2">
-                <p className="text-[0.72rem] font-semibold uppercase tracking-[0.2em] text-white/68">
-                  Overview
-                </p>
-
-                <h2 className="brand-font line-clamp-2 text-[1.55rem] font-semibold leading-tight sm:text-[1.9rem]">
-                  {bucketList.title}
-                </h2>
-
-                <p className="max-w-2xl text-sm leading-relaxed text-white/82 sm:text-base">
-                  {bucketList.description || "No description yet for this bucket list."}
-                </p>
-              </div>
-
-              <div className="flex flex-col gap-3 sm:gap-4">
-                <div className="flex flex-wrap items-center gap-x-4 gap-y-2 text-sm text-white/90 sm:text-[0.95rem]">
-                  <span className="inline-flex items-center gap-1.5 rounded-full bg-white/12 px-3 py-1.5 backdrop-blur-sm">
+                  <span className="inline-flex items-center gap-1.5 rounded-full bg-white/12 px-3 py-1.5 text-sm text-white/90 backdrop-blur-sm">
                     {bucketList.is_public ? (
                       <Globe size={15} aria-hidden="true" />
                     ) : (
@@ -133,22 +114,62 @@ function DashboardFocusPanel({
                     {bucketList.is_public ? "Public" : "Private"}
                   </span>
 
-                  <span className="rounded-full bg-white/10 px-3 py-1.5 backdrop-blur-sm">
+                  <span className="rounded-full bg-white/10 px-3 py-1.5 text-sm text-white/90 backdrop-blur-sm">
                     {memberCount} member{memberCount === 1 ? "" : "s"}
                   </span>
 
-                  <span className="rounded-full bg-white/10 px-3 py-1.5 backdrop-blur-sm">
+                  <span className="rounded-full bg-white/10 px-3 py-1.5 text-sm text-white/90 backdrop-blur-sm">
                     By {ownerName}
                   </span>
                 </div>
 
-                <div className="flex items-center justify-between gap-3">
-                  <p className="text-xs font-medium uppercase tracking-[0.16em] text-white/60">
-                    Members
-                  </p>
+                <div className="space-y-3">
+                  <h2 className="brand-font max-w-3xl text-[1.7rem] font-semibold leading-tight sm:text-[2rem]">
+                    {bucketList.title}
+                  </h2>
 
-                  <div className="shrink-0">
-                    <AvatarGroup users={memberUsers} size="sm" max={5} />
+                  <p className="max-w-2xl text-sm leading-relaxed text-white/82 sm:text-base">
+                    {bucketList.description ||
+                      "No description yet for this bucket list."}
+                  </p>
+                </div>
+
+                <div className="flex items-end justify-between">
+                  <div>
+                    <p className="text-xs font-medium uppercase tracking-[0.16em] text-white/60">
+                      Members
+                    </p>
+
+                    <div className="shrink-0">
+                      <AvatarGroup users={memberUsers} size="sm" max={5} />
+                    </div>
+                  </div>
+
+                  <div className="ml-4 flex-shrink-0">
+                    <button
+                      type="button"
+                      onClick={onAddItemClick}
+                      aria-label={`Add item to ${bucketList.title}`}
+                      title="Add item"
+                      className="group inline-flex h-16 w-16 items-center justify-center rounded-full 
+                    bg-[linear-gradient(135deg,#15803d_0%,#4ade80_100%)]
+                    text-white
+                    shadow-[0_14px_36px_rgba(8,38,20,0.35)]
+                    transition
+                    hover:scale-105
+                    hover:shadow-[0_18px_46px_rgba(8,38,20,0.45)]
+                    active:scale-95
+                    focus:outline-none
+                    focus:ring-2
+                    focus:ring-white/80
+                    cursor-pointer"
+                    >
+                      <Plus
+                        size={28}
+                        strokeWidth={2.8}
+                        className="transition group-hover:rotate-90"
+                      />
+                    </button>
                   </div>
                 </div>
               </div>
@@ -186,7 +207,9 @@ function DashboardFocusPanel({
 
                   <p className="inline-flex items-center gap-1.5 text-[var(--muted-text)]">
                     <CalendarDays size={14} aria-hidden="true" />
-                    {formattedDeadline ? `Deadline: ${formattedDeadline}` : "No deadline set"}
+                    {formattedDeadline
+                      ? `Deadline: ${formattedDeadline}`
+                      : "No deadline set"}
                   </p>
                 </div>
               </div>
@@ -240,7 +263,8 @@ function DashboardFocusPanel({
 
                                 <div className="mt-2 flex flex-wrap items-center gap-x-3 gap-y-1">
                                   <p className="text-xs font-medium text-[var(--heading-text)] sm:text-sm">
-                                    {item.creator?.display_name || "Unknown member"}
+                                    {item.creator?.display_name ||
+                                      "Unknown member"}
                                   </p>
 
                                   <p className="text-xs text-black/42 sm:text-sm">
@@ -249,30 +273,16 @@ function DashboardFocusPanel({
                                 </div>
                               </div>
 
-                              <div className="flex shrink-0 flex-col items-center rounded-2xl border border-[var(--card-border)] bg-white/75 px-2 py-1.5">
-                                <button
-                                  type="button"
-                                  onClick={() => onUpvoteItem?.(item)}
-                                  disabled={isVoting}
-                                  className="rounded-full p-1 text-[var(--heading-text)] transition hover:bg-[var(--surface-soft)] disabled:cursor-not-allowed disabled:opacity-50"
-                                  aria-label={`Upvote ${item.title}`}
-                                >
-                                  <ChevronUp size={18} />
-                                </button>
-
-                                <span className="min-w-[1.5rem] text-center text-sm font-semibold text-[var(--heading-text)]">
-                                  {voteScore}
-                                </span>
-
-                                <button
-                                  type="button"
-                                  onClick={() => onDownvoteItem?.(item)}
-                                  disabled={isVoting}
-                                  className="rounded-full p-1 text-[var(--heading-text)] transition hover:bg-[var(--surface-soft)] disabled:cursor-not-allowed disabled:opacity-50"
-                                  aria-label={`Downvote ${item.title}`}
-                                >
-                                  <ChevronDown size={18} />
-                                </button>
+                              <div className="shrink-0">
+                                <VoteControls
+                                  itemTitle={item.title}
+                                  score={item.score ?? 0}
+                                  activeVote={item.vote_type ?? null}
+                                  isVoting={isVotingItemId === item.id}
+                                  onUpvote={() => onUpvoteItem?.(item)}
+                                  onDownvote={() => onDownvoteItem?.(item)}
+                                  variant="panel"
+                                />
                               </div>
                             </div>
                           </div>

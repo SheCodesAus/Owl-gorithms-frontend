@@ -1,54 +1,65 @@
 import { useState } from "react";
-import { useBucketLists } from "../../hooks/useBucketLists"
+import { useBucketLists } from "../../hooks/useBucketLists";
 
 function CreateBucketListForm({ user, onSuccess, onClose }) {
-    const { addBucketList } = useBucketLists();
+  const { addBucketList } = useBucketLists();
 
-    const [errors, setErrors] = useState({});
-    const [formData, setFormData] = useState({
-        title: "",
-        description: "",
-        decision_deadline: "",
-        is_public: false,
-        allow_viewer_voting: false,
-    });
+  const [errors, setErrors] = useState({});
+  const [formData, setFormData] = useState({
+    title: "",
+    description: "",
+    decision_deadline: "",
+    has_deadline: false,
+    is_public: false,
+    allow_viewer_voting: false,
+  });
 
-    const handleChange = (event) => {
-        const { name, value, type, checked } = event.target;
-        setFormData((prev) => ({
-            ...prev,
-            [name]: type === "checkbox" ? checked : value,
-        }));
-    };
+  const handleChange = (event) => {
+    const { name, value, type, checked } = event.target;
 
-    const handleSubmit = async (event) => {
-        event.preventDefault();
-        setErrors({});
+    setFormData((prev) => ({
+      ...prev,
+      [name]: type === "checkbox" ? checked : value,
+    }));
+  };
 
-        const payload = {
-        ...formData,
-        decision_deadline: formData.has_deadline ? formData.decision_deadline : null,
+  const formatDeadlineForBackend = (value) => {
+    if (!value) return null;
+    return value.replace("T", " ") + ":00";
+  };
+
+  const handleSubmit = async (event) => {
+    event.preventDefault();
+    setErrors({});
+
+    const payload = {
+      ...formData,
+      decision_deadline: formData.has_deadline
+        ? formatDeadlineForBackend(formData.decision_deadline)
+        : null,
     };
 
     try {
-        const newBucketList = await addBucketList(user, payload);
-        onSuccess(newBucketList);
+      const newBucketList = await addBucketList(payload);
+      onSuccess(newBucketList);
     } catch (error) {
-        setErrors(error);
+      setErrors(error);
     }
-};
+  };
 
-const renderFieldError = (field) => {
+  const renderFieldError = (field) => {
     if (!errors[field]) return null;
-    if (Array.isArray(errors[field])) {
-        return (
-            <p className="text-red-500 text-sm mt-1">{errors[field].join(" ")}</p>
-        );
-    }
-        return <p className="text-red-500 text-sm mt-1">{errors[field]}</p>;
-}
 
-    return (
+    if (Array.isArray(errors[field])) {
+      return (
+        <p className="mt-1 text-sm text-red-500">{errors[field].join(" ")}</p>
+      );
+    }
+
+    return <p className="mt-1 text-sm text-red-500">{errors[field]}</p>;
+  };
+
+  return (
     <form className="form-stack" onSubmit={handleSubmit}>
       <div className="form-field">
         <label htmlFor="title" className="form-label">
@@ -101,7 +112,7 @@ const renderFieldError = (field) => {
             type="checkbox"
             checked={formData.is_public}
             onChange={handleChange}
-            className="h-5 w-5 accent-[var(--primary-cta)]"
+            className="h-5 w-5 cursor-pointer accent-[var(--primary-cta)]"
           />
         </label>
         {renderFieldError("is_public")}
@@ -126,23 +137,25 @@ const renderFieldError = (field) => {
             type="checkbox"
             checked={formData.allow_viewer_voting}
             onChange={handleChange}
-            className="h-5 w-5 accent-[var(--primary-cta)]"
+            className="h-5 w-5 cursor-pointer accent-[var(--primary-cta)]"
           />
         </label>
-            {renderFieldError("allow_viewer_voting")}
+        {renderFieldError("allow_viewer_voting")}
       </div>
 
-      {/* Deadline Toggle */}
       <div className="form-field">
-        <span className="form-label">DEADLINE</span>
+        <span className="form-label">DECISION DEADLINE</span>
 
         <label className="glass-chip-light flex items-center justify-between rounded-2xl px-4 py-3">
           <div>
             <p className="font-semibold text-[var(--heading-text)]">
-              Add deadline
+              Count down the days to vote
             </p>
             <p className="mt-1 text-sm text-[var(--muted-text)]">
-              Collect ideas and votes from friends. When the deadline ends, the top activities are frozen 🥶
+              Collect ideas and votes from friends.<br>
+              </br>
+              When the deadline ends, the
+              top activities are frozen 🥶
             </p>
           </div>
 
@@ -152,32 +165,36 @@ const renderFieldError = (field) => {
             type="checkbox"
             checked={formData.has_deadline}
             onChange={handleChange}
-            className="h-5 w-5 accent-[var(--primary-cta)]"
+            className="h-5 w-5 cursor-pointer accent-[var(--primary-cta)]"
           />
         </label>
-            {renderFieldError("allow_viewer_voting")}
+        {renderFieldError("decision_deadline")}
       </div>
 
       {formData.has_deadline && (
-        <div className="relative">
-            <input
+        <div className="form-field">
+          <label htmlFor="decision_deadline" className="form-label">
+            DEADLINE
+          </label>
+          <input
+            id="decision_deadline"
             type="datetime-local"
             name="decision_deadline"
             value={formData.decision_deadline}
             onChange={handleChange}
-            className="form-input"
-            />
+            className="form-input cursor-pointer"
+          />
+          {renderFieldError("decision_deadline")}
         </div>
       )}
 
-      {/* Non-field errors */}
-        {errors.non_field_errors && (
-          <p className="text-red-500 text-sm text-center">
-            {Array.isArray(errors.non_field_errors)
-              ? errors.non_field_errors.join(" ")
-              : errors.non_field_errors}
-          </p>
-        )}
+      {errors.non_field_errors && (
+        <p className="text-center text-sm text-red-500">
+          {Array.isArray(errors.non_field_errors)
+            ? errors.non_field_errors.join(" ")
+            : errors.non_field_errors}
+        </p>
+      )}
 
       <div className="form-actions">
         <button
@@ -190,7 +207,7 @@ const renderFieldError = (field) => {
 
         <button
           type="submit"
-          className="primary-gradient-button rounded-2xl px-5 py-3 font-semibold"
+          className="rounded-2xl cursor-pointer px-5 py-3 font-semibold bg-[linear-gradient(135deg,#15803d_0%,#4ade80_100%)] text-white shadow-[0_14px_36px_rgba(8,38,20,0.35)] transition hover:scale-105 hover:shadow-[0_18px_46px_rgba(8,38,20,0.45)] active:scale-95 focus:outline-none focus:ring-2 focus:ring-green-300/70"
         >
           SEND IT
         </button>
