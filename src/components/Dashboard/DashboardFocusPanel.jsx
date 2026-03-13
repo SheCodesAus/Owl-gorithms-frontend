@@ -1,12 +1,5 @@
 import { AnimatePresence, motion } from "framer-motion";
-import {
-  Lock,
-  Globe,
-  CalendarDays,
-  CheckCircle2,
-  ChevronUp,
-  ChevronDown,
-} from "lucide-react";
+import { Lock, Globe, CalendarDays, CheckCircle2, Plus } from "lucide-react";
 import Avatar from "../UI/Avatar";
 import AvatarGroup from "../UI/AvatarGroup";
 import RelativeTime from "../UI/RelativeTime";
@@ -18,6 +11,7 @@ function DashboardFocusPanel({
   onUpvoteItem,
   onDownvoteItem,
   isVotingItemId,
+  onAddItemClick,
 }) {
   if (isLoading) {
     return (
@@ -108,25 +102,14 @@ function DashboardFocusPanel({
             <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_right,rgba(255,255,255,0.18),transparent_42%)]" />
             <div className="absolute inset-0 bg-[linear-gradient(to_bottom,rgba(255,255,255,0.06),rgba(255,255,255,0.02))]" />
 
-            <div className="relative z-10 space-y-5 px-5 py-5 text-white sm:px-6 sm:py-6">
-              <div className="space-y-2">
-                <p className="text-[0.72rem] font-semibold uppercase tracking-[0.2em] text-white/68">
-                  Overview
-                </p>
+            <div className="relative z-10 px-5 py-5 text-white sm:px-6 sm:py-6">
+              <div className="flex h-full flex-col gap-5">
+                <div className="flex flex-wrap items-center gap-x-3 gap-y-2">
+                  <p className="mr-2 text-[0.72rem] font-semibold uppercase tracking-[0.2em] text-white/68">
+                    Overview
+                  </p>
 
-                <h2 className="brand-font line-clamp-2 text-[1.55rem] font-semibold leading-tight sm:text-[1.9rem]">
-                  {bucketList.title}
-                </h2>
-
-                <p className="max-w-2xl text-sm leading-relaxed text-white/82 sm:text-base">
-                  {bucketList.description ||
-                    "No description yet for this bucket list."}
-                </p>
-              </div>
-
-              <div className="flex flex-col gap-3 sm:gap-4">
-                <div className="flex flex-wrap items-center gap-x-4 gap-y-2 text-sm text-white/90 sm:text-[0.95rem]">
-                  <span className="inline-flex items-center gap-1.5 rounded-full bg-white/12 px-3 py-1.5 backdrop-blur-sm">
+                  <span className="inline-flex items-center gap-1.5 rounded-full bg-white/12 px-3 py-1.5 text-sm text-white/90 backdrop-blur-sm">
                     {bucketList.is_public ? (
                       <Globe size={15} aria-hidden="true" />
                     ) : (
@@ -135,23 +118,61 @@ function DashboardFocusPanel({
                     {bucketList.is_public ? "Public" : "Private"}
                   </span>
 
-                  <span className="rounded-full bg-white/10 px-3 py-1.5 backdrop-blur-sm">
+                  <span className="rounded-full bg-white/10 px-3 py-1.5 text-sm text-white/90 backdrop-blur-sm">
                     {memberCount} member{memberCount === 1 ? "" : "s"}
                   </span>
 
-                  <span className="rounded-full bg-white/10 px-3 py-1.5 backdrop-blur-sm">
+                  <span className="rounded-full bg-white/10 px-3 py-1.5 text-sm text-white/90 backdrop-blur-sm">
                     By {ownerName}
                   </span>
                 </div>
 
-                <div className="flex items-center justify-between gap-3">
-                  <p className="text-xs font-medium uppercase tracking-[0.16em] text-white/60">
-                    Members
-                  </p>
+                <div className="space-y-3">
+                  <h2 className="brand-font max-w-3xl text-[1.7rem] font-semibold leading-tight sm:text-[2rem]">
+                    {bucketList.title}
+                  </h2>
 
-                  <div className="shrink-0">
-                    <AvatarGroup users={memberUsers} size="sm" max={5} />
+                  <p className="max-w-2xl text-sm leading-relaxed text-white/82 sm:text-base">
+                    {bucketList.description ||
+                      "No description yet for this bucket list."}
+                  </p>
+                </div>
+
+                <div className="flex flex-col gap-4 pt-2 sm:flex-row sm:items-end sm:justify-between">
+                  <div className="space-y-2">
+                    <p className="text-xs font-medium uppercase tracking-[0.16em] text-white/60">
+                      Members
+                    </p>
+
+                    <div className="shrink-0">
+                      <AvatarGroup users={memberUsers} size="sm" max={5} />
+                    </div>
                   </div>
+
+                  <button
+                    type="button"
+                    onClick={onAddItemClick}
+                    aria-label={`Add item to ${bucketList.title}`}
+                    title="Add item"
+                    className="group inline-flex min-h-[64px] items-center justify-center gap-3 self-start rounded-2xl bg-[linear-gradient(135deg,#22c55e_0%,#4ade80_100%)] px-5 py-4 text-white shadow-[0_16px_40px_rgba(12,37,20,0.28)] transition hover:scale-[1.02] hover:shadow-[0_20px_48px_rgba(12,37,20,0.36)] focus:outline-none focus:ring-2 focus:ring-white/80 focus:ring-offset-0 sm:self-auto"
+                  >
+                    <span className="inline-flex h-10 w-10 items-center justify-center rounded-full bg-white/18">
+                      <Plus
+                        size={22}
+                        strokeWidth={2.8}
+                        className="transition group-hover:rotate-90"
+                      />
+                    </span>
+
+                    <span className="pr-1 text-left">
+                      <span className="block text-sm font-semibold uppercase tracking-[0.14em] text-white/78">
+                        Quick action
+                      </span>
+                      <span className="block text-base font-semibold sm:text-lg">
+                        Add item
+                      </span>
+                    </span>
+                  </button>
                 </div>
               </div>
             </div>

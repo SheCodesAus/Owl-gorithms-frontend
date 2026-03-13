@@ -7,6 +7,7 @@ import DashboardCardGrid from "./DashboardCardGrid";
 import DashboardFocusPanel from "./DashboardFocusPanel";
 import FormModal from "../UI/FormModal";
 import CreateBucketListForm from "../forms/CreateBucketListForm";
+import CreateItemForm from "../forms/CreateItemForm";
 
 function Dashboard({ user }) {
   const { bucketLists, isLoading, bucketListsError, loadBucketLists } =
@@ -15,24 +16,30 @@ function Dashboard({ user }) {
 
   const [selectedListId, setSelectedListId] = useState(null);
   const [showCreateModal, setShowCreateModal] = useState(false);
+  const [showAddItemModal, setShowAddItemModal] = useState(false);
   const [isVotingItemId, setIsVotingItemId] = useState(null);
-
-  // Local per-item overrides for instant UI feedback
-  // Shape: { [itemId]: { voteScore: number, userVote: "upvote" | "downvote" | null } }
   const [voteOverrides, setVoteOverrides] = useState({});
 
-  const handleOpenCreateModal = () => {
-    setShowCreateModal(true);
-  };
-
-  const handleCloseCreateModal = () => {
-    setShowCreateModal(false);
-  };
-
+  // BUCKET LIST FORM
+  const handleOpenCreateModal = () => setShowCreateModal(true);
+  const handleCloseCreateModal = () => setShowCreateModal(false);
+  
   const handleCreateSuccess = async (newBucketList) => {
     await loadBucketLists();
     setSelectedListId(newBucketList.id);
     setShowCreateModal(false);
+  };
+
+  // ADD ITEM FORM
+  const handleCloseAddItemModal = () => setShowAddItemModal(false);
+  const handleOpenAddItemModal = () => {
+  if (!selectedListId) return;
+  setShowAddItemModal(true);
+};
+
+  const handleAddItemSuccess = async () => {
+    await loadBucketLists();
+    setShowAddItemModal(false);
   };
 
   useEffect(() => {
@@ -50,6 +57,7 @@ function Dashboard({ user }) {
     }
   }, [bucketLists, selectedListId]);
 
+  // VOTING LOGIC
   const getBaseVoteScore = (item) => {
     return item.vote_score ?? item.votes_count ?? item.score ?? 0;
   };
@@ -88,38 +96,39 @@ function Dashboard({ user }) {
   };
 
   const handleVote = async (item, nextVote) => {
-  const previousState = getEffectiveItemVoteState(item);
+    const previousState = getEffectiveItemVoteState(item);
 
-  try {
-    setIsVotingItemId(item.id);
+    try {
+      setIsVotingItemId(item.id);
 
-    if (previousState.userVote === nextVote) {
-      applyVoteOverride(item, null);
-      await clearVote(item.id);
+      if (previousState.userVote === nextVote) {
+        applyVoteOverride(item, null);
+        await clearVote(item.id);
+        await loadBucketLists();
+        return;
+      }
+
+      applyVoteOverride(item, nextVote);
+      await voteOnItem(item.id, nextVote);
       await loadBucketLists();
-      return;
+    } catch (error) {
+      setVoteOverrides((prev) => ({
+        ...prev,
+        [item.id]: {
+          voteScore: previousState.voteScore,
+          userVote: previousState.userVote,
+        },
+      }));
+      console.error("Vote failed:", error);
+    } finally {
+      setIsVotingItemId(null);
     }
-
-    applyVoteOverride(item, nextVote);
-    await voteOnItem(item.id, nextVote);
-    await loadBucketLists();
-  } catch (error) {
-    setVoteOverrides((prev) => ({
-      ...prev,
-      [item.id]: {
-        voteScore: previousState.voteScore,
-        userVote: previousState.userVote,
-      },
-    }));
-    console.error("Vote failed:", error);
-  } finally {
-    setIsVotingItemId(null);
-  }
-};
+  };
 
   const selectedList = useMemo(() => {
     const baseList =
-      bucketLists.find((bucketList) => bucketList.id === selectedListId) || null;
+      bucketLists.find((bucketList) => bucketList.id === selectedListId) ||
+      null;
 
     if (!baseList) return null;
 
@@ -145,10 +154,7 @@ function Dashboard({ user }) {
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.35, ease: "easeOut" }}
       >
-        <DashboardBanner
-          onVote={handleVote}
-          isVotingItemId={isVotingItemId}
-        />
+        <DashboardBanner onVote={handleVote} isVotingItemId={isVotingItemId} />
 
         <section className="grid gap-6 xl:grid-cols-[1.55fr_1.15fr]">
           <DashboardCardGrid
@@ -169,6 +175,7 @@ function Dashboard({ user }) {
             onUpvoteItem={(item) => handleVote(item, "upvote")}
             onDownvoteItem={(item) => handleVote(item, "downvote")}
             isVotingItemId={isVotingItemId}
+            onAddItemClick={handleOpenAddItemModal}
           />
         </section>
       </motion.div>
@@ -180,9 +187,21 @@ function Dashboard({ user }) {
         subtitle="Start a fresh collection of goals, plans, and big ideas."
       >
         <CreateBucketListForm
-          user={user}
           onClose={handleCloseCreateModal}
           onSuccess={handleCreateSuccess}
+        />
+      </FormModal>
+
+      <FormModal
+        isOpen={showAddItemModal}
+        onClose={handleCloseAddItemModal}
+        title="Add a new item"
+        subtitle="Drop in a fresh idea for this bucket list."
+      >
+        <CreateItemForm
+          bucketListId={selectedListId}
+          onClose={handleCloseAddItemModal}
+          onSuccess={handleAddItemSuccess}
         />
       </FormModal>
     </>
