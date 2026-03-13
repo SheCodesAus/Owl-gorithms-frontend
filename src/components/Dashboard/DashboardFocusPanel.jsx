@@ -97,11 +97,7 @@ function DashboardFocusPanel({
           transition={{ duration: 0.2 }}
         >
           {/* Integrated top band */}
-          <div className="relative overflow-hidden border-b border-white/12">
-            <div className="absolute inset-0 bg-[linear-gradient(135deg,rgba(99,38,201,0.92)_0%,rgba(141,66,208,0.82)_52%,rgba(244,140,147,0.72)_100%)]" />
-            <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_right,rgba(255,255,255,0.18),transparent_42%)]" />
-            <div className="absolute inset-0 bg-[linear-gradient(to_bottom,rgba(255,255,255,0.06),rgba(255,255,255,0.02))]" />
-
+          <div className="dashboard-focus-band relative border-b border-white/12">
             <div className="relative z-10 px-5 py-5 text-white sm:px-6 sm:py-6">
               <div className="flex h-full flex-col gap-5">
                 <div className="flex flex-wrap items-center gap-x-3 gap-y-2">
@@ -154,23 +150,14 @@ function DashboardFocusPanel({
                     onClick={onAddItemClick}
                     aria-label={`Add item to ${bucketList.title}`}
                     title="Add item"
-                    className="group inline-flex min-h-[64px] items-center justify-center gap-3 self-start rounded-2xl bg-[linear-gradient(135deg,#22c55e_0%,#4ade80_100%)] px-5 py-4 text-white shadow-[0_16px_40px_rgba(12,37,20,0.28)] transition hover:scale-[1.02] hover:shadow-[0_20px_48px_rgba(12,37,20,0.36)] focus:outline-none focus:ring-2 focus:ring-white/80 focus:ring-offset-0 sm:self-auto"
+                    className="group inline-flex min-h-[64px] items-center justify-center gap-3 self-start rounded-full bg-[linear-gradient(135deg,#22c55e_0%,#4ade80_100%)] px-5 py-4 text-white shadow-[0_16px_40px_rgba(12,37,20,0.28)] transition hover:scale-[1.02] hover:shadow-[0_20px_48px_rgba(12,37,20,0.36)] focus:outline-none focus:ring-2 focus:ring-white/80 focus:ring-offset-0 sm:self-auto"
                   >
-                    <span className="inline-flex h-10 w-10 items-center justify-center rounded-full bg-white/18">
+                    <span className="inline-flex h-10 w-10 items-center justify-center rounded-full">
                       <Plus
-                        size={22}
+                        size={28}
                         strokeWidth={2.8}
                         className="transition group-hover:rotate-90"
                       />
-                    </span>
-
-                    <span className="pr-1 text-left">
-                      <span className="block text-sm font-semibold uppercase tracking-[0.14em] text-white/78">
-                        Quick action
-                      </span>
-                      <span className="block text-base font-semibold sm:text-lg">
-                        Add item
-                      </span>
                     </span>
                   </button>
                 </div>
