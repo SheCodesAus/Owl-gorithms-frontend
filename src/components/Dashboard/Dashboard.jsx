@@ -195,8 +195,8 @@ function Dashboard({ user }) {
       <FormModal
         isOpen={showAddItemModal}
         onClose={handleCloseAddItemModal}
-        title="Add a new item"
-        subtitle="Drop in a fresh idea for this bucket list."
+        title="Drop in a fresh idea"
+        subtitle="Add something wild to this list."
       >
         <CreateItemForm
           bucketListId={selectedListId}

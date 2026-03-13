@@ -61,7 +61,7 @@ function CreateItemForm({ bucketListId, onSuccess, onClose }) {
           value={formData.title}
           onChange={handleChange}
           className="form-input"
-          placeholder="Hot air balloon ride"
+          placeholder="Go Skydiving"
           required
         />
         {renderFieldError("title")}
@@ -77,7 +77,7 @@ function CreateItemForm({ bucketListId, onSuccess, onClose }) {
           value={formData.description}
           onChange={handleChange}
           className="form-textarea"
-          placeholder="Why this belongs on the list..."
+          placeholder="Convince your friends... You got this."
           rows={4}
         />
         {renderFieldError("description")}

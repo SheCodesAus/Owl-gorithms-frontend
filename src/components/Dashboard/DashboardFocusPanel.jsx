@@ -134,8 +134,8 @@ function DashboardFocusPanel({
                   </p>
                 </div>
 
-                <div className="flex flex-col gap-4 pt-2 sm:flex-row sm:items-end sm:justify-between">
-                  <div className="space-y-2">
+                <div className="flex items-end justify-between">
+                  <div>
                     <p className="text-xs font-medium uppercase tracking-[0.16em] text-white/60">
                       Members
                     </p>
@@ -145,21 +145,32 @@ function DashboardFocusPanel({
                     </div>
                   </div>
 
-                  <button
-                    type="button"
-                    onClick={onAddItemClick}
-                    aria-label={`Add item to ${bucketList.title}`}
-                    title="Add item"
-                    className="group inline-flex min-h-[64px] items-center justify-center gap-3 self-start rounded-full bg-[linear-gradient(135deg,#22c55e_0%,#4ade80_100%)] px-5 py-4 text-white shadow-[0_16px_40px_rgba(12,37,20,0.28)] transition hover:scale-[1.02] hover:shadow-[0_20px_48px_rgba(12,37,20,0.36)] focus:outline-none focus:ring-2 focus:ring-white/80 focus:ring-offset-0 sm:self-auto"
-                  >
-                    <span className="inline-flex h-10 w-10 items-center justify-center rounded-full">
+                  <div className="ml-4 flex-shrink-0">
+                    <button
+                      type="button"
+                      onClick={onAddItemClick}
+                      aria-label={`Add item to ${bucketList.title}`}
+                      title="Add item"
+                      className="group inline-flex h-16 w-16 items-center justify-center rounded-full 
+                    bg-[linear-gradient(135deg,#15803d_0%,#4ade80_100%)]
+                    text-white
+                    shadow-[0_14px_36px_rgba(8,38,20,0.35)]
+                    transition
+                    hover:scale-105
+                    hover:shadow-[0_18px_46px_rgba(8,38,20,0.45)]
+                    active:scale-95
+                    focus:outline-none
+                    focus:ring-2
+                    focus:ring-white/80
+                    cursor-pointer"
+                    >
                       <Plus
                         size={28}
                         strokeWidth={2.8}
                         className="transition group-hover:rotate-90"
                       />
-                    </span>
-                  </button>
+                    </button>
+                  </div>
                 </div>
               </div>
             </div>
