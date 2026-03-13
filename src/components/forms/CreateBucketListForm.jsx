@@ -144,12 +144,12 @@ function CreateBucketListForm({ user, onSuccess, onClose }) {
       </div>
 
       <div className="form-field">
-        <span className="form-label">DEADLINE</span>
+        <span className="form-label">DECISION DEADLINE</span>
 
         <label className="glass-chip-light flex items-center justify-between rounded-2xl px-4 py-3">
           <div>
             <p className="font-semibold text-[var(--heading-text)]">
-              Add deadline
+              Count down the days to vote
             </p>
             <p className="mt-1 text-sm text-[var(--muted-text)]">
               Collect ideas and votes from friends.<br>
@@ -174,7 +174,7 @@ function CreateBucketListForm({ user, onSuccess, onClose }) {
       {formData.has_deadline && (
         <div className="form-field">
           <label htmlFor="decision_deadline" className="form-label">
-            DEADLINE DATE
+            DEADLINE
           </label>
           <input
             id="decision_deadline"
