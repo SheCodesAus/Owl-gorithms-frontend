@@ -112,7 +112,7 @@ function CreateBucketListForm({ user, onSuccess, onClose }) {
             type="checkbox"
             checked={formData.is_public}
             onChange={handleChange}
-            className="h-5 w-5 accent-[var(--primary-cta)]"
+            className="h-5 w-5 cursor-pointer accent-[var(--primary-cta)]"
           />
         </label>
         {renderFieldError("is_public")}
@@ -137,7 +137,7 @@ function CreateBucketListForm({ user, onSuccess, onClose }) {
             type="checkbox"
             checked={formData.allow_viewer_voting}
             onChange={handleChange}
-            className="h-5 w-5 accent-[var(--primary-cta)]"
+            className="h-5 w-5 cursor-pointer accent-[var(--primary-cta)]"
           />
         </label>
         {renderFieldError("allow_viewer_voting")}
@@ -152,7 +152,9 @@ function CreateBucketListForm({ user, onSuccess, onClose }) {
               Add deadline
             </p>
             <p className="mt-1 text-sm text-[var(--muted-text)]">
-              Collect ideas and votes from friends. When the deadline ends, the
+              Collect ideas and votes from friends.<br>
+              </br>
+              When the deadline ends, the
               top activities are frozen 🥶
             </p>
           </div>
@@ -163,7 +165,7 @@ function CreateBucketListForm({ user, onSuccess, onClose }) {
             type="checkbox"
             checked={formData.has_deadline}
             onChange={handleChange}
-            className="h-5 w-5 accent-[var(--primary-cta)]"
+            className="h-5 w-5 cursor-pointer accent-[var(--primary-cta)]"
           />
         </label>
         {renderFieldError("decision_deadline")}
@@ -180,7 +182,7 @@ function CreateBucketListForm({ user, onSuccess, onClose }) {
             name="decision_deadline"
             value={formData.decision_deadline}
             onChange={handleChange}
-            className="form-input"
+            className="form-input cursor-pointer"
           />
           {renderFieldError("decision_deadline")}
         </div>
@@ -205,7 +207,7 @@ function CreateBucketListForm({ user, onSuccess, onClose }) {
 
         <button
           type="submit"
-          className="primary-gradient-button rounded-2xl px-5 py-3 font-semibold"
+          className="rounded-2xl cursor-pointer px-5 py-3 font-semibold bg-[linear-gradient(135deg,#15803d_0%,#4ade80_100%)] text-white shadow-[0_14px_36px_rgba(8,38,20,0.35)] transition hover:scale-105 hover:shadow-[0_18px_46px_rgba(8,38,20,0.45)] active:scale-95 focus:outline-none focus:ring-2 focus:ring-green-300/70"
         >
           SEND IT
         </button>
