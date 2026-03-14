@@ -34,7 +34,11 @@ export async function completeLogin({
         try {
             const inviteResponse = await acceptInvite(pendingInviteToken, access);
             clearPendingInviteToken();
-            navigate(`/bucketlists/${inviteResponse.bucket_list_id}`);
+            navigate(`/bucketlists/${inviteResponse.bucket_list_id}`, {
+                state: {
+                    successMessage: "You are now a member of this list.",
+                },
+            });
             return;
         } catch (error) {
             clearPendingInviteToken();

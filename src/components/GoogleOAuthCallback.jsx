@@ -1,4 +1,4 @@
-import { useEffect } from "react";
+import { useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../hooks/use-auth";
 import { completeLogin } from "../utils/completeLogin";
@@ -6,8 +6,12 @@ import { completeLogin } from "../utils/completeLogin";
 function GoogleOAuthCallback() {
   const navigate = useNavigate();
   const { setAuth } = useAuth();
+  const hasRunRef = useRef(false);
 
   useEffect(() => {
+    if (hasRunRef.current) return;
+    hasRunRef.current = true;
+
     const params = new URLSearchParams(window.location.search);
     const access = params.get("access");
     const refresh = params.get("refresh");

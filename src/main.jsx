@@ -25,7 +25,8 @@ const router = createBrowserRouter([
       { path: "/login", element: <LoginPage />},
       { path: "/dashboard", element: <AccountPage />},
       { path: "/oauth/google/callback", element: <GoogleOAuthCallback /> },
-      { path: "/invites/:token", element: <InviteAcceptPage /> }
+      { path: "/invites/:token", element: <InviteAcceptPage /> },
+      { path: "/bucketlists/:id", element: <HomePage /> },
     ],
   },
 ]);
