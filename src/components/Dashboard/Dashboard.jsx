@@ -8,6 +8,7 @@ import DashboardFocusPanel from "./DashboardFocusPanel";
 import FormModal from "../UI/FormModal";
 import CreateBucketListForm from "../forms/CreateBucketListForm";
 import CreateItemForm from "../forms/CreateItemForm";
+import InviteMembersModal from "../forms/InviteMembersModal";
 
 function Dashboard({ user }) {
   const { bucketLists, isLoading, bucketListsError, loadBucketLists } =
@@ -17,30 +18,36 @@ function Dashboard({ user }) {
   const [selectedListId, setSelectedListId] = useState(null);
   const [showCreateModal, setShowCreateModal] = useState(false);
   const [showAddItemModal, setShowAddItemModal] = useState(false);
+  const [showInviteModal, setShowInviteModal] = useState(false);
   const [isVotingItemId, setIsVotingItemId] = useState(null);
   const [voteOverrides, setVoteOverrides] = useState({});
 
-  // BUCKET LIST FORM
   const handleOpenCreateModal = () => setShowCreateModal(true);
   const handleCloseCreateModal = () => setShowCreateModal(false);
-  
+
   const handleCreateSuccess = async (newBucketList) => {
     await loadBucketLists();
     setSelectedListId(newBucketList.id);
     setShowCreateModal(false);
   };
 
-  // ADD ITEM FORM
   const handleCloseAddItemModal = () => setShowAddItemModal(false);
   const handleOpenAddItemModal = () => {
-  if (!selectedListId) return;
-  setShowAddItemModal(true);
-};
+    if (!selectedListId) return;
+    setShowAddItemModal(true);
+  };
 
   const handleAddItemSuccess = async () => {
     await loadBucketLists();
     setShowAddItemModal(false);
   };
+
+  const handleOpenInviteModal = () => {
+    if (!selectedListId) return;
+    setShowInviteModal(true);
+  };
+
+  const handleCloseInviteModal = () => setShowInviteModal(false);
 
   useEffect(() => {
     if (!bucketLists.length) {
@@ -57,13 +64,11 @@ function Dashboard({ user }) {
     }
   }, [bucketLists, selectedListId]);
 
-  // VOTING LOGIC
   const getBaseVoteScore = (item) => {
     return item.vote_score ?? item.votes_count ?? item.score ?? 0;
   };
 
   const getBaseUserVote = (item) => {
-    // Adjust this if your backend uses a different field name
     return item.user_vote ?? item.current_user_vote ?? null;
   };
 
@@ -146,6 +151,11 @@ function Dashboard({ user }) {
     };
   }, [bucketLists, selectedListId, voteOverrides]);
 
+  const isSelectedListOwner =
+    selectedList?.owner?.id && user?.id
+      ? selectedList.owner.id === user.id
+      : false;
+
   return (
     <>
       <motion.div
@@ -176,6 +186,9 @@ function Dashboard({ user }) {
             onDownvoteItem={(item) => handleVote(item, "downvote")}
             isVotingItemId={isVotingItemId}
             onAddItemClick={handleOpenAddItemModal}
+            onInviteMembersClick={
+              isSelectedListOwner ? handleOpenInviteModal : undefined
+            }
           />
         </section>
       </motion.div>
@@ -204,6 +217,12 @@ function Dashboard({ user }) {
           onSuccess={handleAddItemSuccess}
         />
       </FormModal>
+
+      <InviteMembersModal
+        isOpen={showInviteModal}
+        onClose={handleCloseInviteModal}
+        bucketListId={selectedListId}
+      />
     </>
   );
 }

@@ -9,6 +9,8 @@ import AccountPage from "./pages/AccountPage.jsx";
 import BucketListsPage from "./pages/BucketListsPage";
 import SingleListView from "./pages/SingleListView.jsx";
 import RegisterPage from "./pages/RegisterPage";
+import InviteAcceptPage from "./pages/InviteAcceptPage.jsx";
+
 import { AuthProvider } from "./components/AuthProvider.jsx"
 import GoogleOAuthCallback from "./components/GoogleOAuthCallback.jsx";
 import NotFound from "./pages/NotFoundPage";

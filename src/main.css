@@ -308,6 +308,7 @@ h6,
 }
 
 .form-input,
+.form-input-with-icon,
 .form-textarea,
 .form-select {
   width: 100%;
@@ -332,6 +333,11 @@ h6,
   padding: 0.9rem 1rem;
 }
 
+.form-input-with-icon {
+  min-height: 3.25rem;
+  padding-left: 3rem;
+}
+
 .form-textarea {
   min-height: 8rem;
   padding: 1rem;
@@ -339,19 +345,22 @@ h6,
 }
 
 .form-input::placeholder,
-.form-textarea::placeholder {
+.form-textarea::placeholder,
+.form-input-with-icon::placeholder {
   color: #8c86a3;
 }
 
 .form-input:hover,
 .form-textarea:hover,
-.form-select:hover {
+.form-select:hover,
+.form-input-with-icon:hover {
   border-color: rgba(107, 78, 170, 0.28);
 }
 
 .form-input:focus,
 .form-textarea:focus,
-.form-select:focus {
+.form-select:focus,
+.form-input-with-icon:focus {
   outline: none;
   border-color: rgba(107, 78, 170, 0.65);
   box-shadow:
