@@ -1,4 +1,5 @@
 import { useEffect } from "react";
+import { createPortal } from "react-dom";
 import { AnimatePresence, motion } from "framer-motion";
 import { X } from "lucide-react";
 
@@ -28,18 +29,20 @@ function FormModal({
     };
   }, [isOpen, onClose]);
 
-  return (
+  if (typeof document === "undefined") return null;
+
+  return createPortal(
     <AnimatePresence>
       {isOpen ? (
         <motion.div
-          className="modal-backdrop fixed inset-0 z-50 overflow-y-auto px-4 py-6"
+          className="modal-backdrop fixed inset-0 z-[1000] overflow-y-auto px-4 py-6"
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
           transition={{ duration: 0.2 }}
           onClick={onClose}
         >
-          <div className="flex min-h-full items-start justify-center md:items-center">
+          <div className="flex min-h-full items-center justify-center">
             <motion.div
               role="dialog"
               aria-modal="true"
@@ -80,7 +83,8 @@ function FormModal({
           </div>
         </motion.div>
       ) : null}
-    </AnimatePresence>
+    </AnimatePresence>,
+    document.body,
   );
 }
 

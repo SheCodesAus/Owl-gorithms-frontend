@@ -1,5 +1,6 @@
 import { useParams, Link } from "react-router-dom";
 import { useBucketList } from "../hooks/useBucketList";
+import { useState } from "react";
 
 function formatDate(dateString) {
   if (!dateString) return null;
@@ -9,7 +10,8 @@ function formatDate(dateString) {
 
 function BucketListItemPage() {
   const { listId, itemId } = useParams();
-  const { bucketList, isLoading, error } = useBucketList(listId);
+  const { bucketList, isLoading, error, reloadBucketList } = useBucketList(listId);
+  const [updating, setUpdating] = useState(false);
 
   if (isLoading)
     return <p className="text-gray-300 text-center mt-12">Loading item...</p>;
@@ -19,6 +21,42 @@ function BucketListItemPage() {
   const item = bucketList?.items?.find((i) => i.id === Number(itemId));
   if (!item)
     return <p className="text-gray-300 text-center mt-12">Item not found.</p>;
+
+  const updateStatus = async (newStatus) => {
+    const token = localStorage.getItem("accessToken"); // JWT token
+    if (!token) {
+      alert("You must be logged in to update status.");
+      return;
+    }
+
+    setUpdating(true);
+
+    try {
+      const res = await fetch(
+        `http://127.0.0.1:8000/api/bucketlists/${listId}/items/${item.id}/`,
+        {
+          method: "PATCH",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+          body: JSON.stringify({ status: newStatus }),
+        }
+      );
+
+      if (!res.ok) {
+        const data = await res.json().catch(() => ({}));
+        throw new Error(data.detail || `Failed to update status (${res.status})`);
+      }
+
+      await reloadBucketList(); // refresh item
+    } catch (err) {
+      console.error("Status update error:", err);
+      alert(err.message);
+    } finally {
+      setUpdating(false);
+    }
+  };
 
   return (
     <div className="p-6 max-w-3xl mx-auto">
@@ -30,30 +68,39 @@ function BucketListItemPage() {
       </Link>
 
       <div className="dashboard-gradient-card p-6 flex flex-col gap-4">
-        {/* Title */}
         <h1 className="text-white text-2xl font-bold leading-snug">{item.title}</h1>
 
-        {/* Description */}
         {item.description && (
           <p className="text-white text-sm leading-relaxed">{item.description}</p>
         )}
 
-        {/* Status */}
-        <div className="flex gap-4 items-center text-white text-sm">
-          <span>Status: <strong>{item.status.replace("_", " ")}</strong></span>
-          {item.completed_at && (
-            <span>Completed: {formatDate(item.completed_at)}</span>
-          )}
+        {/* Status Buttons */}
+        <div className="flex gap-3 mt-2">
+          {["proposed", "locked_in", "complete"].map((status) => (
+            <button
+              key={status}
+              className={`px-4 py-2 rounded-full font-semibold text-sm
+                ${item.status === status ? "bg-white text-purple-700" : "bg-purple-600 text-white"}
+                transition hover:opacity-80`}
+              disabled={updating}
+              onClick={() => updateStatus(status)}
+            >
+              {status.replace("_", " ")}
+            </button>
+          ))}
         </div>
+
+        {item.completed_at && (
+          <div className="text-white text-sm">Completed: {formatDate(item.completed_at)}</div>
+        )}
 
         {/* Votes */}
         <div className="flex gap-4 items-center text-white text-sm">
-          <span>👍 {item.upvotes_count ?? 0}</span>
-          <span>👎 {item.downvotes_count ?? 0}</span>
-          <span>Score: {item.score ?? 0}</span>
+          <span>⬆️ {item.upvotes_count ?? 0}</span>
+          <span>⬇️ {item.downvotes_count ?? 0}</span>
         </div>
 
-        {/* Timestamps */}
+        {/* Created/Updated */}
         <div className="flex gap-4 text-gray-300 text-xs mt-2">
           <span>Created: {formatDate(item.created_at)}</span>
           <span>Updated: {formatDate(item.updated_at)}</span>
