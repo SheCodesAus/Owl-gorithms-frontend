@@ -10,20 +10,24 @@ function formatDate(dateString) {
 
 function BucketListItemPage() {
   const { listId, itemId } = useParams();
-  const { bucketList, isLoading, error, reloadBucketList } = useBucketList(listId);
+  const { bucketList, isLoading, error, loadBucketList } = useBucketList(listId);
   const [updating, setUpdating] = useState(false);
+
+  console.log('BucketListItemPage:', { listId, itemId, bucketList, isLoading, error });
 
   if (isLoading)
     return <p className="text-gray-300 text-center mt-12">Loading item...</p>;
   if (error)
     return <p className="text-red-400 text-center mt-12">Error loading item.</p>;
 
-  const item = bucketList?.items?.find((i) => i.id === Number(itemId));
+  const item = bucketList?.items?.find((i) => i.id == itemId);
+  console.log('Found item:', item);
+
   if (!item)
     return <p className="text-gray-300 text-center mt-12">Item not found.</p>;
 
   const updateStatus = async (newStatus) => {
-    const token = localStorage.getItem("accessToken"); // JWT token
+    const token = localStorage.getItem("access"); // JWT token
     if (!token) {
       alert("You must be logged in to update status.");
       return;
@@ -33,7 +37,7 @@ function BucketListItemPage() {
 
     try {
       const res = await fetch(
-        `http://127.0.0.1:8000/api/bucketlists/${listId}/items/${item.id}/`,
+        `${import.meta.env.VITE_API_URL}/bucketlists/${listId}/items/${item.id}/`,
         {
           method: "PATCH",
           headers: {
@@ -49,7 +53,7 @@ function BucketListItemPage() {
         throw new Error(data.detail || `Failed to update status (${res.status})`);
       }
 
-      await reloadBucketList(); // refresh item
+      await loadBucketList(); // refresh item
     } catch (err) {
       console.error("Status update error:", err);
       alert(err.message);
@@ -61,10 +65,10 @@ function BucketListItemPage() {
   return (
     <div className="p-6 max-w-3xl mx-auto">
       <Link
-        to={`/bucketlists/${listId}`}
+        to={`/bucketlists`}
         className="text-indigo-400 mb-4 block hover:underline"
       >
-        ← Back to List
+        ← Back to Bucket Lists
       </Link>
 
       <div className="dashboard-gradient-card p-6 flex flex-col gap-4">

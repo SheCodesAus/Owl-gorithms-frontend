@@ -9,11 +9,13 @@ import AccountPage from "./pages/AccountPage.jsx";
 
 import { AuthProvider } from "./components/AuthProvider.jsx";
 import GoogleOAuthCallback from "./components/GoogleOAuthCallback.jsx";
+import NotFound from "./pages/NotFoundPage";
 
 // New pages
-import BucketListPage from "./pages/BucketListPage.jsx";
 import BucketListItemPage from "./pages/BucketListItemPage.jsx";
-
+import BucketListsPage from "./pages/BucketListsPage";
+import SingleListView from "./pages/SingleListView.jsx";
+import RegisterPage from "./pages/RegisterPage";
 import "./main.css";
 
 const router = createBrowserRouter([
@@ -23,12 +25,14 @@ const router = createBrowserRouter([
     children: [
       { index: true, element: <HomePage /> },
       { path: "/login", element: <LoginPage /> },
+      { path: "/register", element: <RegisterPage />},
       { path: "/dashboard", element: <AccountPage /> },
 
       // New routes for bucket lists
-      { path: "/bucketlists/:id", element: <BucketListPage /> },
       { path: "/bucketlists/:listId/items/:itemId", element: <BucketListItemPage /> },
-
+      { path: "/bucketlists", element: <BucketListsPage /> },
+      { path: "/bucketlists/:id", element: <SingleListView /> },
+      { path: "*", element: <NotFound /> },
       { path: "/oauth/google/callback", element: <GoogleOAuthCallback /> },
     ],
   },
