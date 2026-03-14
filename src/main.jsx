@@ -6,6 +6,7 @@ import Layout from "./layout";
 import HomePage from "./pages/HomePage.jsx";
 import LoginPage from "./pages/LoginPage.jsx";
 import AccountPage from "./pages/AccountPage.jsx";
+import InviteAcceptPage from "./pages/InviteAcceptPage.jsx";
 
 import { AuthProvider } from "./components/AuthProvider.jsx"
 import GoogleOAuthCallback from "./components/GoogleOAuthCallback.jsx";
@@ -24,6 +25,7 @@ const router = createBrowserRouter([
       { path: "/login", element: <LoginPage />},
       { path: "/dashboard", element: <AccountPage />},
       { path: "/oauth/google/callback", element: <GoogleOAuthCallback /> },
+      { path: "/invites/:token", element: <InviteAcceptPage /> }
     ],
   },
 ]);
