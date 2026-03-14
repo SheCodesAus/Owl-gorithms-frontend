@@ -13,12 +13,12 @@ import { useInvites } from "../../hooks/useInvites";
 const ROLE_CONFIG = {
   editor: {
     title: "Editor access",
-    description: "Can add items and manage the items they created.",
+    description: "Can add items, vote and manage the items they created.",
     icon: Pencil,
   },
   viewer: {
     title: "Viewer access",
-    description: "Can view the list. Voting depends on the list settings.",
+    description: "Can view the list. Voting can be enabled for viewers in Settings.",
     icon: Eye,
   },
 };
@@ -123,10 +123,7 @@ function InviteRoleCard({
 
         <div className="mt-5">
           <div className="form-field">
-            <label
-              htmlFor={`${role}-invite-link`}
-              className="form-label"
-            >
+            <label htmlFor={`${role}-invite-link`} className="form-label">
               Share link
             </label>
 
@@ -134,7 +131,7 @@ function InviteRoleCard({
               <div className="relative flex-1">
                 <LinkIcon
                   size={16}
-                  className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-[var(--muted-text)]"
+                  className="pointer-events-none absolute left-4 top-1/2 -translate-y-1/2 text-[var(--muted-text)]"
                 />
 
                 <input
@@ -142,8 +139,10 @@ function InviteRoleCard({
                   type="text"
                   readOnly
                   value={invite?.invite_url ?? ""}
-                  placeholder={isLoading ? "Loading..." : "No link generated yet"}
-                  className="form-input pl-10"
+                  placeholder={
+                    isLoading ? "Loading..." : "No link generated yet"
+                  }
+                  className="form-input-with-icon pl-12"
                 />
               </div>
 
@@ -151,7 +150,7 @@ function InviteRoleCard({
                 <button
                   type="button"
                   onClick={() => onCopy(role, invite.invite_url)}
-                  className="inline-flex items-center justify-center gap-2 rounded-2xl border border-[var(--card-border)] bg-white px-4 py-3 font-semibold text-[var(--heading-text)] shadow-sm transition hover:-translate-y-[1px] disabled:opacity-60"
+                  className="inline-flex items-center justify-center gap-2 rounded-2xl border border-[var(--card-border)] bg-white px-4 py-3 font-semibold text-[var(--heading-text)] shadow-sm transition hover:-translate-y-[1px] disabled:opacity-60 cursor-pointer"
                   disabled={isBusy}
                 >
                   <Copy size={16} />
@@ -161,7 +160,7 @@ function InviteRoleCard({
                 <button
                   type="button"
                   onClick={() => onGenerate(role)}
-                  className="inline-flex items-center justify-center rounded-2xl bg-[var(--primary-cta)] px-4 py-3 font-semibold text-[var(--cta-text)] transition hover:bg-[var(--primary-cta-hover)] disabled:opacity-60"
+                  className="inline-flex items-center justify-center rounded-2xl bg-[var(--primary-cta)] px-4 py-3 font-semibold text-[var(--cta-text)] transition hover:bg-[var(--primary-cta-hover)] disabled:opacity-60 cursor-pointer"
                   disabled={isBusy || isLoading}
                 >
                   {isBusy ? "Generating..." : "Generate link"}
@@ -195,13 +194,10 @@ function InviteRoleCard({
               <button
                 type="button"
                 onClick={() => onRegenerate(role)}
-                className="inline-flex items-center gap-2 rounded-2xl border border-[var(--card-border)] bg-white px-4 py-3 font-semibold text-[var(--heading-text)] shadow-sm transition hover:-translate-y-[1px] disabled:opacity-60"
+                className="inline-flex items-center gap-2 rounded-2xl border border-[var(--card-border)] bg-white px-4 py-3 font-semibold text-[var(--heading-text)] shadow-sm transition hover:-translate-y-[1px] disabled:opacity-60 cursor-pointer"
                 disabled={isBusy}
               >
-                <RefreshCw
-                  size={16}
-                  className={isBusy ? "animate-spin" : ""}
-                />
+                <RefreshCw size={16} className={isBusy ? "animate-spin" : ""} />
                 {isBusy ? "Regenerating..." : "Regenerate link"}
               </button>
             </div>
@@ -248,8 +244,7 @@ function InviteMembersModal({ isOpen, onClose, bucketListId }) {
         if (editorResult.status === "fulfilled") {
           setEditorInvite(editorResult.value);
         } else {
-          const message = editorResult.reason?.message?.toLowerCase?.() || "";
-          if (message.includes("no invite exists")) {
+          if (viewerResult.reason?.status === 404) {
             setEditorInvite(null);
           } else {
             throw editorResult.reason;
@@ -259,8 +254,7 @@ function InviteMembersModal({ isOpen, onClose, bucketListId }) {
         if (viewerResult.status === "fulfilled") {
           setViewerInvite(viewerResult.value);
         } else {
-          const message = viewerResult.reason?.message?.toLowerCase?.() || "";
-          if (message.includes("no invite exists")) {
+          if (viewerResult.reason?.status === 404) {
             setViewerInvite(null);
           } else {
             throw viewerResult.reason;
@@ -281,7 +275,7 @@ function InviteMembersModal({ isOpen, onClose, bucketListId }) {
     return () => {
       isMounted = false;
     };
-  }, [isOpen, bucketListId, loadInvite]);
+  }, [isOpen, bucketListId]);
 
   async function handleGenerate(role) {
     try {
@@ -304,7 +298,7 @@ function InviteMembersModal({ isOpen, onClose, bucketListId }) {
 
   async function handleRegenerate(role) {
     const confirmed = window.confirm(
-      "Generate a new link? The current link will stop working immediately."
+      "Generate a new link? The current link will stop working immediately.",
     );
 
     if (!confirmed) return;
@@ -345,7 +339,6 @@ function InviteMembersModal({ isOpen, onClose, bucketListId }) {
       isOpen={isOpen}
       onClose={onClose}
       title="Invite members"
-      subtitle="Create and share access links for this bucket list. Each role has its own link, and only the latest active link for that role will work."
       maxWidth="max-w-4xl"
     >
       <div className="space-y-6">
@@ -365,9 +358,9 @@ function InviteMembersModal({ isOpen, onClose, bucketListId }) {
                 Share access with confidence
               </h3>
               <p className="mt-1 text-sm leading-6 text-[var(--muted-text)]">
-                Use editor links for collaborators who will actively contribute,
-                and viewer links for people who just need to see the list. If you
-                regenerate a link, the old one stops working immediately.
+                Editor: For collaborators who will actively contribute<br></br>
+                Viewer: For people who just need to see the list.<br></br>
+                If you regenerate a link, the old one stops working immediately.
               </p>
             </div>
           </div>

@@ -1,3 +1,4 @@
+import { useCallback } from "react";
 import { useAuth } from "./use-auth";
 import {
   generateInvite,
@@ -11,29 +12,44 @@ export function useInvites() {
   const { auth } = useAuth();
   const token = auth?.access;
 
-  const createInvite = async (bucketListId, role) => {
-    if (!token) throw new Error("User not logged in");
-    return generateInvite(bucketListId, role, token);
-  };
+  const createInvite = useCallback(
+    async (bucketListId, role) => {
+      if (!token) throw new Error("User not logged in");
+      return generateInvite(bucketListId, role, token);
+    },
+    [token],
+  );
 
-  const loadInvite = async (bucketListId, role) => {
-    if (!token) throw new Error("User not logged in");
-    return getInvite(bucketListId, role, token);
-  };
+  const loadInvite = useCallback(
+    async (bucketListId, role) => {
+      if (!token) throw new Error("User not logged in");
+      return getInvite(bucketListId, role, token);
+    },
+    [token],
+  );
 
-  const refreshInvite = async (bucketListId, role) => {
-    if (!token) throw new Error("User not logged in");
-    return regenerateInvite(bucketListId, role, token);
-  };
+  const refreshInvite = useCallback(
+    async (bucketListId, role) => {
+      if (!token) throw new Error("User not logged in");
+      return regenerateInvite(bucketListId, role, token);
+    },
+    [token],
+  );
 
-  const loadInvitePreview = async (inviteToken) => {
-    return previewInvite(inviteToken, token);
-  };
+  const loadInvitePreview = useCallback(
+    async (inviteToken) => {
+      return previewInvite(inviteToken, token);
+    },
+    [token],
+  );
 
-  const confirmInvite = async (inviteToken) => {
-    if (!token) throw new Error("User not logged in");
-    return acceptInvite(inviteToken, token);
-  };
+  const confirmInvite = useCallback(
+    async (inviteToken) => {
+      if (!token) throw new Error("User not logged in");
+      return acceptInvite(inviteToken, token);
+    },
+    [token],
+  );
 
   return {
     createInvite,
