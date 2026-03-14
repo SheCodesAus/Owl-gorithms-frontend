@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
-import { useParams } from "react-router-dom";
+import { useParams, useNavigate, Link } from "react-router-dom";
+import { useAuth } from "../hooks/use-auth";
 
 // Kickit Colours
 const COLORS = {
@@ -127,15 +128,23 @@ function DeleteConfirmModal({ item, onConfirm, onCancel }) {
 }
 
 // Item Card
-function ItemCard({ item, onDelete }) {
+function ItemCard({ item, listId, onDelete }) {
     const [hovering, setHovering] = useState(false);
+    const navigate = useNavigate();
     const tag = TAG_COLORS[item.tag] || TAG_COLORS.other;
+
+    const handleCardClick = (e) => {
+        if (e.target.closest("button")) return;
+        navigate(`/bucketlists/${listId}/items/${item.id}`);
+    };
 
     return (
         <div
+            onClick={handleCardClick}
             onMouseEnter={() => setHovering(true)}
             onMouseLeave={() => setHovering(false)}
             style={{
+                cursor: "pointer",
                 background: item.is_completed ? COLORS.background : COLORS.white,
                 border: `1px solid ${hovering ? COLORS.border : "#E2DAF5"}`,
                 borderRadius: "16px",
@@ -248,12 +257,19 @@ export default function SingleListView() {
     const [filter, setFilter] = useState("all");
 
     const { id } = useParams();
-    const API_BASE = import.meta.env.VITE_API_URL;
+const { auth } = useAuth();
+const navigate = useNavigate();
+const API_BASE = import.meta.env.VITE_API_URL;
 
 useEffect(() => {
-        async function fetchData() {
-            try {
-                const token = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNzcyOTczMTE3LCJpYXQiOjE3NzI5Njk1MzIsImp0aSI6ImI0MjYxOTdiOTcxYjQyMTJiNDM3MGYyZDU3OGY1MjQ4IiwidXNlcl9pZCI6IjEifQ.-mJDUM68HuuN1Huab5kWN-oW21r8eRHhGreE-26Xe2o";
+    async function fetchData() {
+        try {
+            const token = auth?.access;
+            if (!token) {
+                setError("Not logged in");
+                setLoading(false);
+                return;
+            }
 
                 const [listRes, itemsRes] = await Promise.all([
                     fetch(`${API_BASE}/bucketlists/${id}/`, {
@@ -465,7 +481,7 @@ useEffect(() => {
                             Nothing here yet — make a plan, do something new!
                         </div>
                     ) : filteredItems.map(item => (
-                        <ItemCard key={item.id} item={item} onDelete={setDeleteTarget} />
+                        <ItemCard key={item.id} item={item} listId={id} onDelete={setDeleteTarget} />
                     ))}
                 </div>
             </div>
