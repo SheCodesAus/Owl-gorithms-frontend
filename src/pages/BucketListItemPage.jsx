@@ -1,117 +1,43 @@
 import { useParams, Link } from "react-router-dom";
 import { useBucketList } from "../hooks/useBucketList";
-import { useState } from "react";
+import { motion } from "framer-motion";
 
-function formatDate(dateString) {
-  if (!dateString) return null;
-  const options = { year: "numeric", month: "short", day: "numeric" };
-  return new Date(dateString).toLocaleDateString("en-US", options);
-}
+export default function BucketListItemPage() {
+  const { bucketListId, itemId } = useParams();
+  const { bucketList, isLoading, bucketListError } = useBucketList(Number(bucketListId));
 
-function BucketListItemPage() {
-  const { listId, itemId } = useParams();
-  const { bucketList, isLoading, error, loadBucketList } = useBucketList(listId);
-  const [updating, setUpdating] = useState(false);
+  // Loading and error handling
+  if (isLoading) return <p>Loading item...</p>;
+  if (bucketListError) return <p>{bucketListError}</p>;
+  if (!bucketList) return <p>Bucket list not found</p>;
 
-  console.log('BucketListItemPage:', { listId, itemId, bucketList, isLoading, error });
-
-  if (isLoading)
-    return <p className="text-gray-300 text-center mt-12">Loading item...</p>;
-  if (error)
-    return <p className="text-red-400 text-center mt-12">Error loading item.</p>;
-
-  const item = bucketList?.items?.find((i) => i.id == itemId);
-  console.log('Found item:', item);
-
-  if (!item)
-    return <p className="text-gray-300 text-center mt-12">Item not found.</p>;
-
-  const updateStatus = async (newStatus) => {
-    const token = localStorage.getItem("access"); // JWT token
-    if (!token) {
-      alert("You must be logged in to update status.");
-      return;
-    }
-
-    setUpdating(true);
-
-    try {
-      const res = await fetch(
-        `${import.meta.env.VITE_API_URL}/bucketlists/${listId}/items/${item.id}/`,
-        {
-          method: "PATCH",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${token}`,
-          },
-          body: JSON.stringify({ status: newStatus }),
-        }
-      );
-
-      if (!res.ok) {
-        const data = await res.json().catch(() => ({}));
-        throw new Error(data.detail || `Failed to update status (${res.status})`);
-      }
-
-      await loadBucketList(); // refresh item
-    } catch (err) {
-      console.error("Status update error:", err);
-      alert(err.message);
-    } finally {
-      setUpdating(false);
-    }
-  };
+  // Find item by actual database ID
+  const item = bucketList.items.find((i) => i.id === Number(itemId));
+  if (!item) return <p>Item not found</p>;
 
   return (
-    <div className="p-6 max-w-3xl mx-auto">
-      <Link
-        to={`/bucketlists`}
-        className="text-indigo-400 mb-4 block hover:underline"
-      >
-        ← Back to Bucket Lists
-      </Link>
+    <motion.div
+      className="p-8 rounded-2xl dashboard-gradient-card"
+      initial={{ opacity: 0, y: 12 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.35, ease: "easeOut" }}
+    >
+      <h1 className="text-2xl font-bold mb-4">{item.title}</h1>
+      <p className="mb-6">{item.description || "No description"}</p>
 
-      <div className="dashboard-gradient-card p-6 flex flex-col gap-4">
-        <h1 className="text-white text-2xl font-bold leading-snug">{item.title}</h1>
-
-        {item.description && (
-          <p className="text-white text-sm leading-relaxed">{item.description}</p>
-        )}
-
-        {/* Status Buttons */}
-        <div className="flex gap-3 mt-2">
-          {["proposed", "locked_in", "complete"].map((status) => (
-            <button
-              key={status}
-              className={`px-4 py-2 rounded-full font-semibold text-sm
-                ${item.status === status ? "bg-white text-purple-700" : "bg-purple-600 text-white"}
-                transition hover:opacity-80`}
-              disabled={updating}
-              onClick={() => updateStatus(status)}
-            >
-              {status.replace("_", " ")}
-            </button>
-          ))}
-        </div>
-
+      <div className="flex gap-4 items-center mb-6">
+        <span>Status: <strong>{item.status}</strong></span>
         {item.completed_at && (
-          <div className="text-white text-sm">Completed: {formatDate(item.completed_at)}</div>
+          <span>Completed at: {new Date(item.completed_at).toLocaleDateString()}</span>
         )}
-
-        {/* Votes */}
-        <div className="flex gap-4 items-center text-white text-sm">
-          <span>⬆️ {item.upvotes_count ?? 0}</span>
-          <span>⬇️ {item.downvotes_count ?? 0}</span>
-        </div>
-
-        {/* Created/Updated */}
-        <div className="flex gap-4 text-gray-300 text-xs mt-2">
-          <span>Created: {formatDate(item.created_at)}</span>
-          <span>Updated: {formatDate(item.updated_at)}</span>
-        </div>
       </div>
-    </div>
+
+      <Link
+        to={`/bucketlists/${bucketListId}`}
+        className="primary-gradient-button px-4 py-2 rounded-lg"
+      >
+        Back to {bucketList.title}
+      </Link>
+    </motion.div>
   );
 }
-
-export default BucketListItemPage;
