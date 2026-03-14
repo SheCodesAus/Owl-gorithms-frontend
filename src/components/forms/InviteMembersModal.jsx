@@ -244,7 +244,7 @@ function InviteMembersModal({ isOpen, onClose, bucketListId }) {
         if (editorResult.status === "fulfilled") {
           setEditorInvite(editorResult.value);
         } else {
-          if (viewerResult.reason?.status === 404) {
+          if (editorResult.reason?.status === 404) {
             setEditorInvite(null);
           } else {
             throw editorResult.reason;
