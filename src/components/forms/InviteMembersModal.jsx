@@ -9,6 +9,7 @@ import {
 } from "lucide-react";
 import FormModal from "../UI/FormModal";
 import { useInvites } from "../../hooks/useInvites";
+import { useBanner } from "../UI/BannerProvider";
 
 const ROLE_CONFIG = {
   editor: {
