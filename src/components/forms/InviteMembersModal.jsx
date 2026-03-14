@@ -217,6 +217,7 @@ function InviteRoleCard({
 
 function InviteMembersModal({ isOpen, onClose, bucketListId }) {
   const { loadInvite, createInvite, refreshInvite } = useInvites();
+  const { showBanner } = useBanner();
 
   const [editorInvite, setEditorInvite] = useState(null);
   const [viewerInvite, setViewerInvite] = useState(null);
@@ -263,7 +264,14 @@ function InviteMembersModal({ isOpen, onClose, bucketListId }) {
         }
       } catch (err) {
         if (!isMounted) return;
-        setError(err.message || "Unable to load invite links.");
+
+        const message = err.message || "Unable to load invite links.";
+        setError(message);
+
+        showBanner({
+          type: "error",
+          message,
+        });
       } finally {
         if (isMounted) {
           setIsLoading(false);
@@ -290,8 +298,21 @@ function InviteMembersModal({ isOpen, onClose, bucketListId }) {
       } else {
         setViewerInvite(invite);
       }
+
+      showBanner({
+        type: "success",
+        message: `${
+          role === "editor" ? "Editor" : "Viewer"
+        } invite link generated.`,
+      });
     } catch (err) {
-      setError(err.message || `Unable to generate ${role} invite.`);
+      const message = err.message || `Unable to generate ${role} invite.`;
+      setError(message);
+
+      showBanner({
+        type: "error",
+        message,
+      });
     } finally {
       setActionLoading("");
     }
@@ -315,8 +336,21 @@ function InviteMembersModal({ isOpen, onClose, bucketListId }) {
       } else {
         setViewerInvite(invite);
       }
+
+      showBanner({
+        type: "success",
+        message: `${
+          role === "editor" ? "Editor" : "Viewer"
+        } invite link regenerated. The previous link no longer works.`,
+      });
     } catch (err) {
-      setError(err.message || `Unable to regenerate ${role} invite.`);
+      const message = err.message || `Unable to regenerate ${role} invite.`;
+      setError(message);
+
+      showBanner({
+        type: "error",
+        message,
+      });
     } finally {
       setActionLoading("");
     }
@@ -327,11 +361,24 @@ function InviteMembersModal({ isOpen, onClose, bucketListId }) {
       await navigator.clipboard.writeText(link);
       setCopiedRole(role);
 
+      showBanner({
+        type: "success",
+        message: `${
+          role === "editor" ? "Editor" : "Viewer"
+        } invite link copied.`,
+      });
+
       window.setTimeout(() => {
         setCopiedRole((current) => (current === role ? "" : current));
       }, 1800);
     } catch {
-      setError("Could not copy the link to your clipboard.");
+      const message = "Could not copy the link to your clipboard.";
+      setError(message);
+
+      showBanner({
+        type: "error",
+        message,
+      });
     }
   }
 
@@ -359,8 +406,10 @@ function InviteMembersModal({ isOpen, onClose, bucketListId }) {
                 Share access with confidence
               </h3>
               <p className="mt-1 text-sm leading-6 text-[var(--muted-text)]">
-                Editor: For collaborators who will actively contribute<br></br>
-                Viewer: For people who just need to see the list.<br></br>
+                Editor: For collaborators who will actively contribute.
+                <br />
+                Viewer: For people who just need to see the list.
+                <br />
                 If you regenerate a link, the old one stops working immediately.
               </p>
             </div>
