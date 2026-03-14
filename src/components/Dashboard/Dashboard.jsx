@@ -21,14 +21,16 @@ function Dashboard({ user }) {
   const [showInviteModal, setShowInviteModal] = useState(false);
   const [isVotingItemId, setIsVotingItemId] = useState(null);
   const [voteOverrides, setVoteOverrides] = useState({});
+  const [dashboardMessage, setDashboardMessage] = useState("");
+  const [focusPanelMessage, setFocusPanelMessage] = useState("");
 
   const handleOpenCreateModal = () => setShowCreateModal(true);
   const handleCloseCreateModal = () => setShowCreateModal(false);
-
   const handleCreateSuccess = async (newBucketList) => {
     await loadBucketLists();
     setSelectedListId(newBucketList.id);
     setShowCreateModal(false);
+    setDashboardMessage("Created Successfully!")
   };
 
   const handleCloseAddItemModal = () => setShowAddItemModal(false);
@@ -36,17 +38,16 @@ function Dashboard({ user }) {
     if (!selectedListId) return;
     setShowAddItemModal(true);
   };
-
   const handleAddItemSuccess = async () => {
     await loadBucketLists();
     setShowAddItemModal(false);
+    setFocusPanelMessage("Item added! Let's go!")
   };
 
   const handleOpenInviteModal = () => {
     if (!selectedListId) return;
     setShowInviteModal(true);
   };
-
   const handleCloseInviteModal = () => setShowInviteModal(false);
 
   useEffect(() => {
@@ -63,6 +64,26 @@ function Dashboard({ user }) {
       setSelectedListId(bucketLists[0].id);
     }
   }, [bucketLists, selectedListId]);
+
+  useEffect(() => {
+  if (!dashboardMessage) return;
+
+  const timer = window.setTimeout(() => {
+    setDashboardMessage("");
+  }, 3000);
+
+  return () => window.clearTimeout(timer);
+}, [dashboardMessage]);
+
+useEffect(() => {
+  if (!focusPanelMessage) return;
+
+  const timer = window.setTimeout(() => {
+    setFocusPanelMessage("");
+  }, 3000);
+
+  return () => window.clearTimeout(timer);
+}, [focusPanelMessage]);
 
   const getBaseVoteScore = (item) => {
     return item.vote_score ?? item.votes_count ?? item.score ?? 0;
@@ -164,7 +185,11 @@ function Dashboard({ user }) {
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.35, ease: "easeOut" }}
       >
-        <DashboardBanner onVote={handleVote} isVotingItemId={isVotingItemId} />
+        <DashboardBanner
+        onVote={handleVote}
+        isVotingItemId={isVotingItemId}
+        message={dashboardMessage}
+        />
 
         <section className="grid gap-6 xl:grid-cols-[1.55fr_1.15fr]">
           <DashboardCardGrid
@@ -189,6 +214,7 @@ function Dashboard({ user }) {
             onInviteMembersClick={
               isSelectedListOwner ? handleOpenInviteModal : undefined
             }
+            message={focusPanelMessage}
           />
         </section>
       </motion.div>

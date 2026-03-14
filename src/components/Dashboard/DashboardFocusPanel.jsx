@@ -20,6 +20,7 @@ function DashboardFocusPanel({
   isVotingItemId,
   onAddItemClick,
   onInviteMembersClick,
+  message,
 }) {
   if (isLoading) {
     return (
@@ -185,6 +186,11 @@ function DashboardFocusPanel({
               </div>
             </div>
           </div>
+          {message ? (
+            <div className="mx-5 mt-5 rounded-2xl border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm font-medium text-emerald-800 sm:mx-6">
+              {message}
+            </div>
+          ) : null}
 
           <div className="flex flex-1 flex-col p-5 sm:p-6">
             <section className="space-y-4 border-b border-[var(--card-border)] pb-5">
