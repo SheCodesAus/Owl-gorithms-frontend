@@ -122,10 +122,6 @@ function DashboardFocusPanel({
                   </span>
 
                   <span className="rounded-full bg-white/10 px-3 py-1.5 text-sm text-white/90 backdrop-blur-sm">
-                    {memberCount} member{memberCount === 1 ? "" : "s"}
-                  </span>
-
-                  <span className="rounded-full bg-white/10 px-3 py-1.5 text-sm text-white/90 backdrop-blur-sm">
                     By {ownerName}
                   </span>
                 </div>
@@ -149,7 +145,7 @@ function DashboardFocusPanel({
 
                     <div className="mt-2 flex flex-wrap items-center gap-3">
                       <div className="shrink-0">
-                        <AvatarGroup users={memberUsers} size="sm" max={5} />
+                        <AvatarGroup users={memberUsers} size="sm" max={4} />
                       </div>
 
                       <p className="text-sm text-white/82">
@@ -164,7 +160,7 @@ function DashboardFocusPanel({
                           className="inline-flex cursor-pointer items-center gap-2 rounded-full border border-white/18 bg-white/12 px-4 py-2 text-sm font-semibold text-white backdrop-blur-sm transition hover:bg-white/18 focus:outline-none focus:ring-2 focus:ring-white/70"
                         >
                           <UserPlus size={16} aria-hidden="true" />
-                          Invite members
+                          Invite
                         </button>
                       ) : null}
                     </div>
