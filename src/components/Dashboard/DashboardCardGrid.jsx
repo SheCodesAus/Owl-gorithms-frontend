@@ -1,6 +1,7 @@
 import { Link } from "react-router-dom";
 import { motion } from "framer-motion";
 import { Plus } from "lucide-react";
+import { useAuth } from "../../hooks/use-auth";
 import DashboardBucketCard from "./DashboardBucketCard";
 
 function DashboardCardGrid({
@@ -12,6 +13,8 @@ function DashboardCardGrid({
   onRetry,
   onCreateClick,
 }) {
+  const { auth } = useAuth();
+  const user = auth?.user;
   if (isLoading) {
     return <div className="p-6 text-center text-gray-300">Loading bucket lists...</div>;
   }
