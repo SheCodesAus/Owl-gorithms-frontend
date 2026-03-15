@@ -11,20 +11,30 @@ import InviteAcceptPage from "./pages/InviteAcceptPage.jsx";
 import { AuthProvider } from "./components/AuthProvider.jsx"
 import { BannerProvider } from "./components/UI/BannerProvider.jsx";
 import GoogleOAuthCallback from "./components/GoogleOAuthCallback.jsx";
-import "./main.css"
+import NotFound from "./pages/NotFoundPage";
+
+// New pages
+import BucketListItemPage from "./pages/BucketListItemPage.jsx";
+import BucketListsPage from "./pages/BucketListsPage";
+import SingleListView from "./pages/SingleListView.jsx";
+import RegisterPage from "./pages/RegisterPage";
+import "./main.css";
 
 const router = createBrowserRouter([
   {
     path: "/",
-    element: (
-      <>
-      <Layout />
-      </>
-    ),
+    element: <Layout />,
     children: [
       { index: true, element: <HomePage /> },
-      { path: "/login", element: <LoginPage />},
-      { path: "/dashboard", element: <AccountPage />},
+      { path: "/login", element: <LoginPage /> },
+      { path: "/register", element: <RegisterPage />},
+      { path: "/dashboard", element: <AccountPage /> },
+
+      // New routes for bucket lists
+      { path: "/bucketlists/:listId/items/:itemId", element: <BucketListItemPage /> },
+      { path: "/bucketlists", element: <BucketListsPage /> },
+      { path: "/bucketlists/:id", element: <SingleListView /> },
+      { path: "*", element: <NotFound /> },
       { path: "/oauth/google/callback", element: <GoogleOAuthCallback /> },
       { path: "/invites/:token", element: <InviteAcceptPage /> },
       { path: "/bucketlists/:id", element: <HomePage /> },
@@ -39,5 +49,5 @@ ReactDOM.createRoot(document.getElementById("root")).render(
       <RouterProvider router={router} />
       </BannerProvider>
     </AuthProvider>
-  </React.StrictMode>,
+  </React.StrictMode>
 );

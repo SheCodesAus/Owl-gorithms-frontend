@@ -1,5 +1,3 @@
-import { update } from "three/examples/jsm/libs/tween.module.js";
-
 async function updateBucketList(bucketListId, data, token) {
     const url = `${import.meta.env.VITE_API_URL}/bucketlists/${bucketListId}/`;
 
