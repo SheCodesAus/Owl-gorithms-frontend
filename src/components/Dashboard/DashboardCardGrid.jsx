@@ -1,10 +1,9 @@
-import { Link } from "react-router-dom";
 import { motion } from "framer-motion";
 import { Plus } from "lucide-react";
-import { useAuth } from "../../hooks/use-auth";
 import DashboardBucketCard from "./DashboardBucketCard";
 
 function DashboardCardGrid({
+  user,
   bucketLists,
   selectedListId,
   onSelectList,
@@ -13,40 +12,6 @@ function DashboardCardGrid({
   onRetry,
   onCreateClick,
 }) {
-  const { auth } = useAuth();
-  const user = auth?.user;
-  if (isLoading) {
-    return <div className="p-6 text-center text-gray-300">Loading bucket lists...</div>;
-  }
-
-  if (error) {
-    return (
-      <div className="p-6 text-center">
-        <p className="text-red-400 mb-4">Unable to load bucket lists.</p>
-        <button
-          onClick={onRetry}
-          className="primary-gradient-button px-4 py-2 rounded-lg text-white"
-        >
-          Retry
-        </button>
-      </div>
-    );
-  }
-
-  if (!bucketLists.length) {
-    return (
-      <div className="p-6 text-center">
-        <p className="text-gray-300 mb-4">No bucket lists yet.</p>
-        <button
-          onClick={onCreateClick}
-          className="primary-gradient-button px-4 py-2 rounded-lg text-white"
-        >
-          Create your first list
-        </button>
-      </div>
-    );
-  }
-
   return (
     <section className="space-y-5">
       <motion.div
