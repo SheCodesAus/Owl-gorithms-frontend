@@ -8,6 +8,7 @@ import DashboardFocusPanel from "./DashboardFocusPanel";
 import FormModal from "../UI/FormModal";
 import CreateBucketListForm from "../forms/CreateBucketListForm";
 import CreateItemForm from "../forms/CreateItemForm";
+import InviteMembersModal from "../forms/InviteMembersModal";
 
 function Dashboard({ user }) {
   const { bucketLists, isLoading, bucketListsError, loadBucketLists } =
@@ -17,30 +18,37 @@ function Dashboard({ user }) {
   const [selectedListId, setSelectedListId] = useState(null);
   const [showCreateModal, setShowCreateModal] = useState(false);
   const [showAddItemModal, setShowAddItemModal] = useState(false);
+  const [showInviteModal, setShowInviteModal] = useState(false);
   const [isVotingItemId, setIsVotingItemId] = useState(null);
   const [voteOverrides, setVoteOverrides] = useState({});
+  const [dashboardMessage, setDashboardMessage] = useState("");
+  const [focusPanelMessage, setFocusPanelMessage] = useState("");
 
-  // BUCKET LIST FORM
   const handleOpenCreateModal = () => setShowCreateModal(true);
   const handleCloseCreateModal = () => setShowCreateModal(false);
-  
   const handleCreateSuccess = async (newBucketList) => {
     await loadBucketLists();
     setSelectedListId(newBucketList.id);
     setShowCreateModal(false);
+    setDashboardMessage("Created Successfully!")
   };
 
-  // ADD ITEM FORM
   const handleCloseAddItemModal = () => setShowAddItemModal(false);
   const handleOpenAddItemModal = () => {
-  if (!selectedListId) return;
-  setShowAddItemModal(true);
-};
-
+    if (!selectedListId) return;
+    setShowAddItemModal(true);
+  };
   const handleAddItemSuccess = async () => {
     await loadBucketLists();
     setShowAddItemModal(false);
+    setFocusPanelMessage("Item added! Let's go!")
   };
+
+  const handleOpenInviteModal = () => {
+    if (!selectedListId) return;
+    setShowInviteModal(true);
+  };
+  const handleCloseInviteModal = () => setShowInviteModal(false);
 
   useEffect(() => {
     if (!bucketLists.length) {
@@ -57,13 +65,31 @@ function Dashboard({ user }) {
     }
   }, [bucketLists, selectedListId]);
 
-  // VOTING LOGIC
+  useEffect(() => {
+  if (!dashboardMessage) return;
+
+  const timer = window.setTimeout(() => {
+    setDashboardMessage("");
+  }, 3000);
+
+  return () => window.clearTimeout(timer);
+}, [dashboardMessage]);
+
+useEffect(() => {
+  if (!focusPanelMessage) return;
+
+  const timer = window.setTimeout(() => {
+    setFocusPanelMessage("");
+  }, 3000);
+
+  return () => window.clearTimeout(timer);
+}, [focusPanelMessage]);
+
   const getBaseVoteScore = (item) => {
     return item.vote_score ?? item.votes_count ?? item.score ?? 0;
   };
 
   const getBaseUserVote = (item) => {
-    // Adjust this if your backend uses a different field name
     return item.user_vote ?? item.current_user_vote ?? null;
   };
 
@@ -146,6 +172,11 @@ function Dashboard({ user }) {
     };
   }, [bucketLists, selectedListId, voteOverrides]);
 
+  const isSelectedListOwner =
+    selectedList?.owner?.id && user?.id
+      ? selectedList.owner.id === user.id
+      : false;
+
   return (
     <>
       <motion.div
@@ -154,7 +185,11 @@ function Dashboard({ user }) {
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.35, ease: "easeOut" }}
       >
-        <DashboardBanner onVote={handleVote} isVotingItemId={isVotingItemId} />
+        <DashboardBanner
+        onVote={handleVote}
+        isVotingItemId={isVotingItemId}
+        message={dashboardMessage}
+        />
 
         <section className="grid gap-6 xl:grid-cols-[1.55fr_1.15fr]">
           <DashboardCardGrid
@@ -176,6 +211,10 @@ function Dashboard({ user }) {
             onDownvoteItem={(item) => handleVote(item, "downvote")}
             isVotingItemId={isVotingItemId}
             onAddItemClick={handleOpenAddItemModal}
+            onInviteMembersClick={
+              isSelectedListOwner ? handleOpenInviteModal : undefined
+            }
+            message={focusPanelMessage}
           />
         </section>
       </motion.div>
@@ -204,6 +243,12 @@ function Dashboard({ user }) {
           onSuccess={handleAddItemSuccess}
         />
       </FormModal>
+
+      <InviteMembersModal
+        isOpen={showInviteModal}
+        onClose={handleCloseInviteModal}
+        bucketListId={selectedListId}
+      />
     </>
   );
 }

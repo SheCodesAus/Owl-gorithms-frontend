@@ -1,5 +1,12 @@
 import { AnimatePresence, motion } from "framer-motion";
-import { Lock, Globe, CalendarDays, CheckCircle2, Plus } from "lucide-react";
+import {
+  Lock,
+  Globe,
+  CalendarDays,
+  CheckCircle2,
+  Plus,
+  UserPlus,
+} from "lucide-react";
 import Avatar from "../UI/Avatar";
 import AvatarGroup from "../UI/AvatarGroup";
 import RelativeTime from "../UI/RelativeTime";
@@ -12,6 +19,8 @@ function DashboardFocusPanel({
   onDownvoteItem,
   isVotingItemId,
   onAddItemClick,
+  onInviteMembersClick,
+  message,
 }) {
   if (isLoading) {
     return (
@@ -96,7 +105,6 @@ function DashboardFocusPanel({
           exit={{ opacity: 0 }}
           transition={{ duration: 0.2 }}
         >
-          {/* Integrated top band */}
           <div className="dashboard-focus-band relative border-b border-white/12">
             <div className="relative z-10 px-5 py-5 text-white sm:px-6 sm:py-6">
               <div className="flex h-full flex-col gap-5">
@@ -115,10 +123,6 @@ function DashboardFocusPanel({
                   </span>
 
                   <span className="rounded-full bg-white/10 px-3 py-1.5 text-sm text-white/90 backdrop-blur-sm">
-                    {memberCount} member{memberCount === 1 ? "" : "s"}
-                  </span>
-
-                  <span className="rounded-full bg-white/10 px-3 py-1.5 text-sm text-white/90 backdrop-blur-sm">
                     By {ownerName}
                   </span>
                 </div>
@@ -134,35 +138,42 @@ function DashboardFocusPanel({
                   </p>
                 </div>
 
-                <div className="flex items-end justify-between">
-                  <div>
+                <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
+                  <div className="min-w-0">
                     <p className="text-xs font-medium uppercase tracking-[0.16em] text-white/60">
                       Members
                     </p>
 
-                    <div className="shrink-0">
-                      <AvatarGroup users={memberUsers} size="sm" max={5} />
+                    <div className="mt-2 flex flex-wrap items-center gap-3">
+                      <div className="shrink-0">
+                        <AvatarGroup users={memberUsers} size="sm" max={4} />
+                      </div>
+
+                      <p className="text-sm text-white/82">
+                        {memberCount} connected member
+                        {memberCount === 1 ? "" : "s"}
+                      </p>
+
+                      {onInviteMembersClick ? (
+                        <button
+                          type="button"
+                          onClick={onInviteMembersClick}
+                          className="inline-flex cursor-pointer items-center gap-2 rounded-full border border-white/18 bg-white/12 px-4 py-2 text-sm font-semibold text-white backdrop-blur-sm transition hover:bg-white/18 focus:outline-none focus:ring-2 focus:ring-white/70"
+                        >
+                          <UserPlus size={16} aria-hidden="true" />
+                          Invite
+                        </button>
+                      ) : null}
                     </div>
                   </div>
 
-                  <div className="ml-4 flex-shrink-0">
+                  <div className="flex items-center gap-3">
                     <button
                       type="button"
                       onClick={onAddItemClick}
                       aria-label={`Add item to ${bucketList.title}`}
                       title="Add item"
-                      className="group inline-flex h-16 w-16 items-center justify-center rounded-full 
-                    bg-[linear-gradient(135deg,#15803d_0%,#4ade80_100%)]
-                    text-white
-                    shadow-[0_14px_36px_rgba(8,38,20,0.35)]
-                    transition
-                    hover:scale-105
-                    hover:shadow-[0_18px_46px_rgba(8,38,20,0.45)]
-                    active:scale-95
-                    focus:outline-none
-                    focus:ring-2
-                    focus:ring-white/80
-                    cursor-pointer"
+                      className="group inline-flex h-16 w-16 items-center justify-center rounded-full bg-[linear-gradient(135deg,#15803d_0%,#4ade80_100%)] text-white shadow-[0_14px_36px_rgba(8,38,20,0.35)] transition hover:scale-105 hover:shadow-[0_18px_46px_rgba(8,38,20,0.45)] active:scale-95 focus:outline-none focus:ring-2 focus:ring-white/80 cursor-pointer"
                     >
                       <Plus
                         size={28}
@@ -175,8 +186,12 @@ function DashboardFocusPanel({
               </div>
             </div>
           </div>
+          {message ? (
+            <div className="mx-5 mt-5 rounded-2xl border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm font-medium text-emerald-800 sm:mx-6">
+              {message}
+            </div>
+          ) : null}
 
-          {/* Body */}
           <div className="flex flex-1 flex-col p-5 sm:p-6">
             <section className="space-y-4 border-b border-[var(--card-border)] pb-5">
               <div className="flex flex-wrap items-center justify-between gap-3">
@@ -231,7 +246,6 @@ function DashboardFocusPanel({
               {recentItems.length ? (
                 <div className="space-y-3">
                   {recentItems.map((item, index) => {
-                    const voteScore = item.vote_score ?? item.votes_count ?? 0;
                     const isVoting = isVotingItemId === item.id;
 
                     return (
@@ -278,7 +292,7 @@ function DashboardFocusPanel({
                                   itemTitle={item.title}
                                   score={item.score ?? 0}
                                   activeVote={item.vote_type ?? null}
-                                  isVoting={isVotingItemId === item.id}
+                                  isVoting={isVoting}
                                   onUpvote={() => onUpvoteItem?.(item)}
                                   onDownvote={() => onDownvoteItem?.(item)}
                                   variant="panel"

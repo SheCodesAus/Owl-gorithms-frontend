@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import GoogleLogin from "../components/GoogleLogin";
 import postLogin from "../api/post-login";
 import { useAuth } from "../hooks/use-auth";
+import { completeLogin } from "../utils/completeLogin";
 
 function LoginPage() {
   const navigate = useNavigate();
@@ -35,29 +36,19 @@ function LoginPage() {
       );
 
       const access = response.access;
+      const refresh = response.refresh;
+
       window.localStorage.setItem("access", access);
-
-      const userResponse = await fetch(
-        `${import.meta.env.VITE_API_URL}/users/me/`,
-        {
-          headers: {
-            Authorization: `Bearer ${access}`,
-          },
-        }
-      );
-
-      if (!userResponse.ok) {
-        throw new Error("Failed to fetch user.");
+      if (refresh) {
+        window.localStorage.setItem("refresh", refresh);
       }
 
-      const userData = await userResponse.json();
-
-      setAuth({
+      await completeLogin({
         access,
-        user: userData,
+        refresh,
+        setAuth,
+        navigate,
       });
-
-      navigate("/");
     } catch (error) {
       setErrors({
         non_field_errors: [error.message],

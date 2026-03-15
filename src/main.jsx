@@ -6,8 +6,10 @@ import Layout from "./layout";
 import HomePage from "./pages/HomePage.jsx";
 import LoginPage from "./pages/LoginPage.jsx";
 import AccountPage from "./pages/AccountPage.jsx";
+import InviteAcceptPage from "./pages/InviteAcceptPage.jsx";
 
-import { AuthProvider } from "./components/AuthProvider.jsx";
+import { AuthProvider } from "./components/AuthProvider.jsx"
+import { BannerProvider } from "./components/UI/BannerProvider.jsx";
 import GoogleOAuthCallback from "./components/GoogleOAuthCallback.jsx";
 import NotFound from "./pages/NotFoundPage";
 
@@ -34,6 +36,8 @@ const router = createBrowserRouter([
       { path: "/bucketlists/:id", element: <SingleListView /> },
       { path: "*", element: <NotFound /> },
       { path: "/oauth/google/callback", element: <GoogleOAuthCallback /> },
+      { path: "/invites/:token", element: <InviteAcceptPage /> },
+      { path: "/bucketlists/:id", element: <HomePage /> },
     ],
   },
 ]);
@@ -41,7 +45,9 @@ const router = createBrowserRouter([
 ReactDOM.createRoot(document.getElementById("root")).render(
   <React.StrictMode>
     <AuthProvider>
+      <BannerProvider>
       <RouterProvider router={router} />
+      </BannerProvider>
     </AuthProvider>
   </React.StrictMode>
 );
