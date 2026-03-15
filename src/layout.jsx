@@ -1,6 +1,7 @@
 import { Outlet } from "react-router-dom";
 import { motion } from "framer-motion";
 import NavBar from "./components/NavBar/NavBar";
+import Footer from "./components/Footer";
 
 export default function Layout() {
   return (
@@ -21,6 +22,7 @@ export default function Layout() {
         >
           <Outlet />
         </motion.main>
+        <Footer />
       </motion.div>
     </div>
   );
