@@ -551,9 +551,8 @@ export default function BucketListItemPage() {
                             )}
                         </div>
                     </div>
-
-                    {/* Google Places placeholder */}
-                    <ExtendedItemCard />
+                    
+                    <ExtendedItemCard itemTitle={item.title} />
                 </div>
             </div>
 
