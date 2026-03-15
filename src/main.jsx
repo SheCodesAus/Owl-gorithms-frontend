@@ -14,7 +14,7 @@ import GoogleOAuthCallback from "./components/GoogleOAuthCallback.jsx";
 import NotFound from "./pages/NotFoundPage";
 
 // New pages
-import BucketListItemPage from "./pages/BucketListItemPage.jsx";
+// import BucketListItemPage from "./pages/BucketListItemPage.jsx";
 import BucketListsPage from "./pages/BucketListsPage";
 import SingleListView from "./pages/SingleListView.jsx";
 import RegisterPage from "./pages/RegisterPage";
@@ -27,17 +27,16 @@ const router = createBrowserRouter([
     children: [
       { index: true, element: <HomePage /> },
       { path: "/login", element: <LoginPage /> },
-      { path: "/register", element: <RegisterPage />},
+      // { path: "/register", element: <RegisterPage />},
       { path: "/dashboard", element: <AccountPage /> },
 
       // New routes for bucket lists
-      { path: "/bucketlists/:listId/items/:itemId", element: <BucketListItemPage /> },
+      // { path: "/bucketlists/:listId/items/:itemId", element: <BucketListItemPage /> },
       { path: "/bucketlists", element: <BucketListsPage /> },
       { path: "/bucketlists/:id", element: <SingleListView /> },
       { path: "*", element: <NotFound /> },
       { path: "/oauth/google/callback", element: <GoogleOAuthCallback /> },
       { path: "/invites/:token", element: <InviteAcceptPage /> },
-      { path: "/bucketlists/:id", element: <HomePage /> },
     ],
   },
 ]);

@@ -8,7 +8,7 @@ import DashboardFocusPanel from "./DashboardFocusPanel";
 import FormModal from "../UI/FormModal";
 import CreateBucketListForm from "../forms/CreateBucketListForm";
 import CreateItemForm from "../forms/CreateItemForm";
-import InviteMembersModal from "../forms/InviteMembersModal";
+import InviteMembersModal from "../modals/InviteMembersModal";
 
 function Dashboard({ user }) {
   const { bucketLists, isLoading, bucketListsError, loadBucketLists } =
