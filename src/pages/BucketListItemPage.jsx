@@ -5,8 +5,8 @@ import { useVotes } from "../hooks/useVotes";
 import { useAuth } from "../hooks/use-auth";
 import { updateItem, deleteItem } from "../api/items";
 
-import ItemDetailCard from "../components/Items/ItemDetailCard";
-import ExtendedItemCard from "../components/Items/ExtendedItemCard";
+import ItemDetailCard from "../components/items/ItemDetailCard";
+import ExtendedItemCard from "../components/items/ExtendedItemCard";
 import CalendarExportModal from "../components/modals/CalendarExportModal";
 import EditItemModal from "../components/modals/EditItemModal";
 import DeleteItemModal from "../components/modals/DeleteItemModal";

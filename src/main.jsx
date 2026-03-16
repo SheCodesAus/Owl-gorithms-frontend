@@ -15,7 +15,6 @@ import NotFound from "./pages/NotFoundPage";
 
 // New pages
 import BucketListItemPage from "./pages/BucketListItemPage.jsx";
-import BucketListsPage from "./pages/BucketListsPage";
 import SingleListView from "./pages/SingleListView.jsx";
 import RegisterPage from "./pages/RegisterPage";
 import "./main.css";
@@ -30,7 +29,6 @@ const router = createBrowserRouter([
       // { path: "/register", element: <RegisterPage />},
       { path: "/dashboard", element: <AccountPage /> },
       { path: "/bucketlists/:listId/items/:itemId", element: <BucketListItemPage /> },
-      // { path: "/bucketlists", element: <BucketListsPage /> },
       { path: "/bucketlists/:id", element: <SingleListView /> },
       { path: "*", element: <NotFound /> },
       { path: "/oauth/google/callback", element: <GoogleOAuthCallback /> },
