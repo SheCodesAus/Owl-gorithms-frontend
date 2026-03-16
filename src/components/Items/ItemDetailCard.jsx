@@ -40,34 +40,42 @@ export default function ItemDetailCard({
   onEdit,
   onDelete,
   onUpdateStatus,
+  showBreadcrumb = true,
 }) {
   return (
     <article className="item-detail-card">
-      <div className="item-breadcrumb">
-        <button
-          type="button"
-          className="item-breadcrumb-button"
-          onClick={onBack}
-        >
-          {bucketList.title}
-        </button>
-        <span className="item-breadcrumb-separator">›</span>
-        <span>{item.title}</span>
-      </div>
+      <div className="item-detail-hero">
+        {showBreadcrumb ? (
+          <div className="item-breadcrumb item-breadcrumb-light">
+            <button
+              type="button"
+              className="item-breadcrumb-button item-breadcrumb-button-light"
+              onClick={onBack}
+            >
+              {bucketList.title}
+            </button>
+            <span className="item-breadcrumb-separator">›</span>
+            <span>{item.title}</span>
+          </div>
+        ) : null}
 
-      <div className="item-detail-header">
-        <h1 className="item-detail-title">{item.title}</h1>
+        <div className="item-detail-header">
+          <div className="item-detail-title-block">
+            <p className="item-detail-eyebrow">Item focus</p>
+            <h1 className="item-detail-title">{item.title}</h1>
+          </div>
 
-        <div className="item-detail-votes">
-          <VoteControls
-            itemTitle={item.title}
-            score={voteScore}
-            activeVote={userVote}
-            isVoting={isVoting}
-            onUpvote={onUpvote}
-            onDownvote={onDownvote}
-            variant="panel"
-          />
+          <div className="item-detail-votes">
+            <VoteControls
+              itemTitle={item.title}
+              score={voteScore}
+              activeVote={userVote}
+              isVoting={isVoting}
+              onUpvote={onUpvote}
+              onDownvote={onDownvote}
+              variant="panel"
+            />
+          </div>
         </div>
       </div>
 

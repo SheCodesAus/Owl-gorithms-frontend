@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { useAuth } from "../hooks/use-auth";
 import { Navigate } from "react-router-dom";
 import useUser from "../hooks/use-user";
-import Dashboard from "../components/Dashboard/Dashboard";
+import Dashboard from "../components/dashboard/Dashboard";
 
 function AccountPage() {
   const { auth, setAuth } = useAuth();

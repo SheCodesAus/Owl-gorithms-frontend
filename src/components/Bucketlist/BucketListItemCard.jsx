@@ -1,5 +1,3 @@
-import { useNavigate } from "react-router-dom";
-
 function formatDateTime(iso) {
   if (!iso) return "";
 
@@ -29,22 +27,11 @@ function formatDate(iso) {
   });
 }
 
-export default function BucketListItemCard({ item, listId, onDelete }) {
-  const navigate = useNavigate();
-
-  const goToItem = () => {
-    navigate(`/bucketlists/${listId}/items/${item.id}`);
-  };
-
-  const handleCardClick = (event) => {
-    if (event.target.closest("button")) return;
-    goToItem();
-  };
-
+export default function BucketListItemCard({ item, isSelected, onSelect }) {
   const handleKeyDown = (event) => {
     if (event.key === "Enter" || event.key === " ") {
       event.preventDefault();
-      goToItem();
+      onSelect();
     }
   };
 
@@ -52,11 +39,13 @@ export default function BucketListItemCard({ item, listId, onDelete }) {
     <article
       className={`bucketlist-item-card ${
         item.is_completed ? "bucketlist-item-card-complete" : ""
-      }`}
-      onClick={handleCardClick}
+      } ${isSelected ? "bucketlist-item-card-selected" : ""}`}
+      onClick={onSelect}
       onKeyDown={handleKeyDown}
       tabIndex={0}
     >
+      <div className="bucketlist-item-card-glow" />
+
       <div className="bucketlist-item-top">
         <div className="bucketlist-item-main">
           <div
@@ -77,18 +66,13 @@ export default function BucketListItemCard({ item, listId, onDelete }) {
 
             {item.description ? (
               <p className="bucketlist-item-description">{item.description}</p>
-            ) : null}
+            ) : (
+              <p className="bucketlist-item-description bucketlist-item-description-empty">
+                No description yet.
+              </p>
+            )}
           </div>
         </div>
-
-        <button
-          type="button"
-          className="bucketlist-item-delete-button"
-          onClick={() => onDelete(item)}
-          aria-label={`Delete ${item.title}`}
-        >
-          Delete
-        </button>
       </div>
 
       <div className="bucketlist-item-meta">
