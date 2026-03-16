@@ -1,4 +1,4 @@
-const FILTERS = ["all", "locked in", "complete"];
+const FILTERS = ["all", "pending", "complete"];
 
 export default function BucketListFilterTabs({ filter, onChange }) {
   return (

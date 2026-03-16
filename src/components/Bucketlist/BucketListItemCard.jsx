@@ -2,6 +2,7 @@ import { useNavigate } from "react-router-dom";
 
 function formatDateTime(iso) {
   if (!iso) return "";
+
   const date = new Date(iso);
 
   const dateLabel = date.toLocaleDateString("en-AU", {
@@ -18,12 +19,33 @@ function formatDateTime(iso) {
   return `${dateLabel} · ${timeLabel}`;
 }
 
+function formatDate(iso) {
+  if (!iso) return "";
+
+  return new Date(iso).toLocaleDateString("en-AU", {
+    day: "numeric",
+    month: "short",
+    year: "numeric",
+  });
+}
+
 export default function BucketListItemCard({ item, listId, onDelete }) {
   const navigate = useNavigate();
 
+  const goToItem = () => {
+    navigate(`/bucketlists/${listId}/items/${item.id}`);
+  };
+
   const handleCardClick = (event) => {
     if (event.target.closest("button")) return;
-    navigate(`/bucketlists/${listId}/items/${item.id}`);
+    goToItem();
+  };
+
+  const handleKeyDown = (event) => {
+    if (event.key === "Enter" || event.key === " ") {
+      event.preventDefault();
+      goToItem();
+    }
   };
 
   return (
@@ -32,13 +54,8 @@ export default function BucketListItemCard({ item, listId, onDelete }) {
         item.is_completed ? "bucketlist-item-card-complete" : ""
       }`}
       onClick={handleCardClick}
+      onKeyDown={handleKeyDown}
       tabIndex={0}
-      onKeyDown={(event) => {
-        if (event.key === "Enter" || event.key === " ") {
-          event.preventDefault();
-          navigate(`/bucketlists/${listId}/items/${item.id}`);
-        }
-      }}
     >
       <div className="bucketlist-item-top">
         <div className="bucketlist-item-main">
@@ -80,7 +97,7 @@ export default function BucketListItemCard({ item, listId, onDelete }) {
 
         {item.is_completed && item.completed_at ? (
           <span className="bucketlist-item-complete-badge">
-            Completed {new Date(item.completed_at).toLocaleDateString("en-AU")}
+            Completed {formatDate(item.completed_at)}
           </span>
         ) : null}
       </div>

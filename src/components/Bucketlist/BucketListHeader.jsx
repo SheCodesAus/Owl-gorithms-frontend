@@ -2,6 +2,7 @@ import { Link } from "react-router-dom";
 
 function formatDate(iso) {
   if (!iso) return null;
+
   return new Date(iso).toLocaleDateString("en-AU", {
     day: "numeric",
     month: "short",
@@ -64,6 +65,7 @@ export default function BucketListHeader({ bucketList }) {
       <div className="bucketlist-meta-row">
         <span>Created {formatDate(bucketList.date_created)}</span>
         <span>Owner: {bucketList.owner?.username ?? "Unknown"}</span>
+
         {daysLeft !== null ? (
           <span className={daysLeft < 30 ? "bucketlist-deadline-warning" : ""}>
             {daysLeft > 0 ? `${daysLeft} days until deadline` : "Deadline passed"}

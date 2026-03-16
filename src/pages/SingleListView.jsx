@@ -1,16 +1,16 @@
 import { useMemo, useState } from "react";
-import { createMemorySessionStorage, useParams } from "react-router-dom";
+import { useParams } from "react-router-dom";
 import { useBucketList } from "../hooks/useBucketList";
 import { useAuth } from "../hooks/use-auth";
 import { deleteItem } from "../api/items";
 
-import BucketListHeader from "../components/Bucketlist/BucketListHeader"
-import BucketListProgress from "../components/Bucketlist/BucketListProgress";
-import BucketListFilterTabs from "../components/Bucketlist/BucketListFilterTabs";
-import BucketListItemCard from "../components/Bucketlist/BucketListItemCard";
+import BucketListHeader from "../components/bucketlist/BucketListHeader";
+import BucketListProgress from "../components/bucketlist/BucketListProgress";
+import BucketListFilterTabs from "../components/bucketlist/BucketListFilterTabs";
+import BucketListItemCard from "../components/bucketlist/BucketListItemCard";
 import DeleteItemModal from "../components/modals/DeleteItemModal";
 
-function SingleListView() {
+export default function SingleListView() {
   const { id } = useParams();
   const { auth } = useAuth();
   const { bucketList, isLoading, bucketListError, loadBucketList } =
@@ -115,5 +115,3 @@ function SingleListView() {
     </section>
   );
 }
-
-export default SingleListView;
