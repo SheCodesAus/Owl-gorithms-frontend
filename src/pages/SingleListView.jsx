@@ -239,35 +239,34 @@ export default function SingleListView() {
     <>
       <section className="page-shell">
         <motion.div
-          className="page-width page-width-wide bucketlist-view-stack"
+          className="page-width page-width-wide"
           // Smoothly widen/narrow the container as the panel opens/closes
           animate={{ maxWidth: panelOpen ? "1440px" : "860px" }}
           transition={{ duration: 0.4, ease: [0.4, 0, 0.2, 1] }}
         >
-          {/* ── Header + Action Bar ── always visible ──────────────────── */}
-          <BucketListHeader bucketList={bucketList} />
-
-          <BucketListActionBar
-            completedCount={completedCount}
-            totalCount={items.length}
-            filter={filter}
-            onFilterChange={setFilter}
-            onAddItemClick={() => setShowAddItemModal(true)}
-            onInviteMembersClick={() => setShowInviteModal(true)}
-          />
-
-          {/* ── Items + Focus Panel ─────────────────────────────────────── */}
+          {/* ── Outer relative wrapper spans header + action bar + items ── */}
+          {/* The focus panel is absolutely positioned inside here so it  */}
+          {/* stretches from the very top of the header to the bottom.    */}
           <div className="relative">
-            {/* Items list — always rendered, shifts left when panel opens */}
+
+            {/* Left column — header, action bar, items list */}
             <motion.div
-              animate={{
-                // When panel is open, constrain to ~45% width (left column)
-                // When closed, fill full width
-                width: panelOpen ? "45%" : "100%",
-              }}
+              className="flex flex-col gap-5"
+              animate={{ width: panelOpen ? "45%" : "100%" }}
               transition={{ duration: 0.4, ease: [0.4, 0, 0.2, 1] }}
               style={{ minWidth: 0 }}
             >
+              <BucketListHeader bucketList={bucketList} />
+
+              <BucketListActionBar
+                completedCount={completedCount}
+                totalCount={items.length}
+                filter={filter}
+                onFilterChange={setFilter}
+                onAddItemClick={() => setShowAddItemModal(true)}
+                onInviteMembersClick={() => setShowInviteModal(true)}
+              />
+
               <BucketListItemsPanel
                 items={filteredItems}
                 selectedItemId={selectedItemId}
@@ -275,7 +274,7 @@ export default function SingleListView() {
               />
             </motion.div>
 
-            {/* Focus Panel — slides in from the right */}
+            {/* Focus Panel — absolutely positioned, full height of the left column */}
             <AnimatePresence>
               {panelOpen && (
                 <motion.div
@@ -302,6 +301,7 @@ export default function SingleListView() {
                     onEdit={() => setShowEditModal(true)}
                     onDelete={() => setShowDeleteModal(true)}
                     onUpdateStatus={() => setShowStatusModal(true)}
+                    onClose={() => setSelectedItemId(null)}
                   />
                 </motion.div>
               )}

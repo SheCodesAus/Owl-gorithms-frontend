@@ -65,11 +65,16 @@ export default function BucketListActionBar({
 
           <button
             type="button"
-            className="bucketlist-primary-action inline-flex cursor-pointer items-center gap-2"
             onClick={onAddItemClick}
+            aria-label="Add item to this list"
+            title="Add item"
+            className="group inline-flex h-16 w-16 cursor-pointer items-center justify-center rounded-full bg-[linear-gradient(135deg,#15803d_0%,#4ade80_100%)] text-white shadow-[0_14px_36px_rgba(8,38,20,0.35)] transition hover:scale-105 hover:shadow-[0_18px_46px_rgba(8,38,20,0.45)] active:scale-95 focus:outline-none focus:ring-2 focus:ring-white/80"
           >
-            <Plus size={16} strokeWidth={2.6} aria-hidden="true" />
-            Add Item
+            <Plus
+              size={28}
+              strokeWidth={2.8}
+              className="transition group-hover:rotate-90"
+            />
           </button>
         </div>
       </div>

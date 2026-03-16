@@ -319,18 +319,17 @@ function DashboardFocusPanel({
                   animate={{ opacity: 1 }}
                   transition={{ duration: 0.2 }}
                 >
-                  No updates yet. Bucket lists don't write themselves.
+                  Bucket lists don't write themselves - Let's add something!
                 </motion.div>
               )}
             </section>
 
-            {/* Open button — now navigates correctly */}
             <button
               type="button"
               onClick={() => navigate(`/bucketlists/${bucketList.id}`)}
               className="primary-gradient-button mt-6 inline-flex w-full items-center justify-center gap-2 rounded-full px-6 py-3 text-base font-semibold transition sm:text-lg"
             >
-              Open list
+              Open
               <ArrowRight size={18} aria-hidden="true" />
             </button>
           </div>
