@@ -1,0 +1,50 @@
+.modal-backdrop {
+  background: rgba(24, 10, 46, 0.52);
+  backdrop-filter: blur(10px);
+}
+
+.modal-shell {
+  position: relative;
+  border-radius: 2rem;
+  border: 1px solid rgba(255, 255, 255, 0.42);
+  background:
+    radial-gradient(circle at top right, rgba(255, 255, 255, 0.45), transparent 18%),
+    linear-gradient(180deg, rgba(255, 255, 255, 0.82), rgba(247, 244, 252, 0.92));
+  box-shadow:
+    0 24px 80px rgba(23, 8, 49, 0.32),
+    0 8px 24px rgba(39, 16, 76, 0.12);
+  backdrop-filter: blur(14px);
+}
+
+.modal-shell::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background:
+    radial-gradient(circle at 85% 15%, rgba(255, 192, 222, 0.2), transparent 16%),
+    radial-gradient(circle at 10% 100%, rgba(183, 143, 255, 0.12), transparent 24%);
+}
+
+.modal-close-button {
+  background: rgba(255, 255, 255, 0.76);
+  border: 1px solid rgba(255, 255, 255, 0.55);
+  box-shadow: 0 8px 20px rgba(39, 16, 76, 0.1);
+  transition: transform 0.2s ease, background 0.2s ease, box-shadow 0.2s ease;
+}
+
+.modal-close-button:hover {
+  transform: translateY(-1px);
+  background: rgba(255, 255, 255, 0.94);
+  box-shadow: 0 12px 24px rgba(39, 16, 76, 0.14);
+  cursor: pointer;
+}
+
+.delete-warning-box {
+  background: #fff0f0;
+  border: 1px solid #ffcdd2;
+  border-radius: 0.9rem;
+  padding: 1rem;
+  color: var(--accent);
+  line-height: 1.6;
+}
