@@ -61,6 +61,18 @@
   gap: 1.25rem;
 }
 
+.item-detail-main {
+  flex: 1;
+  min-width: 0;
+}
+
+.item-detail-actions {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.75rem;
+  flex-shrink: 0;
+}
+
 .item-detail-card {
   padding: 0;
   overflow: hidden;
@@ -90,9 +102,9 @@
 
 .item-detail-topbar {
   display: flex;
-  align-items: flex-start;
   justify-content: space-between;
-  gap: 1rem;
+  align-items: flex-start;
+  gap: 1.25rem;
 }
 
 .item-detail-eyebrow {
@@ -121,7 +133,7 @@
 .item-detail-votes-prominent {
   margin-top: 1rem;
   display: flex;
-  justify-content: flex-start;
+  justify-content: center;
 }
 
 .item-detail-section,

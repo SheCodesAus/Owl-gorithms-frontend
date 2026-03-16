@@ -302,7 +302,7 @@ function DashboardFocusPanel({
                                   isVoting={isVoting}
                                   onUpvote={() => onUpvoteItem?.(item)}
                                   onDownvote={() => onDownvoteItem?.(item)}
-                                  variant="panel"
+                                  variant="compact"
                                 />
                               </div>
                             </div>

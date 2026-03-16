@@ -1,6 +1,7 @@
 import { CalendarDays, Ellipsis, Pencil } from "lucide-react";
 import RelativeTime from "../UI/RelativeTime";
 import VoteControls from "../UI/VoteControls";
+import Avatar from "../UI/Avatar";
 
 function formatDate(iso) {
   if (!iso) return null;
@@ -92,7 +93,6 @@ function ItemDetailCard({
 
         <div className="item-detail-topbar">
           <div className="item-detail-title-block">
-            <p className="item-detail-eyebrow">Item focus</p>
             <h1 className="item-detail-title">{item.title}</h1>
           </div>
 
@@ -107,6 +107,17 @@ function ItemDetailCard({
           </button>
         </div>
 
+        <section className="item-detail-section">
+          <p className="item-detail-label">Description</p>
+          <p
+            className={`item-detail-description ${
+              !item.description ? "item-detail-description-empty" : ""
+            }`}
+          >
+            {item.description || "No description."}
+          </p>
+        </section>
+
         <div className="item-detail-votes item-detail-votes-prominent">
           <VoteControls
             itemTitle={item.title}
@@ -115,38 +126,28 @@ function ItemDetailCard({
             isVoting={isVoting}
             onUpvote={onUpvote}
             onDownvote={onDownvote}
-            variant="panel"
+            variant="focus"
           />
         </div>
       </div>
 
-      <section className="item-detail-section">
-        <p className="item-detail-label">Description</p>
-        <p
-          className={`item-detail-description ${
-            !item.description ? "item-detail-description-empty" : ""
-          }`}
-        >
-          {item.description || "No description."}
-        </p>
-      </section>
-
       <div className="item-detail-divider" />
-
       <div className="item-meta-row">
-        <span className={`item-status-badge ${getStatusClass(item.status)}`}>
-          {getStatusLabel(item.status)}
-        </span>
+
+        {item.creator?.display_name || item.creator?.username ? (
+          <span className="item-meta-pill">
+            <Avatar user={item.creator} size="md" className="mr-3"/>
+            {item.creator.display_name ?? item.creator.username}
+          </span>
+        ) : null}
 
         <span className="item-meta-subtle">
           <RelativeTime timestamp={item.updated_at} />
         </span>
 
-        {item.created_by?.display_name || item.created_by?.username ? (
-          <span className="item-meta-pill">
-            Added by {item.created_by?.display_name ?? item.created_by?.username}
-          </span>
-        ) : null}
+        <span className={`item-status-badge ${getStatusClass(item.status)}`}>
+          {getStatusLabel(item.status)}
+        </span>
 
         {item.status === "complete" && item.completed_at ? (
           <span className="item-complete-badge">
@@ -178,7 +179,7 @@ function ItemDetailCard({
           </div>
         ) : (
           <div className="item-date-row">
-            <p className="item-date-empty">No date added yet.</p>
+            <p className="item-date-empty">Make it happen. Book it in.</p>
 
             <button
               type="button"
