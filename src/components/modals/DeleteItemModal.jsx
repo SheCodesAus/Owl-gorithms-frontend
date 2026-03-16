@@ -11,7 +11,7 @@ export default function DeleteItemModal({
     <FormModal
       isOpen={isOpen}
       onClose={onClose}
-      title="Delete item"
+      title="Are you sure?"
       subtitle="This action cannot be undone."
       maxWidth="max-w-sm"
     >
