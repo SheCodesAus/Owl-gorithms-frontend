@@ -6,7 +6,7 @@ import { updateItem, deleteItem } from "../api/items";
 import RelativeTime from "../components/UI/RelativeTime";
 import VoteControls from "../components/UI/VoteControls";
 import FormModal from "../components/UI/FormModal";
-import ExtendedItemCard from "./ExtendedItemCard";
+import ExtendedItemCard from "../components/Items/ExtendedItemCard";
 import { useState } from "react";
 
 // ─── Colours ──────────────────────────────────────────────────────────────────
