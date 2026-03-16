@@ -50,14 +50,15 @@ export default function SingleListView() {
   const items = bucketList?.items ?? [];
   const currentUser = auth?.user;
 
-  // Only clear selection if the selected item no longer exists after a reload
   useEffect(() => {
     if (!items.length) {
       setSelectedItemId(null);
       return;
     }
 
-    const selectedStillExists = items.some((item) => item.id === selectedItemId);
+    const selectedStillExists = items.some(
+      (item) => item.id === selectedItemId,
+    );
     if (selectedItemId && !selectedStillExists) {
       setSelectedItemId(null);
     }
@@ -81,7 +82,7 @@ export default function SingleListView() {
 
   const completedCount = useMemo(
     () => items.filter((item) => item.is_completed).length,
-    [items]
+    [items],
   );
 
   const isOwner =
@@ -207,8 +208,6 @@ export default function SingleListView() {
     }
   };
 
-  // ─── Loading / error states ───────────────────────────────────────────────
-
   if (isLoading) {
     return (
       <section className="page-shell">
@@ -233,38 +232,32 @@ export default function SingleListView() {
 
   const panelOpen = !!selectedItem;
 
-  // ─── Render ───────────────────────────────────────────────────────────────
-
   return (
     <>
       <section className="page-shell">
         <motion.div
           className="page-width page-width-wide"
-          // Smoothly widen/narrow the container as the panel opens/closes
           animate={{ maxWidth: panelOpen ? "1440px" : "860px" }}
           transition={{ duration: 0.4, ease: [0.4, 0, 0.2, 1] }}
         >
-          {/* ── Outer relative wrapper spans header + action bar + items ── */}
-          {/* The focus panel is absolutely positioned inside here so it  */}
-          {/* stretches from the very top of the header to the bottom.    */}
           <div className="relative">
-
-            {/* Left column — header, action bar, items list */}
             <motion.div
               className="flex flex-col gap-5"
               animate={{ width: panelOpen ? "45%" : "100%" }}
               transition={{ duration: 0.4, ease: [0.4, 0, 0.2, 1] }}
               style={{ minWidth: 0 }}
             >
-              <BucketListHeader bucketList={bucketList} />
+              <BucketListHeader
+                bucketList={bucketList}
+                onAddItemClick={() => setShowAddItemModal(true)}
+                onInviteMembersClick={() => setShowInviteModal(true)}
+              />
 
               <BucketListActionBar
                 completedCount={completedCount}
                 totalCount={items.length}
                 filter={filter}
                 onFilterChange={setFilter}
-                onAddItemClick={() => setShowAddItemModal(true)}
-                onInviteMembersClick={() => setShowInviteModal(true)}
               />
 
               <BucketListItemsPanel
@@ -274,7 +267,6 @@ export default function SingleListView() {
               />
             </motion.div>
 
-            {/* Focus Panel — absolutely positioned, full height of the left column */}
             <AnimatePresence>
               {panelOpen && (
                 <motion.div
@@ -295,12 +287,19 @@ export default function SingleListView() {
                     voteScore={effectiveVoteState.voteScore}
                     userVote={effectiveVoteState.userVote}
                     isVoting={isVotingItemId === selectedItem?.id}
-                    onUpvote={() => selectedItem && handleVote(selectedItem, "upvote")}
-                    onDownvote={() => selectedItem && handleVote(selectedItem, "downvote")}
+                    onUpvote={() =>
+                      selectedItem && handleVote(selectedItem, "upvote")
+                    }
+                    onDownvote={() =>
+                      selectedItem && handleVote(selectedItem, "downvote")
+                    }
                     onAddToCalendar={() => setShowCalendarModal(true)}
+                    onAddDate={() => console.log("Open add date modal")}
+                    onEditDate={() => console.log("Open edit date modal")}
                     onEdit={() => setShowEditModal(true)}
                     onDelete={() => setShowDeleteModal(true)}
                     onUpdateStatus={() => setShowStatusModal(true)}
+                    onOptionsClick={() => console.log("Open item options menu")}
                     onClose={() => setSelectedItemId(null)}
                   />
                 </motion.div>
@@ -309,8 +308,6 @@ export default function SingleListView() {
           </div>
         </motion.div>
       </section>
-
-      {/* ── Modals ─────────────────────────────────────────────────────────── */}
 
       <FormModal
         isOpen={showAddItemModal}

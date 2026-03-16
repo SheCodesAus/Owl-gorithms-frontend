@@ -14,9 +14,12 @@ export default function ItemDetailPanel({
   onUpvote,
   onDownvote,
   onAddToCalendar,
+  onAddDate,
+  onEditDate,
   onEdit,
   onDelete,
   onUpdateStatus,
+  onOptionsClick,
   onClose,
 }) {
   if (!item) return null;
@@ -26,20 +29,11 @@ export default function ItemDetailPanel({
       className="item-detail-panel"
       style={{ position: "sticky", top: "1rem" }}
     >
-      <div
-        className="item-detail-panel-shell"
-        style={{
-          minHeight: "calc(100vh - 8rem)",
-          maxHeight: "calc(100vh - 8rem)",
-          overflowY: "auto",
-          overscrollBehavior: "contain",
-        }}
-      >
-        {/* Close button */}
+      <div className="item-detail-panel-shell">
         <button
           type="button"
           onClick={onClose}
-          className="modal-close-button absolute right-3 top-3 z-10 inline-flex h-9 w-9 items-center justify-center rounded-full"
+          className="item-detail-panel-close modal-close-button"
           aria-label="Close focus panel"
         >
           <X size={16} />
@@ -49,26 +43,31 @@ export default function ItemDetailPanel({
           <div className="item-panel-message-banner">{message}</div>
         ) : null}
 
-        <div className="item-detail-panel-scroll" style={{ overflowY: "unset", maxHeight: "unset", height: "auto", padding: "1rem" }}>
-          <ItemDetailCard
-            bucketList={bucketList}
-            item={item}
-            canEdit={canEdit}
-            isOwner={isOwner}
-            voteScore={voteScore}
-            userVote={userVote}
-            isVoting={isVoting}
-            onBack={() => {}}
-            onUpvote={onUpvote}
-            onDownvote={onDownvote}
-            onAddToCalendar={onAddToCalendar}
-            onEdit={onEdit}
-            onDelete={onDelete}
-            onUpdateStatus={onUpdateStatus}
-            showBreadcrumb={false}
-          />
+        <div className="item-detail-panel-scroll">
+          <div className="item-page-stack">
+            <ItemDetailCard
+              bucketList={bucketList}
+              item={item}
+              canEdit={canEdit}
+              isOwner={isOwner}
+              voteScore={voteScore}
+              userVote={userVote}
+              isVoting={isVoting}
+              onBack={() => {}}
+              onUpvote={onUpvote}
+              onDownvote={onDownvote}
+              onAddToCalendar={onAddToCalendar}
+              onAddDate={onAddDate}
+              onEditDate={onEditDate}
+              onEdit={onEdit}
+              onDelete={onDelete}
+              onUpdateStatus={onUpdateStatus}
+              onOptionsClick={onOptionsClick}
+              showBreadcrumb={false}
+            />
 
-          <ExtendedItemCard itemTitle={item.title} />
+            <ExtendedItemCard itemTitle={item.title} />
+          </div>
         </div>
       </div>
     </aside>

@@ -1,3 +1,4 @@
+import { CalendarDays, Ellipsis, Pencil } from "lucide-react";
 import RelativeTime from "../UI/RelativeTime";
 import VoteControls from "../UI/VoteControls";
 
@@ -8,6 +9,18 @@ function formatDate(iso) {
     day: "numeric",
     month: "short",
     year: "numeric",
+  });
+}
+
+function formatDateTime(iso) {
+  if (!iso) return null;
+
+  return new Date(iso).toLocaleString("en-AU", {
+    day: "numeric",
+    month: "short",
+    year: "numeric",
+    hour: "numeric",
+    minute: "2-digit",
   });
 }
 
@@ -25,7 +38,19 @@ function getStatusClass(status) {
   return "item-status-badge-proposed";
 }
 
-export default function ItemDetailCard({
+function getItemDate(item) {
+  return (
+    item?.date ||
+    item?.event_date ||
+    item?.scheduled_for ||
+    item?.scheduled_at ||
+    item?.planned_for ||
+    item?.decision_deadline ||
+    null
+  );
+}
+
+function ItemDetailCard({
   bucketList,
   item,
   canEdit,
@@ -37,11 +62,17 @@ export default function ItemDetailCard({
   onUpvote,
   onDownvote,
   onAddToCalendar,
+  onAddDate,
+  onEditDate,
   onEdit,
   onDelete,
   onUpdateStatus,
+  onOptionsClick,
   showBreadcrumb = true,
 }) {
+  const itemDate = getItemDate(item);
+  const hasItemDate = !!itemDate;
+
   return (
     <article className="item-detail-card">
       <div className="item-detail-hero">
@@ -59,23 +90,33 @@ export default function ItemDetailCard({
           </div>
         ) : null}
 
-        <div className="item-detail-header">
+        <div className="item-detail-topbar">
           <div className="item-detail-title-block">
             <p className="item-detail-eyebrow">Item focus</p>
             <h1 className="item-detail-title">{item.title}</h1>
           </div>
 
-          <div className="item-detail-votes">
-            <VoteControls
-              itemTitle={item.title}
-              score={voteScore}
-              activeVote={userVote}
-              isVoting={isVoting}
-              onUpvote={onUpvote}
-              onDownvote={onDownvote}
-              variant="panel"
-            />
-          </div>
+          <button
+            type="button"
+            className="item-options-button"
+            onClick={onOptionsClick}
+            aria-label="Item options"
+            title="Item options"
+          >
+            <Ellipsis size={18} aria-hidden="true" />
+          </button>
+        </div>
+
+        <div className="item-detail-votes item-detail-votes-prominent">
+          <VoteControls
+            itemTitle={item.title}
+            score={voteScore}
+            activeVote={userVote}
+            isVoting={isVoting}
+            onUpvote={onUpvote}
+            onDownvote={onDownvote}
+            variant="panel"
+          />
         </div>
       </div>
 
@@ -97,9 +138,15 @@ export default function ItemDetailCard({
           {getStatusLabel(item.status)}
         </span>
 
-        <span className="item-meta-pill">
-          Updated <RelativeTime timestamp={item.updated_at} />
+        <span className="item-meta-subtle">
+          <RelativeTime timestamp={item.updated_at} />
         </span>
+
+        {item.created_by?.display_name || item.created_by?.username ? (
+          <span className="item-meta-pill">
+            Added by {item.created_by?.display_name ?? item.created_by?.username}
+          </span>
+        ) : null}
 
         {item.status === "complete" && item.completed_at ? (
           <span className="item-complete-badge">
@@ -107,6 +154,43 @@ export default function ItemDetailCard({
           </span>
         ) : null}
       </div>
+
+      <div className="item-detail-divider" />
+
+      <section className="item-detail-section">
+        <p className="item-detail-label">Date</p>
+
+        {hasItemDate ? (
+          <div className="item-date-row">
+            <div className="item-date-display">
+              <CalendarDays size={15} aria-hidden="true" />
+              <span>{formatDateTime(itemDate)}</span>
+            </div>
+
+            <button
+              type="button"
+              className="item-action-pill"
+              onClick={onEditDate}
+            >
+              <Pencil size={14} aria-hidden="true" />
+              Edit
+            </button>
+          </div>
+        ) : (
+          <div className="item-date-row">
+            <p className="item-date-empty">No date added yet.</p>
+
+            <button
+              type="button"
+              className="item-action-pill"
+              onClick={onAddDate}
+            >
+              <CalendarDays size={14} aria-hidden="true" className="mr-2" />
+              Add date
+            </button>
+          </div>
+        )}
+      </section>
 
       <div className="item-detail-divider" />
 
@@ -118,37 +202,9 @@ export default function ItemDetailCard({
         >
           Add to calendar
         </button>
-
-        {isOwner ? (
-          <button
-            type="button"
-            className="item-action-pill"
-            onClick={onUpdateStatus}
-          >
-            Update status
-          </button>
-        ) : null}
-
-        {canEdit ? (
-          <>
-            <button
-              type="button"
-              className="item-action-pill"
-              onClick={onEdit}
-            >
-              Edit
-            </button>
-
-            <button
-              type="button"
-              className="item-action-pill item-action-pill-danger"
-              onClick={onDelete}
-            >
-              Delete
-            </button>
-          </>
-        ) : null}
       </div>
     </article>
   );
 }
+
+export default ItemDetailCard;
