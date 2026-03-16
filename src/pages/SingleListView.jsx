@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
 import { useParams } from "react-router-dom";
+import { AnimatePresence, motion } from "framer-motion";
 import { useBucketList } from "../hooks/useBucketList";
 import { useVotes } from "../hooks/useVotes";
 import { useAuth } from "../hooks/use-auth";
@@ -49,6 +50,7 @@ export default function SingleListView() {
   const items = bucketList?.items ?? [];
   const currentUser = auth?.user;
 
+  // Only clear selection if the selected item no longer exists after a reload
   useEffect(() => {
     if (!items.length) {
       setSelectedItemId(null);
@@ -56,19 +58,14 @@ export default function SingleListView() {
     }
 
     const selectedStillExists = items.some((item) => item.id === selectedItemId);
-
-    if (!selectedItemId || !selectedStillExists) {
-      setSelectedItemId(items[0].id);
+    if (selectedItemId && !selectedStillExists) {
+      setSelectedItemId(null);
     }
-  }, [items, selectedItemId]);
+  }, [items]);
 
   useEffect(() => {
     if (!panelMessage) return;
-
-    const timer = window.setTimeout(() => {
-      setPanelMessage("");
-    }, 3000);
-
+    const timer = window.setTimeout(() => setPanelMessage(""), 3000);
     return () => window.clearTimeout(timer);
   }, [panelMessage]);
 
@@ -99,17 +96,14 @@ export default function SingleListView() {
 
   const canEdit = isOwner || isCreator;
 
-  const getBaseVoteScore = (item) => {
-    return item.vote_score ?? item.votes_count ?? item.score ?? 0;
-  };
+  const getBaseVoteScore = (item) =>
+    item.vote_score ?? item.votes_count ?? item.score ?? 0;
 
-  const getBaseUserVote = (item) => {
-    return item.user_vote ?? item.current_user_vote ?? null;
-  };
+  const getBaseUserVote = (item) =>
+    item.user_vote ?? item.current_user_vote ?? null;
 
   const getEffectiveVoteState = (item) => {
     const override = voteOverrides[item.id];
-
     return {
       voteScore: override?.voteScore ?? getBaseVoteScore(item),
       userVote: override?.userVote ?? getBaseUserVote(item),
@@ -119,35 +113,26 @@ export default function SingleListView() {
   const applyVoteOverride = (item, nextVote) => {
     const current = getEffectiveVoteState(item);
     let nextScore = current.voteScore;
-
     if (current.userVote === "upvote") nextScore -= 1;
     if (current.userVote === "downvote") nextScore += 1;
-
     if (nextVote === "upvote") nextScore += 1;
     if (nextVote === "downvote") nextScore -= 1;
-
     setVoteOverrides((prev) => ({
       ...prev,
-      [item.id]: {
-        voteScore: nextScore,
-        userVote: nextVote,
-      },
+      [item.id]: { voteScore: nextScore, userVote: nextVote },
     }));
   };
 
   const handleVote = async (item, nextVote) => {
     const previousState = getEffectiveVoteState(item);
-
     try {
       setIsVotingItemId(item.id);
-
       if (previousState.userVote === nextVote) {
         applyVoteOverride(item, null);
         await clearVote(item.id);
         await loadBucketList();
         return;
       }
-
       applyVoteOverride(item, nextVote);
       await voteOnItem(item.id, nextVote);
       await loadBucketList();
@@ -177,10 +162,8 @@ export default function SingleListView() {
 
   const handleSave = async (formData) => {
     if (!selectedItem) return;
-
     setIsSaving(true);
     setEditErrors({});
-
     try {
       await updateItem(selectedItem.id, formData, auth?.access);
       await loadBucketList();
@@ -195,9 +178,7 @@ export default function SingleListView() {
 
   const handleDelete = async () => {
     if (!selectedItem) return;
-
     setIsDeleting(true);
-
     try {
       await deleteItem(selectedItem.id, auth?.access);
       await loadBucketList();
@@ -212,10 +193,8 @@ export default function SingleListView() {
 
   const handleStatusUpdate = async (newStatus) => {
     if (!selectedItem) return;
-
     setIsSavingStatus(true);
     setStatusError("");
-
     try {
       await updateItem(selectedItem.id, { status: newStatus }, auth?.access);
       await loadBucketList();
@@ -227,6 +206,8 @@ export default function SingleListView() {
       setIsSavingStatus(false);
     }
   };
+
+  // ─── Loading / error states ───────────────────────────────────────────────
 
   if (isLoading) {
     return (
@@ -250,10 +231,20 @@ export default function SingleListView() {
     );
   }
 
+  const panelOpen = !!selectedItem;
+
+  // ─── Render ───────────────────────────────────────────────────────────────
+
   return (
     <>
       <section className="page-shell">
-        <div className="page-width page-width-wide bucketlist-view-stack">
+        <motion.div
+          className="page-width page-width-wide bucketlist-view-stack"
+          // Smoothly widen/narrow the container as the panel opens/closes
+          animate={{ maxWidth: panelOpen ? "1440px" : "860px" }}
+          transition={{ duration: 0.4, ease: [0.4, 0, 0.2, 1] }}
+        >
+          {/* ── Header + Action Bar ── always visible ──────────────────── */}
           <BucketListHeader bucketList={bucketList} />
 
           <BucketListActionBar
@@ -265,32 +256,61 @@ export default function SingleListView() {
             onInviteMembersClick={() => setShowInviteModal(true)}
           />
 
-          <section className="bucketlist-split-layout bucketlist-split-layout-tall">
-            <BucketListItemsPanel
-              items={filteredItems}
-              selectedItemId={selectedItemId}
-              onSelectItem={setSelectedItemId}
-            />
+          {/* ── Items + Focus Panel ─────────────────────────────────────── */}
+          <div className="relative">
+            {/* Items list — always rendered, shifts left when panel opens */}
+            <motion.div
+              animate={{
+                // When panel is open, constrain to ~45% width (left column)
+                // When closed, fill full width
+                width: panelOpen ? "45%" : "100%",
+              }}
+              transition={{ duration: 0.4, ease: [0.4, 0, 0.2, 1] }}
+              style={{ minWidth: 0 }}
+            >
+              <BucketListItemsPanel
+                items={filteredItems}
+                selectedItemId={selectedItemId}
+                onSelectItem={setSelectedItemId}
+              />
+            </motion.div>
 
-            <ItemDetailPanel
-              item={selectedItem}
-              bucketList={bucketList}
-              message={panelMessage}
-              canEdit={canEdit}
-              isOwner={isOwner}
-              voteScore={effectiveVoteState.voteScore}
-              userVote={effectiveVoteState.userVote}
-              isVoting={isVotingItemId === selectedItem?.id}
-              onUpvote={() => selectedItem && handleVote(selectedItem, "upvote")}
-              onDownvote={() => selectedItem && handleVote(selectedItem, "downvote")}
-              onAddToCalendar={() => setShowCalendarModal(true)}
-              onEdit={() => setShowEditModal(true)}
-              onDelete={() => setShowDeleteModal(true)}
-              onUpdateStatus={() => setShowStatusModal(true)}
-            />
-          </section>
-        </div>
+            {/* Focus Panel — slides in from the right */}
+            <AnimatePresence>
+              {panelOpen && (
+                <motion.div
+                  key="focus-panel"
+                  className="absolute top-0 right-0 bottom-0"
+                  style={{ width: "53%" }}
+                  initial={{ opacity: 0, x: 40 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  exit={{ opacity: 0, x: 40 }}
+                  transition={{ duration: 0.35, ease: [0.4, 0, 0.2, 1] }}
+                >
+                  <ItemDetailPanel
+                    item={selectedItem}
+                    bucketList={bucketList}
+                    message={panelMessage}
+                    canEdit={canEdit}
+                    isOwner={isOwner}
+                    voteScore={effectiveVoteState.voteScore}
+                    userVote={effectiveVoteState.userVote}
+                    isVoting={isVotingItemId === selectedItem?.id}
+                    onUpvote={() => selectedItem && handleVote(selectedItem, "upvote")}
+                    onDownvote={() => selectedItem && handleVote(selectedItem, "downvote")}
+                    onAddToCalendar={() => setShowCalendarModal(true)}
+                    onEdit={() => setShowEditModal(true)}
+                    onDelete={() => setShowDeleteModal(true)}
+                    onUpdateStatus={() => setShowStatusModal(true)}
+                  />
+                </motion.div>
+              )}
+            </AnimatePresence>
+          </div>
+        </motion.div>
       </section>
+
+      {/* ── Modals ─────────────────────────────────────────────────────────── */}
 
       <FormModal
         isOpen={showAddItemModal}

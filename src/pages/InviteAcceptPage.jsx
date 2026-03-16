@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
+import { Lock, Globe, CheckCircle2, XCircle } from "lucide-react";
 import { useInvites } from "../hooks/useInvites";
 import { useAuth } from "../hooks/use-auth";
 import { savePendingInviteToken } from "../utils/pendingInvite";
@@ -25,24 +26,18 @@ function InviteAcceptPage() {
         setIsLoading(true);
         setError("");
         const data = await loadInvitePreview(inviteToken);
-
         if (!isMounted) return;
         setInvite(data);
       } catch (err) {
         if (!isMounted) return;
         setError(err.message || "Unable to load invite.");
       } finally {
-        if (isMounted) {
-          setIsLoading(false);
-        }
+        if (isMounted) setIsLoading(false);
       }
     }
 
     fetchInvite();
-
-    return () => {
-      isMounted = false;
-    };
+    return () => { isMounted = false; };
   }, [inviteToken]);
 
   const handleAccept = async () => {
@@ -57,7 +52,6 @@ function InviteAcceptPage() {
     try {
       setIsAccepting(true);
       setError("");
-
       const response = await confirmInvite(inviteToken);
       navigate(`/bucketlists/${response.bucket_list_id}`);
     } catch (err) {
@@ -66,140 +60,151 @@ function InviteAcceptPage() {
     }
   };
 
-  const handleDecline = () => {
-    setDeclined(true);
-  };
+  const handleDecline = () => setDeclined(true);
 
+  // Loading state
   if (isLoading) {
     return (
-      <section className="min-h-screen flex items-center justify-center px-6">
-        <div className="text-center">
-          <p className="text-lg font-semibold">Loading invitation...</p>
+      <div className="flex min-h-[60vh] items-center justify-center px-6">
+        <div className="section-card flex flex-col items-center gap-4 px-10 py-12 text-center">
+          <div className="h-12 w-12 animate-spin rounded-full border-4 border-[#d8d1ee] border-t-[#6b4eaa]" />
+          <p className="text-lg font-semibold text-[var(--heading-text)]">
+            Loading invitation...
+          </p>
         </div>
-      </section>
+      </div>
     );
   }
 
+  // Error with no invite
   if (error && !invite) {
     return (
-      <section className="min-h-screen flex items-center justify-center px-6">
-        <div className="max-w-md rounded-3xl border border-red-200 bg-white p-8 text-center shadow-lg">
-          <h1 className="text-2xl font-bold mb-3">Invite unavailable</h1>
-          <p className="text-slate-600 mb-6">{error}</p>
+      <div className="flex min-h-[60vh] items-center justify-center px-6">
+        <div className="section-card max-w-md px-8 py-10 text-center">
+          <XCircle className="mx-auto mb-4 text-[var(--accent)]" size={40} />
+          <h1 className="brand-font text-2xl font-bold text-[var(--heading-text)]">
+            Invite unavailable
+          </h1>
+          <p className="mt-2 text-[var(--muted-text)]">{error}</p>
           <button
             onClick={() => navigate("/")}
-            className="rounded-2xl px-5 py-3 font-semibold bg-slate-900 text-white"
+            className="primary-gradient-button mt-6 rounded-full px-6 py-3 font-semibold"
           >
             Return home
           </button>
         </div>
-      </section>
+      </div>
     );
   }
 
-  const isExpired = invite?.is_expired || !invite?.is_valid || !invite?.is_active;
+  const isExpired =
+    invite?.is_expired || !invite?.is_valid || !invite?.is_active;
 
   return (
-    <section className="relative min-h-screen overflow-hidden bg-slate-100">
-      <div className="absolute inset-0 bg-gradient-to-br from-violet-100 via-white to-pink-100" />
-
+    <div className="relative flex min-h-[80vh] items-center justify-center px-4 py-12">
+      {/* Background preview of the list — blurred */}
       <div
-        className={`relative z-10 min-h-screen transition-all duration-300 ${
-          declined ? "blur-0" : "blur-sm"
+        className={`pointer-events-none absolute inset-0 transition-all duration-500 ${
+          declined ? "" : "blur-sm"
         }`}
+        aria-hidden="true"
       >
-        <div className="mx-auto max-w-5xl px-6 py-16">
-          <div className="mb-8">
-            <p className="text-sm font-semibold uppercase tracking-[0.2em] text-violet-700">
-              Bucket List Preview
-            </p>
-            <h1 className="mt-3 text-4xl font-bold text-slate-900">
-              {invite.bucket_list_title}
-            </h1>
-            <p className="mt-3 max-w-2xl text-base text-slate-600">
-              {invite.bucket_list_description || "No description yet."}
-            </p>
-          </div>
+        <div className="mx-auto max-w-5xl px-6 py-10">
+          <p className="text-[0.72rem] font-semibold uppercase tracking-[0.2em] text-[var(--muted-text)]">
+            Bucket List Preview
+          </p>
+          <h2 className="brand-font mt-2 text-3xl font-bold text-[var(--heading-text)]">
+            {invite?.bucket_list_title}
+          </h2>
+          <p className="mt-2 text-[var(--muted-text)]">
+            {invite?.bucket_list_description || "No description yet."}
+          </p>
 
-          <div className="grid gap-6 md:grid-cols-2 xl:grid-cols-3">
+          <div className="mt-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
             {[1, 2, 3, 4, 5, 6].map((card) => (
               <div
                 key={card}
-                className="rounded-3xl border border-white/60 bg-white/80 p-6 shadow-lg backdrop-blur"
+                className="section-card p-5"
               >
-                <div className="mb-4 h-4 w-24 rounded-full bg-slate-200" />
-                <div className="mb-3 h-6 w-3/4 rounded-full bg-slate-300" />
-                <div className="mb-2 h-4 w-full rounded-full bg-slate-200" />
-                <div className="mb-6 h-4 w-5/6 rounded-full bg-slate-200" />
-                <div className="flex gap-2">
-                  <div className="h-9 w-20 rounded-full bg-violet-100" />
-                  <div className="h-9 w-20 rounded-full bg-pink-100" />
-                </div>
+                <div className="mb-3 h-4 w-20 rounded-full bg-[var(--surface)]" />
+                <div className="mb-2 h-5 w-3/4 rounded-full bg-[var(--surface)]" />
+                <div className="mb-2 h-3.5 w-full rounded-full bg-[var(--surface-soft)]" />
+                <div className="h-3.5 w-5/6 rounded-full bg-[var(--surface-soft)]" />
               </div>
             ))}
           </div>
         </div>
       </div>
 
+      {/* Overlay scrim */}
       {!declined && (
-        <div className="absolute inset-0 z-20 bg-slate-950/35" />
+        <div className="absolute inset-0 bg-[var(--heading-text)]/30 backdrop-blur-[2px]" />
       )}
 
+      {/* Modal card */}
       <AnimatePresence>
         {!declined && (
           <motion.div
-            className="absolute inset-0 z-30 flex items-center justify-center px-6"
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
+            className="relative z-10 w-full max-w-lg"
+            initial={{ opacity: 0, y: 16, scale: 0.98 }}
+            animate={{ opacity: 1, y: 0, scale: 1 }}
+            exit={{ opacity: 0, y: 12, scale: 0.985 }}
+            transition={{ duration: 0.28, ease: "easeOut" }}
           >
-            <motion.div
-              className="w-full max-w-lg rounded-[2rem] border border-white/70 bg-white p-8 shadow-2xl"
-              initial={{ y: 18, opacity: 0, scale: 0.98 }}
-              animate={{ y: 0, opacity: 1, scale: 1 }}
-              exit={{ y: 18, opacity: 0 }}
-              transition={{ duration: 0.2 }}
-            >
-              <p className="text-sm font-semibold uppercase tracking-[0.2em] text-violet-700">
+            <div className="modal-shell p-7 sm:p-8">
+              {/* Eyebrow */}
+              <p className="text-[0.72rem] font-semibold uppercase tracking-[0.2em] text-[var(--primary-cta)]">
                 Invitation
               </p>
 
-              <h2 className="mt-3 text-3xl font-bold text-slate-900">
+              <h2 className="brand-font mt-3 text-3xl font-bold text-[var(--heading-text)]">
                 Join {invite.bucket_list_title}?
               </h2>
 
-              <p className="mt-4 text-slate-600">
-                You’ve been invited to join this bucket list as an{" "}
-                <span className="font-semibold capitalize">{invite.role}</span>.
+              <p className="mt-4 text-[var(--body-text)]">
+                You've been invited as a{" "}
+                <span className="font-semibold capitalize text-[var(--primary-cta)]">
+                  {invite.role}
+                </span>
+                .
               </p>
 
-              <p className="mt-2 text-sm text-slate-500">
+              <p className="mt-1 flex items-center gap-1.5 text-sm text-[var(--muted-text)]">
+                {invite.is_public ? (
+                  <Globe size={13} aria-hidden="true" />
+                ) : (
+                  <Lock size={13} aria-hidden="true" />
+                )}
                 Shared by {invite.owner_email}
               </p>
 
+              {/* Status alerts */}
               {invite.already_member && (
-                <div className="mt-5 rounded-2xl bg-amber-50 px-4 py-3 text-sm font-medium text-amber-800">
-                  You’re already a member of this bucket list.
+                <div className="mt-5 flex items-center gap-2 rounded-2xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm font-medium text-amber-800">
+                  <CheckCircle2 size={16} />
+                  You're already a member of this bucket list.
                 </div>
               )}
 
               {isExpired && (
-                <div className="mt-5 rounded-2xl bg-red-50 px-4 py-3 text-sm font-medium text-red-700">
+                <div className="mt-5 flex items-center gap-2 rounded-2xl border border-red-200 bg-red-50 px-4 py-3 text-sm font-medium text-red-700">
+                  <XCircle size={16} />
                   This invite is no longer valid.
                 </div>
               )}
 
               {error && (
-                <div className="mt-5 rounded-2xl bg-red-50 px-4 py-3 text-sm font-medium text-red-700">
+                <div className="mt-5 rounded-2xl border border-red-200 bg-red-50 px-4 py-3 text-sm font-medium text-red-700">
                   {error}
                 </div>
               )}
 
+              {/* Actions */}
               <div className="mt-8 flex flex-col-reverse gap-3 sm:flex-row sm:justify-end">
                 <button
                   type="button"
                   onClick={handleDecline}
-                  className="rounded-2xl cursor-pointer border border-slate-300 px-5 py-3 font-semibold text-slate-700 transition hover:bg-slate-50"
+                  className="secondary-modal-button cursor-pointer"
                   disabled={isAccepting}
                 >
                   Decline
@@ -209,26 +214,30 @@ function InviteAcceptPage() {
                   type="button"
                   onClick={handleAccept}
                   disabled={isAccepting || invite.already_member || isExpired}
-                  className="rounded-2xl cursor-pointer bg-slate-900 px-5 py-3 font-semibold text-white transition hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-50"
+                  className="primary-gradient-button cursor-pointer rounded-full px-6 py-3 font-semibold disabled:cursor-not-allowed disabled:opacity-50"
                 >
                   {isAccepting ? "Joining..." : "Accept invitation"}
                 </button>
               </div>
-            </motion.div>
+            </div>
           </motion.div>
         )}
       </AnimatePresence>
 
+      {/* Declined state */}
       {declined && (
-        <div className="absolute inset-x-0 top-8 z-30 flex justify-center px-6">
-          <div className="rounded-2xl bg-white/90 px-5 py-3 shadow-lg backdrop-blur">
-            <p className="font-medium text-slate-700">
-              Invitation declined. You can close this page.
-            </p>
-          </div>
-        </div>
+        <motion.div
+          className="relative z-10 section-card px-6 py-5 text-center"
+          initial={{ opacity: 0, y: -8 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.25 }}
+        >
+          <p className="font-medium text-[var(--heading-text)]">
+            Invitation declined. You can close this page.
+          </p>
+        </motion.div>
       )}
-    </section>
+    </div>
   );
 }
 

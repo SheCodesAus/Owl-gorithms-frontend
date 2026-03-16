@@ -1,4 +1,5 @@
 import { AnimatePresence, motion } from "framer-motion";
+import { useNavigate } from "react-router-dom";
 import {
   Lock,
   Globe,
@@ -6,6 +7,7 @@ import {
   CheckCircle2,
   Plus,
   UserPlus,
+  ArrowRight,
 } from "lucide-react";
 import Avatar from "../UI/Avatar";
 import AvatarGroup from "../UI/AvatarGroup";
@@ -22,6 +24,8 @@ function DashboardFocusPanel({
   onInviteMembersClick,
   message,
 }) {
+  const navigate = useNavigate();
+
   if (isLoading) {
     return (
       <motion.aside
@@ -105,6 +109,7 @@ function DashboardFocusPanel({
           exit={{ opacity: 0 }}
           transition={{ duration: 0.2 }}
         >
+          {/* Gradient header band */}
           <div className="dashboard-focus-band relative border-b border-white/12">
             <div className="relative z-10 px-5 py-5 text-white sm:px-6 sm:py-6">
               <div className="flex h-full flex-col gap-5">
@@ -173,7 +178,7 @@ function DashboardFocusPanel({
                       onClick={onAddItemClick}
                       aria-label={`Add item to ${bucketList.title}`}
                       title="Add item"
-                      className="group inline-flex h-16 w-16 items-center justify-center rounded-full bg-[linear-gradient(135deg,#15803d_0%,#4ade80_100%)] text-white shadow-[0_14px_36px_rgba(8,38,20,0.35)] transition hover:scale-105 hover:shadow-[0_18px_46px_rgba(8,38,20,0.45)] active:scale-95 focus:outline-none focus:ring-2 focus:ring-white/80 cursor-pointer"
+                      className="group inline-flex h-16 w-16 cursor-pointer items-center justify-center rounded-full bg-[linear-gradient(135deg,#15803d_0%,#4ade80_100%)] text-white shadow-[0_14px_36px_rgba(8,38,20,0.35)] transition hover:scale-105 hover:shadow-[0_18px_46px_rgba(8,38,20,0.45)] active:scale-95 focus:outline-none focus:ring-2 focus:ring-white/80"
                     >
                       <Plus
                         size={28}
@@ -186,6 +191,8 @@ function DashboardFocusPanel({
               </div>
             </div>
           </div>
+
+          {/* Success message */}
           {message ? (
             <div className="mx-5 mt-5 rounded-2xl border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm font-medium text-emerald-800 sm:mx-6">
               {message}
@@ -193,6 +200,7 @@ function DashboardFocusPanel({
           ) : null}
 
           <div className="flex flex-1 flex-col p-5 sm:p-6">
+            {/* Progress */}
             <section className="space-y-4 border-b border-[var(--card-border)] pb-5">
               <div className="flex flex-wrap items-center justify-between gap-3">
                 <h3 className="text-lg font-semibold text-[var(--heading-text)] sm:text-xl">
@@ -230,6 +238,7 @@ function DashboardFocusPanel({
               </div>
             </section>
 
+            {/* Recent activity */}
             <section className="flex-1 pt-5">
               <div className="mb-4 flex items-center justify-between gap-3">
                 <h3 className="text-lg font-semibold text-[var(--heading-text)] sm:text-xl">
@@ -254,7 +263,6 @@ function DashboardFocusPanel({
                         className="rounded-2xl border border-[var(--card-border)] bg-white/72 p-3 shadow-[0_6px_20px_rgba(49,42,70,0.05)] backdrop-blur-[2px] sm:p-4"
                         initial={{ opacity: 0 }}
                         animate={{ opacity: 1 }}
-                        exit={{ opacity: 0 }}
                         transition={{ duration: 0.2 }}
                       >
                         <div className="flex items-start gap-3">
@@ -277,8 +285,7 @@ function DashboardFocusPanel({
 
                                 <div className="mt-2 flex flex-wrap items-center gap-x-3 gap-y-1">
                                   <p className="text-xs font-medium text-[var(--heading-text)] sm:text-sm">
-                                    {item.creator?.display_name ||
-                                      "Unknown member"}
+                                    {item.creator?.display_name || "Unknown member"}
                                   </p>
 
                                   <p className="text-xs text-black/42 sm:text-sm">
@@ -310,7 +317,6 @@ function DashboardFocusPanel({
                   className="rounded-2xl border border-dashed border-[var(--card-border)] bg-[rgba(255,255,255,0.58)] p-4 text-sm text-[var(--muted-text)] sm:p-5 sm:text-base"
                   initial={{ opacity: 0 }}
                   animate={{ opacity: 1 }}
-                  exit={{ opacity: 0 }}
                   transition={{ duration: 0.2 }}
                 >
                   No updates yet. Bucket lists don't write themselves.
@@ -318,11 +324,14 @@ function DashboardFocusPanel({
               )}
             </section>
 
+            {/* Open button — now navigates correctly */}
             <button
               type="button"
-              className="primary-gradient-button mt-6 w-full rounded-full px-6 py-3 text-base font-semibold transition sm:text-lg"
+              onClick={() => navigate(`/bucketlists/${bucketList.id}`)}
+              className="primary-gradient-button mt-6 inline-flex w-full items-center justify-center gap-2 rounded-full px-6 py-3 text-base font-semibold transition sm:text-lg"
             >
-              Open
+              Open list
+              <ArrowRight size={18} aria-hidden="true" />
             </button>
           </div>
         </motion.div>

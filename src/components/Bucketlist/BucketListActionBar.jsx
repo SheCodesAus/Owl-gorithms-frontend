@@ -1,3 +1,6 @@
+import { motion } from "framer-motion";
+import { Plus, UserPlus } from "lucide-react";
+
 export default function BucketListActionBar({
   completedCount,
   totalCount,
@@ -6,9 +9,17 @@ export default function BucketListActionBar({
   onAddItemClick,
   onInviteMembersClick,
 }) {
+  const FILTERS = ["all", "pending", "complete"];
+
   return (
-    <section className="bucketlist-action-bar-shell">
+    <motion.section
+      className="bucketlist-action-bar-shell"
+      initial={{ opacity: 0, y: 8 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ delay: 0.1, duration: 0.3, ease: "easeOut" }}
+    >
       <div className="bucketlist-action-bar">
+        {/* Left: progress chip + filters */}
         <div className="bucketlist-action-bar-left">
           <div className="bucketlist-progress-chip">
             <span className="bucketlist-progress-chip-value">
@@ -22,11 +33,13 @@ export default function BucketListActionBar({
             role="tablist"
             aria-label="Item filters"
           >
-            {["all", "pending", "complete"].map((value) => (
+            {FILTERS.map((value) => (
               <button
                 key={value}
                 type="button"
-                className={`bucketlist-filter-button ${
+                role="tab"
+                aria-selected={filter === value}
+                className={`bucketlist-filter-button cursor-pointer ${
                   filter === value ? "bucketlist-filter-button-active" : ""
                 }`}
                 onClick={() => onFilterChange(value)}
@@ -37,24 +50,29 @@ export default function BucketListActionBar({
           </div>
         </div>
 
+        {/* Right: invite + add */}
         <div className="bucketlist-action-bar-right">
-          <button
-            type="button"
-            className="bucketlist-secondary-action"
-            onClick={onInviteMembersClick}
-          >
-            Invite Members
-          </button>
+          {onInviteMembersClick ? (
+            <button
+              type="button"
+              className="bucketlist-secondary-action inline-flex cursor-pointer items-center gap-2"
+              onClick={onInviteMembersClick}
+            >
+              <UserPlus size={15} aria-hidden="true" />
+              Invite
+            </button>
+          ) : null}
 
           <button
             type="button"
-            className="bucketlist-primary-action"
+            className="bucketlist-primary-action inline-flex cursor-pointer items-center gap-2"
             onClick={onAddItemClick}
           >
+            <Plus size={16} strokeWidth={2.6} aria-hidden="true" />
             Add Item
           </button>
         </div>
       </div>
-    </section>
+    </motion.section>
   );
 }

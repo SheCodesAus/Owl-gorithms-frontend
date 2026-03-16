@@ -2,7 +2,7 @@
 @import "tailwindcss";
 
 /* =========================
-   THEME TOKENS
+   TOKENS
 ========================= */
 :root {
   --accent: #ff5a5f;
@@ -21,6 +21,9 @@
   --error: #b42318;
 }
 
+/* =========================
+   BASE
+========================= */
 html,
 body,
 #root {
@@ -45,7 +48,7 @@ h6,
 }
 
 /* =========================
-   REUSABLE APP LAYERS
+   APP SHELL + BACKGROUND
 ========================= */
 .main-background {
   min-height: 100vh;
@@ -104,20 +107,9 @@ h6,
   box-shadow: 0 8px 24px rgba(33, 12, 70, 0.35);
 }
 
-.glass-chip {
-  background: rgba(58, 25, 104, 0.85);
-  border: 1px solid rgba(255, 255, 255, 0.12);
-  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.08);
-  backdrop-filter: blur(8px);
-}
-
-.glass-chip-light {
-  background: rgba(197, 180, 219, 0.5);
-  border: 1px solid rgba(255, 255, 255, 0.12);
-  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.08);
-  backdrop-filter: blur(8px);
-}
-
+/* =========================
+   CARDS + SURFACES
+========================= */
 .section-card {
   background: rgba(255, 255, 255, 0.5);
   border: 1px solid rgba(255, 255, 255, 0.6);
@@ -145,10 +137,27 @@ h6,
     0 6px 12px rgba(0, 0, 0, 0.05);
 }
 
+.glass-chip {
+  background: rgba(58, 25, 104, 0.85);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.08);
+  backdrop-filter: blur(8px);
+}
+
+.glass-chip-light {
+  background: rgba(197, 180, 219, 0.5);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.08);
+  backdrop-filter: blur(8px);
+}
+
 .soft-divider {
   border-color: var(--dividers);
 }
 
+/* =========================
+   DASHBOARD CARDS + GRADIENT BAND
+========================= */
 .dashboard-gradient-card {
   position: relative;
   overflow: hidden;
@@ -164,6 +173,13 @@ h6,
     inset 0 1px 0 rgba(255, 255, 255, 0.05);
 }
 
+.dashboard-gradient-card:hover {
+  transform: translateY(-4px);
+  box-shadow:
+    0 14px 30px rgba(0, 0, 0, 0.08),
+    0 6px 12px rgba(0, 0, 0, 0.05);
+}
+
 .dashboard-focus-band {
   position: relative;
   overflow: hidden;
@@ -175,13 +191,9 @@ h6,
   box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.05);
 }
 
-.dashboard-gradient-card:hover {
-  transform: translateY(-4px);
-  box-shadow:
-    0 14px 30px rgba(0, 0, 0, 0.08),
-    0 6px 12px rgba(0, 0, 0, 0.05);
-}
-
+/* =========================
+   BUTTONS
+========================= */
 .primary-gradient-button {
   background: linear-gradient(90deg, #6326c9 0%, #8b37d0 52%, #e45f9c 100%);
   color: white;
@@ -208,8 +220,41 @@ h6,
   cursor: pointer;
 }
 
+.secondary-modal-button {
+  border-radius: 1rem;
+  padding: 0.85rem 1.15rem;
+  font-weight: 700;
+  color: var(--heading-text);
+  background: rgba(197, 180, 219, 0.42);
+  border: 1px solid rgba(255, 255, 255, 0.42);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.1);
+  transition: transform 0.2s ease, background 0.2s ease, box-shadow 0.2s ease;
+}
+
+.secondary-modal-button:hover {
+  transform: translateY(-1px);
+  background: rgba(197, 180, 219, 0.56);
+  box-shadow: 0 10px 22px rgba(39, 16, 76, 0.1);
+  cursor: pointer;
+}
+
+.danger-modal-button {
+  border: none;
+  border-radius: 1rem;
+  padding: 0.85rem 1.15rem;
+  font-weight: 700;
+  color: var(--cta-text);
+  background: var(--accent);
+  cursor: pointer;
+}
+
+.danger-modal-button:disabled {
+  opacity: 0.7;
+  cursor: not-allowed;
+}
+
 /* =========================
-   MODALS + FORM ELEMENTS
+   MODALS
 ========================= */
 .modal-backdrop {
   background: rgba(24, 10, 46, 0.52);
@@ -253,6 +298,9 @@ h6,
   cursor: pointer;
 }
 
+/* =========================
+   FORMS
+========================= */
 .form-stack {
   display: flex;
   flex-direction: column;
@@ -355,39 +403,6 @@ h6,
   padding-top: 0.5rem;
 }
 
-.secondary-modal-button {
-  border-radius: 1rem;
-  padding: 0.85rem 1.15rem;
-  font-weight: 700;
-  color: var(--heading-text);
-  background: rgba(197, 180, 219, 0.42);
-  border: 1px solid rgba(255, 255, 255, 0.42);
-  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.1);
-  transition: transform 0.2s ease, background 0.2s ease, box-shadow 0.2s ease;
-}
-
-.secondary-modal-button:hover {
-  transform: translateY(-1px);
-  background: rgba(197, 180, 219, 0.56);
-  box-shadow: 0 10px 22px rgba(39, 16, 76, 0.1);
-  cursor: pointer;
-}
-
-.danger-modal-button {
-  border: none;
-  border-radius: 1rem;
-  padding: 0.85rem 1.15rem;
-  font-weight: 700;
-  color: var(--cta-text);
-  background: var(--accent);
-  cursor: pointer;
-}
-
-.danger-modal-button:disabled {
-  opacity: 0.7;
-  cursor: not-allowed;
-}
-
 .delete-warning-box {
   background: #fff0f0;
   border: 1px solid #ffcdd2;
@@ -398,11 +413,11 @@ h6,
 }
 
 /* =========================
-   PAGE SHELL + GENERIC STATES
+   PAGE SHELL + STATES
 ========================= */
 .page-shell {
-  min-height: 100vh;
-  background: var(--surface-soft);
+  min-height: unset;
+  background: transparent;
   color: var(--body-text);
 }
 
@@ -431,27 +446,13 @@ h6,
 }
 
 /* =========================
-   SINGLE BUCKET LIST PAGE
+   BUCKET LIST HEADER
 ========================= */
 .bucketlist-view-stack,
 .bucketlist-page-stack {
   display: flex;
   flex-direction: column;
   gap: 1.25rem;
-}
-
-.bucketlist-header-card,
-.bucketlist-progress-card,
-.bucketlist-item-card,
-.item-detail-card {
-  background: var(--cta-text);
-  border: 1px solid var(--card-border);
-  border-radius: 1.25rem;
-  box-shadow: 0 1px 4px rgba(107, 78, 170, 0.06);
-}
-
-.bucketlist-header-card {
-  padding: 1.75rem;
 }
 
 .bucketlist-breadcrumb {
@@ -476,18 +477,6 @@ h6,
 
 .bucketlist-breadcrumb-separator {
   color: var(--dividers);
-}
-
-.bucketlist-header-top {
-  display: flex;
-  justify-content: space-between;
-  gap: 1rem;
-  flex-wrap: wrap;
-}
-
-.bucketlist-header-copy {
-  flex: 1;
-  min-width: 16rem;
 }
 
 .bucketlist-title {
@@ -556,56 +545,9 @@ h6,
   font-weight: 600;
 }
 
-.bucketlist-progress-card {
-  padding: 1.5rem;
-}
-
-.bucketlist-progress-top {
-  display: flex;
-  justify-content: space-between;
-  align-items: baseline;
-  margin-bottom: 0.85rem;
-}
-
-.bucketlist-progress-label {
-  font-size: 0.75rem;
-  font-weight: 700;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-  color: var(--muted-text);
-}
-
-.bucketlist-progress-count {
-  font-size: 1.6rem;
-  font-weight: 700;
-  color: var(--heading-text);
-}
-
-.bucketlist-progress-total {
-  color: var(--muted-text);
-  font-size: 1rem;
-}
-
-.bucketlist-progress-bar {
-  height: 0.45rem;
-  background: var(--surface);
-  border-radius: 999px;
-  overflow: hidden;
-}
-
-.bucketlist-progress-fill {
-  height: 100%;
-  background: linear-gradient(90deg, var(--primary-cta), #b48cf3);
-  border-radius: 999px;
-  transition: width 0.3s ease;
-}
-
-.bucketlist-progress-text {
-  margin: 0.5rem 0 0;
-  color: var(--muted-text);
-  font-size: 0.8rem;
-}
-
+/* =========================
+   BUCKET LIST ACTION BAR
+========================= */
 .bucketlist-action-bar-shell {
   position: relative;
   overflow: hidden;
@@ -658,6 +600,36 @@ h6,
   font-size: 0.85rem;
 }
 
+.bucketlist-filter-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.bucketlist-filter-button {
+  border: 1px solid var(--card-border);
+  background: var(--cta-text);
+  color: var(--muted-text);
+  border-radius: 999px;
+  padding: 0.5rem 1rem;
+  font: inherit;
+  font-weight: 700;
+  text-transform: capitalize;
+  cursor: pointer;
+  transition: 0.2s ease;
+}
+
+.bucketlist-filter-button:hover,
+.bucketlist-filter-button:focus-visible {
+  border-color: var(--primary-cta);
+}
+
+.bucketlist-filter-button-active {
+  background: var(--primary-cta);
+  color: var(--cta-text);
+  border-color: var(--primary-cta);
+}
+
 .bucketlist-primary-action {
   border: none;
   border-radius: 999px;
@@ -699,36 +671,9 @@ h6,
   box-shadow: 0 12px 24px rgba(39, 16, 76, 0.1);
 }
 
-.bucketlist-filter-row {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.5rem;
-}
-
-.bucketlist-filter-button {
-  border: 1px solid var(--card-border);
-  background: var(--cta-text);
-  color: var(--muted-text);
-  border-radius: 999px;
-  padding: 0.5rem 1rem;
-  font: inherit;
-  font-weight: 700;
-  text-transform: capitalize;
-  cursor: pointer;
-  transition: 0.2s ease;
-}
-
-.bucketlist-filter-button:hover,
-.bucketlist-filter-button:focus-visible {
-  border-color: var(--primary-cta);
-}
-
-.bucketlist-filter-button-active {
-  background: var(--primary-cta);
-  color: var(--cta-text);
-  border-color: var(--primary-cta);
-}
-
+/* =========================
+   BUCKET LIST SPLIT LAYOUT + PANELS
+========================= */
 .bucketlist-split-layout {
   display: grid;
   gap: 1.25rem;
@@ -777,10 +722,18 @@ h6,
   gap: 0.75rem;
 }
 
+/* =========================
+   BUCKET LIST ITEM CARDS
+========================= */
 .bucketlist-item-card {
+  position: relative;
   padding: 1.25rem 1.5rem;
   cursor: pointer;
   transition: 0.2s ease;
+  background: var(--cta-text);
+  border: 1px solid var(--card-border);
+  border-radius: 1.25rem;
+  box-shadow: 0 1px 4px rgba(107, 78, 170, 0.06);
 }
 
 .bucketlist-item-card:hover,
@@ -799,6 +752,25 @@ h6,
 .bucketlist-item-card-complete {
   opacity: 0.75;
   background: var(--surface-soft);
+}
+
+.bucketlist-item-card-glow {
+  pointer-events: none;
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  opacity: 0;
+  background: radial-gradient(
+    circle at 60% 40%,
+    rgba(107, 78, 170, 0.08),
+    transparent 70%
+  );
+  transition: opacity 0.25s ease;
+}
+
+.bucketlist-item-card:hover .bucketlist-item-card-glow,
+.bucketlist-item-card-selected .bucketlist-item-card-glow {
+  opacity: 1;
 }
 
 .bucketlist-item-top {
@@ -867,32 +839,9 @@ h6,
   font-weight: 700;
 }
 
-.item-detail-panel-empty {
-  height: 100%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-.item-panel-message-banner {
-  margin-bottom: 0.85rem;
-  padding: 0.9rem 1rem;
-  border-radius: 1rem;
-  background: rgba(107, 78, 170, 0.1);
-  border: 1px solid rgba(107, 78, 170, 0.18);
-  color: var(--primary-cta);
-  font-weight: 600;
-}
-
 /* =========================
    ITEM DETAIL PANEL
 ========================= */
-.item-detail-panel {
-  min-width: 0;
-  min-height: 0;
-  background: transparent;
-}
-
 .item-detail-panel-shell {
   position: relative;
   height: 100%;
@@ -938,13 +887,21 @@ h6,
   font-weight: 600;
 }
 
+/* =========================
+   ITEM DETAIL CARD
+========================= */
+.item-page-stack {
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+}
+
 .item-detail-card {
   padding: 0;
   overflow: hidden;
   border-radius: 1.5rem;
   border: 1px solid rgba(255, 255, 255, 0.5);
-  background:
-    linear-gradient(180deg, rgba(255, 255, 255, 0.84), rgba(248, 244, 253, 0.94));
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.84), rgba(248, 244, 253, 0.94));
   box-shadow:
     0 14px 32px rgba(39, 16, 76, 0.09),
     0 4px 10px rgba(39, 16, 76, 0.05);
@@ -961,6 +918,14 @@ h6,
   border-bottom: 1px solid rgba(140, 113, 190, 0.14);
 }
 
+.item-detail-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+
 .item-detail-title-block {
   min-width: 0;
   flex: 1;
@@ -973,14 +938,6 @@ h6,
   text-transform: uppercase;
   letter-spacing: 0.14em;
   color: var(--muted-text);
-}
-
-.item-detail-header {
-  display: flex;
-  align-items: flex-start;
-  justify-content: space-between;
-  gap: 1rem;
-  flex-wrap: wrap;
 }
 
 .item-detail-title {
@@ -1133,6 +1090,20 @@ h6,
 
 .item-breadcrumb-button-light {
   color: var(--primary-cta);
+}
+
+/* =========================
+   EXTENDED ITEM CARD (Location suggestions)
+========================= */
+.extended-item-card {
+  overflow: hidden;
+  border-radius: 1.5rem;
+  border: 1px solid rgba(255, 255, 255, 0.5);
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.84), rgba(248, 244, 253, 0.94));
+  box-shadow:
+    0 14px 32px rgba(39, 16, 76, 0.09),
+    0 4px 10px rgba(39, 16, 76, 0.05);
+  padding: 1.5rem;
 }
 
 /* =========================

@@ -17,21 +17,11 @@ export default function ItemDetailPanel({
   onDelete,
   onUpdateStatus,
 }) {
-  if (!item) {
-    return (
-      <aside className="item-detail-panel">
-        <div className="item-detail-panel-empty-shell">
-          <div className="empty-state-card item-detail-panel-empty">
-            Select an item to see the full detail view.
-          </div>
-        </div>
-      </aside>
-    );
-  }
+  if (!item) return null;
 
   return (
-    <aside className="item-detail-panel">
-      <div className="item-detail-panel-shell">
+    <aside className="item-detail-panel h-full">
+      <div className="item-detail-panel-shell h-full">
         {message ? (
           <div className="item-panel-message-banner">{message}</div>
         ) : null}
