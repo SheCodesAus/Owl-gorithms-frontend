@@ -29,10 +29,8 @@ const router = createBrowserRouter([
       { path: "/login", element: <LoginPage /> },
       // { path: "/register", element: <RegisterPage />},
       { path: "/dashboard", element: <AccountPage /> },
-
-      // New routes for bucket lists
       { path: "/bucketlists/:listId/items/:itemId", element: <BucketListItemPage /> },
-      { path: "/bucketlists", element: <BucketListsPage /> },
+      // { path: "/bucketlists", element: <BucketListsPage /> },
       { path: "/bucketlists/:id", element: <SingleListView /> },
       { path: "*", element: <NotFound /> },
       { path: "/oauth/google/callback", element: <GoogleOAuthCallback /> },
