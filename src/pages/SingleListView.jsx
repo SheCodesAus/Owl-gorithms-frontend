@@ -19,6 +19,23 @@ import EditItemModal from "../components/modals/EditItemModal";
 import DeleteItemModal from "../components/modals/DeleteItemModal";
 import StatusUpdateModal from "../components/modals/StatusUpdateModal";
 
+function getNextVoteState(currentVote, currentScore, clickedVote) {
+  const nextVote = currentVote === clickedVote ? null : clickedVote;
+
+  let nextScore = currentScore;
+
+  if (currentVote === "upvote") nextScore -= 1;
+  if (currentVote === "downvote") nextScore += 1;
+
+  if (nextVote === "upvote") nextScore += 1;
+  if (nextVote === "downvote") nextScore -= 1;
+
+  return {
+    nextVote,
+    nextScore,
+  };
+}
+
 export default function SingleListView() {
   const { id } = useParams();
   const { auth } = useAuth();
@@ -47,8 +64,47 @@ export default function SingleListView() {
   const [editErrors, setEditErrors] = useState({});
   const [statusError, setStatusError] = useState("");
 
-  const items = bucketList?.items ?? [];
+  const baseItems = bucketList?.items ?? [];
   const currentUser = auth?.user;
+
+  const getBaseVoteScore = (item) =>
+    item.vote_score ?? item.votes_count ?? item.score ?? 0;
+
+  const getBaseUserVote = (item) =>
+    item.user_vote ?? item.current_user_vote ?? item.vote_type ?? null;
+
+  const getEffectiveVoteState = (item) => {
+    const override = voteOverrides[item.id];
+
+    return {
+      voteScore: override?.voteScore ?? getBaseVoteScore(item),
+      userVote: override?.userVote ?? getBaseUserVote(item),
+    };
+  };
+
+  const setVoteOverride = (itemId, voteScore, userVote) => {
+    setVoteOverrides((prev) => ({
+      ...prev,
+      [itemId]: {
+        voteScore,
+        userVote,
+      },
+    }));
+  };
+
+  const items = useMemo(() => {
+    return baseItems.map((item) => {
+      const effectiveVote = getEffectiveVoteState(item);
+
+      return {
+        ...item,
+        vote_score: effectiveVote.voteScore,
+        score: effectiveVote.voteScore,
+        user_vote: effectiveVote.userVote,
+        vote_type: effectiveVote.userVote,
+      };
+    });
+  }, [baseItems, voteOverrides]);
 
   useEffect(() => {
     if (!items.length) {
@@ -59,16 +115,36 @@ export default function SingleListView() {
     const selectedStillExists = items.some(
       (item) => item.id === selectedItemId,
     );
+
     if (selectedItemId && !selectedStillExists) {
       setSelectedItemId(null);
     }
-  }, [items]);
+  }, [items, selectedItemId]);
 
   useEffect(() => {
     if (!panelMessage) return;
+
     const timer = window.setTimeout(() => setPanelMessage(""), 3000);
     return () => window.clearTimeout(timer);
   }, [panelMessage]);
+
+  useEffect(() => {
+    if (!items.length) {
+      setVoteOverrides({});
+      return;
+    }
+
+    const validItemIds = new Set(items.map((item) => String(item.id)));
+
+    setVoteOverrides((prev) => {
+      const next = Object.fromEntries(
+        Object.entries(prev).filter(([itemId]) => validItemIds.has(String(itemId))),
+      );
+
+      const hasChanged = Object.keys(next).length !== Object.keys(prev).length;
+      return hasChanged ? next : prev;
+    });
+  }, [items]);
 
   const filteredItems = useMemo(() => {
     if (filter === "complete") return items.filter((item) => item.is_completed);
@@ -97,54 +173,30 @@ export default function SingleListView() {
 
   const canEdit = isOwner || isCreator;
 
-  const getBaseVoteScore = (item) =>
-    item.vote_score ?? item.votes_count ?? item.score ?? 0;
-
-  const getBaseUserVote = (item) =>
-    item.user_vote ?? item.current_user_vote ?? null;
-
-  const getEffectiveVoteState = (item) => {
-    const override = voteOverrides[item.id];
-    return {
-      voteScore: override?.voteScore ?? getBaseVoteScore(item),
-      userVote: override?.userVote ?? getBaseUserVote(item),
-    };
-  };
-
-  const applyVoteOverride = (item, nextVote) => {
-    const current = getEffectiveVoteState(item);
-    let nextScore = current.voteScore;
-    if (current.userVote === "upvote") nextScore -= 1;
-    if (current.userVote === "downvote") nextScore += 1;
-    if (nextVote === "upvote") nextScore += 1;
-    if (nextVote === "downvote") nextScore -= 1;
-    setVoteOverrides((prev) => ({
-      ...prev,
-      [item.id]: { voteScore: nextScore, userVote: nextVote },
-    }));
-  };
-
-  const handleVote = async (item, nextVote) => {
+  const handleVote = async (item, clickedVote) => {
     const previousState = getEffectiveVoteState(item);
+
+    const { nextVote, nextScore } = getNextVoteState(
+      previousState.userVote,
+      previousState.voteScore,
+      clickedVote,
+    );
+
+    setVoteOverride(item.id, nextScore, nextVote);
+    setIsVotingItemId(item.id);
+
     try {
-      setIsVotingItemId(item.id);
-      if (previousState.userVote === nextVote) {
-        applyVoteOverride(item, null);
+      if (nextVote === null) {
         await clearVote(item.id);
-        await loadBucketList();
-        return;
+      } else {
+        await voteOnItem(item.id, nextVote);
       }
-      applyVoteOverride(item, nextVote);
-      await voteOnItem(item.id, nextVote);
-      await loadBucketList();
     } catch (error) {
-      setVoteOverrides((prev) => ({
-        ...prev,
-        [item.id]: {
-          voteScore: previousState.voteScore,
-          userVote: previousState.userVote,
-        },
-      }));
+      setVoteOverride(
+        item.id,
+        previousState.voteScore,
+        previousState.userVote,
+      );
       console.error("Vote failed:", error);
     } finally {
       setIsVotingItemId(null);
@@ -165,6 +217,7 @@ export default function SingleListView() {
     if (!selectedItem) return;
     setIsSaving(true);
     setEditErrors({});
+
     try {
       await updateItem(selectedItem.id, formData, auth?.access);
       await loadBucketList();
@@ -180,6 +233,7 @@ export default function SingleListView() {
   const handleDelete = async () => {
     if (!selectedItem) return;
     setIsDeleting(true);
+
     try {
       await deleteItem(selectedItem.id, auth?.access);
       await loadBucketList();
@@ -196,6 +250,7 @@ export default function SingleListView() {
     if (!selectedItem) return;
     setIsSavingStatus(true);
     setStatusError("");
+
     try {
       await updateItem(selectedItem.id, { status: newStatus }, auth?.access);
       await loadBucketList();

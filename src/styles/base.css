@@ -31,7 +31,8 @@ h6,
 
 .gradient-border {
   position: relative;
-  border-radius: 12px; /* adjust as needed */
+  border-radius: 12px;
+  z-index: 0;
 }
 
 .gradient-border::before {
@@ -42,13 +43,17 @@ h6,
   border-radius: inherit;
   background: linear-gradient(to right, #ff9966, #ff5e62);
 
-  /* Standard */
+  pointer-events: none;
+
+  /* push it behind content */
+  z-index: -1;
+
+  /* mask */
   mask: 
     linear-gradient(#fff 0 0) content-box, 
     linear-gradient(#fff 0 0);
   mask-composite: exclude;
 
-  /* WebKit (Safari/Chrome) */
   -webkit-mask: 
     linear-gradient(#fff 0 0) content-box, 
     linear-gradient(#fff 0 0);

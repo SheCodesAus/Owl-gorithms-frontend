@@ -10,6 +10,23 @@ import CreateBucketListForm from "../forms/CreateBucketListForm";
 import CreateItemForm from "../forms/CreateItemForm";
 import InviteMembersModal from "../modals/InviteMembersModal";
 
+function getNextVoteState(currentVote, currentScore, clickedVote) {
+  const nextVote = currentVote === clickedVote ? null : clickedVote;
+
+  let nextScore = currentScore;
+
+  if (currentVote === "upvote") nextScore -= 1;
+  if (currentVote === "downvote") nextScore += 1;
+
+  if (nextVote === "upvote") nextScore += 1;
+  if (nextVote === "downvote") nextScore -= 1;
+
+  return {
+    nextVote,
+    nextScore,
+  };
+}
+
 function Dashboard({ user }) {
   const { bucketLists, isLoading, bucketListsError, loadBucketLists } =
     useBucketLists();
@@ -26,28 +43,32 @@ function Dashboard({ user }) {
 
   const handleOpenCreateModal = () => setShowCreateModal(true);
   const handleCloseCreateModal = () => setShowCreateModal(false);
+
   const handleCreateSuccess = async (newBucketList) => {
     await loadBucketLists();
     setSelectedListId(newBucketList.id);
     setShowCreateModal(false);
-    setDashboardMessage("Created Successfully!")
+    setDashboardMessage("Created Successfully!");
   };
 
   const handleCloseAddItemModal = () => setShowAddItemModal(false);
+
   const handleOpenAddItemModal = () => {
     if (!selectedListId) return;
     setShowAddItemModal(true);
   };
+
   const handleAddItemSuccess = async () => {
     await loadBucketLists();
     setShowAddItemModal(false);
-    setFocusPanelMessage("Item added! Let's go!")
+    setFocusPanelMessage("Item added! Let's go!");
   };
 
   const handleOpenInviteModal = () => {
     if (!selectedListId) return;
     setShowInviteModal(true);
   };
+
   const handleCloseInviteModal = () => setShowInviteModal(false);
 
   useEffect(() => {
@@ -66,31 +87,31 @@ function Dashboard({ user }) {
   }, [bucketLists, selectedListId]);
 
   useEffect(() => {
-  if (!dashboardMessage) return;
+    if (!dashboardMessage) return;
 
-  const timer = window.setTimeout(() => {
-    setDashboardMessage("");
-  }, 3000);
+    const timer = window.setTimeout(() => {
+      setDashboardMessage("");
+    }, 3000);
 
-  return () => window.clearTimeout(timer);
-}, [dashboardMessage]);
+    return () => window.clearTimeout(timer);
+  }, [dashboardMessage]);
 
-useEffect(() => {
-  if (!focusPanelMessage) return;
+  useEffect(() => {
+    if (!focusPanelMessage) return;
 
-  const timer = window.setTimeout(() => {
-    setFocusPanelMessage("");
-  }, 3000);
+    const timer = window.setTimeout(() => {
+      setFocusPanelMessage("");
+    }, 3000);
 
-  return () => window.clearTimeout(timer);
-}, [focusPanelMessage]);
+    return () => window.clearTimeout(timer);
+  }, [focusPanelMessage]);
 
   const getBaseVoteScore = (item) => {
     return item.vote_score ?? item.votes_count ?? item.score ?? 0;
   };
 
   const getBaseUserVote = (item) => {
-    return item.user_vote ?? item.current_user_vote ?? null;
+    return item.user_vote ?? item.current_user_vote ?? item.vote_type ?? null;
   };
 
   const getEffectiveItemVoteState = (item) => {
@@ -102,49 +123,40 @@ useEffect(() => {
     };
   };
 
-  const applyVoteOverride = (item, nextVote) => {
-    const current = getEffectiveItemVoteState(item);
-    let nextScore = current.voteScore;
-
-    if (current.userVote === "upvote") nextScore -= 1;
-    if (current.userVote === "downvote") nextScore += 1;
-
-    if (nextVote === "upvote") nextScore += 1;
-    if (nextVote === "downvote") nextScore -= 1;
-
+  const setVoteOverride = (itemId, voteScore, userVote) => {
     setVoteOverrides((prev) => ({
       ...prev,
-      [item.id]: {
-        voteScore: nextScore,
-        userVote: nextVote,
+      [itemId]: {
+        voteScore,
+        userVote,
       },
     }));
   };
 
-  const handleVote = async (item, nextVote) => {
+  const handleVote = async (item, clickedVote) => {
     const previousState = getEffectiveItemVoteState(item);
 
+    const { nextVote, nextScore } = getNextVoteState(
+      previousState.userVote,
+      previousState.voteScore,
+      clickedVote,
+    );
+
+    setVoteOverride(item.id, nextScore, nextVote);
+    setIsVotingItemId(item.id);
+
     try {
-      setIsVotingItemId(item.id);
-
-      if (previousState.userVote === nextVote) {
-        applyVoteOverride(item, null);
+      if (nextVote === null) {
         await clearVote(item.id);
-        await loadBucketLists();
-        return;
+      } else {
+        await voteOnItem(item.id, nextVote);
       }
-
-      applyVoteOverride(item, nextVote);
-      await voteOnItem(item.id, nextVote);
-      await loadBucketLists();
     } catch (error) {
-      setVoteOverrides((prev) => ({
-        ...prev,
-        [item.id]: {
-          voteScore: previousState.voteScore,
-          userVote: previousState.userVote,
-        },
-      }));
+      setVoteOverride(
+        item.id,
+        previousState.voteScore,
+        previousState.userVote,
+      );
       console.error("Vote failed:", error);
     } finally {
       setIsVotingItemId(null);
@@ -166,11 +178,28 @@ useEffect(() => {
         return {
           ...item,
           vote_score: effectiveVote.voteScore,
+          score: effectiveVote.voteScore,
           user_vote: effectiveVote.userVote,
+          vote_type: effectiveVote.userVote,
         };
       }),
     };
   }, [bucketLists, selectedListId, voteOverrides]);
+
+  useEffect(() => {
+    if (!selectedList?.items?.length) return;
+
+    const validItemIds = new Set(selectedList.items.map((item) => String(item.id)));
+
+    setVoteOverrides((prev) => {
+      const next = Object.fromEntries(
+        Object.entries(prev).filter(([itemId]) => validItemIds.has(String(itemId))),
+      );
+
+      const hasChanged = Object.keys(next).length !== Object.keys(prev).length;
+      return hasChanged ? next : prev;
+    });
+  }, [selectedList]);
 
   const isSelectedListOwner =
     selectedList?.owner?.id && user?.id
@@ -186,9 +215,9 @@ useEffect(() => {
         transition={{ duration: 0.35, ease: "easeOut" }}
       >
         <DashboardBanner
-        onVote={handleVote}
-        isVotingItemId={isVotingItemId}
-        message={dashboardMessage}
+          onVote={handleVote}
+          isVotingItemId={isVotingItemId}
+          message={dashboardMessage}
         />
 
         <section className="grid gap-6 xl:grid-cols-[1.55fr_1.15fr]">

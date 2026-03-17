@@ -23,7 +23,7 @@ function VoteControls({
           type="button"
           onClick={onUpvote}
           disabled={isVoting}
-          className={`inline-flex h-11 min-w-[3.2rem] items-center justify-center rounded-[1rem] px-3 transition duration-200 disabled:cursor-not-allowed disabled:opacity-50 ${
+          className={`inline-flex h-11 min-w-[3.2rem] cursor-pointer items-center justify-center rounded-[1rem] px-3 transition duration-200 disabled:cursor-not-allowed disabled:opacity-50 ${
             activeVote === "upvote"
               ? "coral-bg text-white shadow-[0_10px_22px_rgba(107,78,170,0.28)]"
               : "bg-[var(--surface-soft)] text-[var(--heading-text)] hover:-translate-y-[1px] hover:bg-white hover:text-[var(--primary-cta)]"
@@ -69,7 +69,7 @@ function VoteControls({
           type="button"
           onClick={onDownvote}
           disabled={isVoting}
-          className={`inline-flex h-11 min-w-[3.2rem] items-center justify-center rounded-[1rem] px-3 transition duration-200 disabled:cursor-not-allowed disabled:opacity-50 ${
+          className={`inline-flex h-11 min-w-[3.2rem] cursor-pointer items-center justify-center rounded-[1rem] px-3 transition duration-200 disabled:cursor-not-allowed disabled:opacity-50 ${
             activeVote === "downvote"
               ? "coral-bg text-white shadow-[0_10px_22px_rgba(255,90,95,0.24)]"
               : "bg-[var(--surface-soft)] text-[var(--heading-text)] hover:-translate-y-[1px] hover:bg-white hover:text-[var(--accent)]"
@@ -90,11 +90,11 @@ function VoteControls({
   const wrapperClasses = isCompact
     ? "flex flex-col items-center rounded-2xl gradient-border bg-white/80 px-1.5 py-1 shadow-sm"
     : isPanel
-      ? "flex flex-col items-center rounded-2xl border gradient-border bg-white/75 px-2 py-1.5 shadow-sm backdrop-blur-[2px]"
-      : "flex flex-col items-center rounded-2xl border gradient-border bg-[var(--surface-soft)] px-2 py-1.5";
+      ? "flex flex-col items-center rounded-2xl gradient-border bg-white/75 px-2 py-1.5 shadow-sm backdrop-blur-[2px]"
+      : "flex flex-col items-center rounded-2xl gradient-border bg-[var(--surface-soft)] px-2 py-1.5";
 
   const baseButtonClasses =
-    "rounded-full p-1 transition disabled:cursor-not-allowed disabled:opacity-50";
+    "rounded-full p-1 transition disabled:cursor-not-allowed cursor-pointer disabled:opacity-50";
 
   const upvoteClasses =
     activeVote === "upvote"
