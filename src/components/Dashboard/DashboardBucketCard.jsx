@@ -24,19 +24,19 @@ function DashboardBucketCard({ bucketList, isSelected, onSelect, index }) {
           <div className="space-y-3">
             <div className="flex items-start justify-between gap-3">
               <div className="min-w-0 flex-1">
-                <h2 className="brand-font line-clamp-2 text-[1.2rem] font-semibold leading-tight text-slate-900 sm:text-[1.45rem]">
+                <h2 className="brand-font line-clamp-2 text-[1.2rem] font-semibold leading-tight text-white-900 sm:text-[1.45rem]">
                   {bucketList.title}
                 </h2>
 
                 {bucketList.description ? (
-                  <p className="mt-1 line-clamp-2 text-sm text-slate-600 sm:text-[0.95rem]">
+                  <p className="mt-1 line-clamp-2 text-sm text-white-600 sm:text-[0.95rem]">
                     {bucketList.description}
                   </p>
                 ) : null}
               </div>
             </div>
 
-            <div className="flex flex-wrap items-center gap-x-3 gap-y-2 text-sm text-slate-700">
+            <div className="flex flex-wrap items-center gap-x-3 gap-y-2 text-sm text-white-700">
               <span className="inline-flex items-center gap-1.5">
                 {!bucketList.is_public ? <Lock size={15} aria-hidden="true" /> : null}
                 {bucketList.is_public ? "Public" : "Private"}
@@ -57,7 +57,7 @@ function DashboardBucketCard({ bucketList, isSelected, onSelect, index }) {
           </div>
 
           <div className="mt-4 flex items-center justify-between gap-3">
-            <p className="min-w-0 text-sm text-slate-500">
+            <p className="min-w-0 text-sm text-white-500">
               <RelativeTime timestamp={bucketList.updated_at} />
             </p>
 
