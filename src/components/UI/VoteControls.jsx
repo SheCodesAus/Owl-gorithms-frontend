@@ -17,7 +17,7 @@ function VoteControls({
   if (isFocus) {
     return (
       <div
-        className={`inline-flex items-center gap-2 rounded-[1.4rem] border border-white/70 bg-white/88 px-2.5 py-2 shadow-[0_16px_34px_rgba(39,16,76,0.12)] backdrop-blur-md ${className}`}
+        className={`inline-flex items-center gap-2 rounded-[1.4rem] gradient-border px-2.5 py-2 shadow-[0_16px_34px_rgba(39,16,76,0.12)] backdrop-blur-md ${className}`}
       >
         <button
           type="button"
@@ -25,7 +25,7 @@ function VoteControls({
           disabled={isVoting}
           className={`inline-flex h-11 min-w-[3.2rem] items-center justify-center rounded-[1rem] px-3 transition duration-200 disabled:cursor-not-allowed disabled:opacity-50 ${
             activeVote === "upvote"
-              ? "bg-[linear-gradient(135deg,#6b4eaa_0%,#8b37d0_100%)] text-white shadow-[0_10px_22px_rgba(107,78,170,0.28)]"
+              ? "coral-bg text-white shadow-[0_10px_22px_rgba(107,78,170,0.28)]"
               : "bg-[var(--surface-soft)] text-[var(--heading-text)] hover:-translate-y-[1px] hover:bg-white hover:text-[var(--primary-cta)]"
           }`}
           aria-label={
@@ -71,7 +71,7 @@ function VoteControls({
           disabled={isVoting}
           className={`inline-flex h-11 min-w-[3.2rem] items-center justify-center rounded-[1rem] px-3 transition duration-200 disabled:cursor-not-allowed disabled:opacity-50 ${
             activeVote === "downvote"
-              ? "bg-[linear-gradient(135deg,#ff5a5f_0%,#ff7a8a_100%)] text-white shadow-[0_10px_22px_rgba(255,90,95,0.24)]"
+              ? "coral-bg text-white shadow-[0_10px_22px_rgba(255,90,95,0.24)]"
               : "bg-[var(--surface-soft)] text-[var(--heading-text)] hover:-translate-y-[1px] hover:bg-white hover:text-[var(--accent)]"
           }`}
           aria-label={
@@ -88,22 +88,22 @@ function VoteControls({
   }
 
   const wrapperClasses = isCompact
-    ? "flex flex-col items-center rounded-2xl border border-[var(--card-border)] bg-white/80 px-1.5 py-1 shadow-sm"
+    ? "flex flex-col items-center rounded-2xl gradient-border bg-white/80 px-1.5 py-1 shadow-sm"
     : isPanel
-      ? "flex flex-col items-center rounded-2xl border border-[var(--card-border)] bg-white/75 px-2 py-1.5 shadow-sm backdrop-blur-[2px]"
-      : "flex flex-col items-center rounded-2xl border border-[var(--card-border)] bg-[var(--surface-soft)] px-2 py-1.5";
+      ? "flex flex-col items-center rounded-2xl border gradient-border bg-white/75 px-2 py-1.5 shadow-sm backdrop-blur-[2px]"
+      : "flex flex-col items-center rounded-2xl border gradient-border bg-[var(--surface-soft)] px-2 py-1.5";
 
   const baseButtonClasses =
     "rounded-full p-1 transition disabled:cursor-not-allowed disabled:opacity-50";
 
   const upvoteClasses =
     activeVote === "upvote"
-      ? "bg-[var(--surface-soft)] text-[var(--primary-cta)]"
+      ? "coral-bg text-[var(--primary-cta)]"
       : "text-[var(--heading-text)] hover:bg-[var(--surface-soft)]";
 
   const downvoteClasses =
     activeVote === "downvote"
-      ? "bg-[var(--surface-soft)] text-[var(--primary-cta)]"
+      ? "coral-bg text-[var(--primary-cta)]"
       : "text-[var(--heading-text)] hover:bg-[var(--surface-soft)]";
 
   const iconSize = isCompact ? 16 : 18;

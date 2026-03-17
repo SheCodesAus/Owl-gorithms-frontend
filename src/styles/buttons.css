@@ -1,5 +1,7 @@
 .primary-gradient-button {
-  background: linear-gradient(90deg, #6326c9 0%, #8b37d0 52%, #e45f9c 100%);
+  border: 2px solid transparent;
+  border-radius: 12px;
+  background: linear-gradient(to right, #ff9966, #ff5e62) padding-box;
   color: white;
   box-shadow: 0 12px 24px rgba(110, 45, 188, 0.28);
   transition: transform 0.2s ease, box-shadow 0.2s ease;
