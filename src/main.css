@@ -1,0 +1,14 @@
+@import url("https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Inter:wght@400;500;600;700&display=swap");
+@import "tailwindcss";
+
+@import "./styles/tokens.css";
+@import "./styles/base.css";
+@import "./styles/app-shell.css";
+@import "./styles/surfaces.css";
+@import "./styles/buttons.css";
+@import "./styles/modals.css";
+@import "./styles/forms.css";
+@import "./styles/layout.css";
+@import "./styles/bucketlist.css";
+@import "./styles/items.css";
+@import "./styles/responsive.css";

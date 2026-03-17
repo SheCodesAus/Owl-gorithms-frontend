@@ -1,0 +1,29 @@
+.page-shell {
+  min-height: unset;
+  background: transparent;
+  color: var(--body-text);
+}
+
+.page-width {
+  width: min(100%, 860px);
+  margin: 0 auto;
+  padding: 3rem 1.5rem;
+}
+
+.page-width-wide {
+  width: min(100%, 1440px);
+}
+
+.empty-state-card,
+.error-state-card {
+  background: var(--cta-text);
+  border: 1px solid var(--card-border);
+  border-radius: 1.25rem;
+  box-shadow: 0 1px 4px rgba(107, 78, 170, 0.06);
+  padding: 3rem 1.5rem;
+  text-align: center;
+}
+
+.error-state-card {
+  color: var(--error);
+}

@@ -1,0 +1,16 @@
+:root {
+  --accent: #ff5a5f;
+  --surface: #eeeaf7;
+  --surface-soft: #f7f4fc;
+  --body-text: #241b3d;
+  --heading-text: #312a46;
+  --primary-cta: #6b4eaa;
+  --primary-cta-hover: #5c4198;
+  --cta-text: #ffffff;
+  --muted-text: #6b6880;
+  --dividers: rgba(140, 113, 190, 0.18);
+  --card-border: rgba(255, 255, 255, 0.35);
+  --shadow-soft: 0 20px 60px rgba(39, 16, 76, 0.18);
+  --shadow-deep: 0 24px 80px rgba(23, 8, 49, 0.28);
+  --error: #b42318;
+}

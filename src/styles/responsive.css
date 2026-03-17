@@ -1,0 +1,83 @@
+@media (max-width: 1200px) {
+  .page-width-wide {
+    width: min(100%, 1280px);
+  }
+
+  .bucketlist-split-layout {
+    grid-template-columns: minmax(0, 1.08fr) minmax(0, 1fr);
+  }
+}
+
+@media (max-width: 1024px) {
+  .bucketlist-split-layout {
+    grid-template-columns: 1fr;
+  }
+
+  .bucketlist-split-layout-tall {
+    min-height: auto;
+  }
+
+  .bucketlist-items-panel-scroll,
+  .item-detail-panel-scroll {
+    max-height: none;
+    height: auto;
+    overflow-y: visible;
+    padding-right: 0;
+  }
+}
+
+@media (max-width: 800px) {
+  .extended-item-search-row {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .extended-item-placeholder-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 640px) {
+  .item-detail-card {
+    padding: 0;
+  }
+
+  .item-detail-hero,
+  .item-detail-section,
+  .item-meta-row,
+  .item-action-row {
+    padding-left: 1rem;
+    padding-right: 1rem;
+  }
+
+  .item-detail-divider {
+    margin: 0 1rem;
+  }
+
+  .item-detail-topbar {
+    align-items: flex-start;
+    gap: 0.85rem;
+  }
+
+   .item-detail-votes-prominent {
+    margin-top: 0.9rem;
+  }
+
+  .item-date-row {
+    align-items: stretch;
+  }
+
+  .item-detail-panel-close {
+    top: 0.75rem;
+    right: 0.75rem;
+  }
+
+  .bucketlist-action-bar {
+    align-items: stretch;
+  }
+
+  .bucketlist-action-bar-left,
+  .bucketlist-action-bar-right {
+    width: 100%;
+  }
+}

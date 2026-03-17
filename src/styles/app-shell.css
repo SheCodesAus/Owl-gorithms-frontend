@@ -1,0 +1,56 @@
+.main-background {
+  min-height: 100vh;
+  background:
+    radial-gradient(circle at 15% 20%, rgba(255, 154, 214, 0.22), transparent 22%),
+    radial-gradient(circle at 85% 18%, rgba(255, 191, 120, 0.16), transparent 18%),
+    radial-gradient(circle at 82% 82%, rgba(204, 160, 255, 0.18), transparent 22%),
+    linear-gradient(145deg, #2d1157 0%, #3a166f 38%, #5926a2 100%);
+  position: relative;
+  overflow: hidden;
+}
+
+.main-background::before,
+.main-background::after {
+  content: "";
+  position: absolute;
+  border-radius: 999px;
+  filter: blur(70px);
+  pointer-events: none;
+}
+
+.main-background::before {
+  width: 22rem;
+  height: 22rem;
+  left: -5rem;
+  bottom: -4rem;
+  background: rgba(255, 196, 236, 0.22);
+}
+
+.main-background::after {
+  width: 18rem;
+  height: 18rem;
+  right: 4rem;
+  top: 3rem;
+  background: rgba(255, 171, 111, 0.18);
+}
+
+.app-shell {
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.28), rgba(255, 255, 255, 0.12)),
+    var(--surface);
+  border: 1px solid rgba(255, 255, 255, 0.25);
+  box-shadow: var(--shadow-deep);
+  border-radius: 2rem;
+  backdrop-filter: blur(10px);
+  overflow: hidden;
+}
+
+.app-navbar {
+  background:
+    radial-gradient(circle at 75% 25%, rgba(255, 147, 178, 0.24), transparent 22%),
+    radial-gradient(circle at 82% 38%, rgba(255, 215, 145, 0.12), transparent 16%),
+    linear-gradient(135deg, #261050 0%, #38156c 48%, #512180 100%);
+  color: white;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.12);
+  box-shadow: 0 8px 24px rgba(33, 12, 70, 0.35);
+}

@@ -1,23 +1,39 @@
-import { Link } from "react-router";
-import "./NotFound.css";
+import { Link } from "react-router-dom";
+import { useState } from "react";
 
-function NotFound() {
-  return (
-    <div className="not-found">
-    <div className="error-code">404</div>
-    <h2>Page Not Found</h2>
-    <p>Sorry, the page you are looking for does not exist.   
-    </p>
-    <div style={{ display: 'flex', gap: '1rem', justifyContent: 'center', marginTop: '2rem', flexWrap: 'wrap' }}>
-        <Link to="/" className="btn btn-primary btn-lg">
-          ← Back to Home
-        </Link>
-        <Link to="/buckets" className="btn btn-outline btn-lg">
-          My Bucket List
-        </Link>
-      </div>
-    </div>
-  );
+export default function NotFound() {
+    const [hovering, setHovering] = useState(false);
+
+    return (
+        <div className="flex min-h-[60vh] flex-col items-center justify-center gap-6 px-4 text-center">
+            <div
+                className="dashboard-gradient-card px-12 py-14 flex flex-col items-center gap-4"
+                onMouseEnter={() => setHovering(true)}
+                onMouseLeave={() => setHovering(false)}
+                style={{
+                    boxShadow: hovering
+                        ? "none"
+                        : "0 28px 70px rgba(10, 4, 25, 0.5), inset 0 1px 0 rgba(255,255,255,0.05)",
+                    transition: "box-shadow 0.25s ease",
+                }}
+            >
+                <h1 className="brand-font text-[4rem] font-bold leading-none text-white">
+                    404
+                </h1>
+                <p className="text-[0.72rem] font-semibold uppercase tracking-[0.2em] text-white/60">
+                    Not found
+                </p>
+                <p className="text-xl text-white/90">
+                    Looks like you're lost...
+                </p>
+                <p className="text-xl">😕</p>
+                <Link
+                    to="/"
+                    className="primary-gradient-button mt-4 rounded-full px-8 py-3 text-sm font-bold"
+                >
+                    Go back home
+                </Link>
+            </div>
+        </div>
+    );
 }
-
-export default NotFound;

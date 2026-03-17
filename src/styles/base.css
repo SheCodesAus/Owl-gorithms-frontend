@@ -1,0 +1,61 @@
+html,
+body,
+#root {
+  min-height: 100%;
+}
+
+body {
+  margin: 0;
+  font-family: "Inter", sans-serif;
+  color: var(--body-text);
+  background: #2a0f52;
+}
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6,
+.brand-font {
+  font-family: "Space Grotesk", sans-serif;
+}
+
+.coral-bg {
+  background: #ff9966;
+  background: linear-gradient(
+    to right,
+    #ff9966,#ff5e62
+  );
+}
+
+.gradient-border {
+  position: relative;
+  border-radius: 12px;
+  z-index: 0;
+}
+
+.gradient-border::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  padding: 2px;
+  border-radius: inherit;
+  background: linear-gradient(to right, #ff9966, #ff5e62);
+
+  pointer-events: none;
+
+  /* push it behind content */
+  z-index: -1;
+
+  /* mask */
+  mask: 
+    linear-gradient(#fff 0 0) content-box, 
+    linear-gradient(#fff 0 0);
+  mask-composite: exclude;
+
+  -webkit-mask: 
+    linear-gradient(#fff 0 0) content-box, 
+    linear-gradient(#fff 0 0);
+  -webkit-mask-composite: xor;
+}
