@@ -155,7 +155,7 @@ function DashboardFocusPanel({
                   <button
                     type="button"
                     onClick={onInviteMembersClick}
-                    className="inline-flex cursor-pointer items-center gap-2 rounded-full border border-black/12 bg-black/8 px-4 py-2 text-sm font-semibold text-black backdrop-blur-sm transition hover:bg-black/12 focus:outline-none"
+                    className="inline-flex gradient-border cursor-pointer items-center gap-2 rounded-full bg-[#ff9966]/8 px-4 py-2 text-sm font-semibold text-black backdrop-blur-sm transition hover:[#ff9966]/12 focus:outline-none"
                   >
                     <UserPlus size={16} aria-hidden="true" />
                     Invite

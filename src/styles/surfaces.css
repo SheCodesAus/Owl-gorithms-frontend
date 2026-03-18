@@ -43,36 +43,6 @@
   border-color: var(--dividers);
 }
 
-/* .dashboard-gradient-card {
-  position: relative;
-  overflow: hidden;
-  border-radius: 1.5rem;
-  border: 1px solid rgba(255, 255, 255, 0.18);
-  background:
-    radial-gradient(circle at 85% 18%, rgba(255, 160, 210, 0.38), transparent 28%),
-    radial-gradient(circle at 70% 70%, rgba(180, 130, 255, 0.32), transparent 42%),
-    radial-gradient(circle at 45% 40%, rgba(130, 90, 255, 0.22), transparent 48%),
-    linear-gradient(120deg, #0f081c 0%, #5c2a8f 50%, #8a3ea3 65%, #FF5E62 100%);
-  box-shadow:
-    0 28px 70px rgba(10, 4, 25, 0.5),
-    inset 0 1px 0 rgba(255, 255, 255, 0.05);
-} */
-
-/* .dashboard-gradient-card {
-  background-image: url("/public/deep-dusk.jpg");
-  background-size: cover;
-  background-position: center;
-  background-repeat: no-repeat;
-  overflow: hidden;
-  box-shadow:
-    0 28px 70px rgba(10, 4, 25, 0.5),
-    inset 0 1px 0 rgba(255, 255, 255, 0.05);
-  border-radius: 1.5rem;
-  border: 1px solid rgba(255, 255, 255, 0.18);
-  position: relative;
-  overflow: hidden;
-} */
-
 .dashboard-gradient-card {
   position: relative;
   border-radius: 20px;
