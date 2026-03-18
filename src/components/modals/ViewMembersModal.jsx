@@ -22,17 +22,15 @@ function ViewMembersModal({
     }
   }, [isOpen]);
 
-  if (!isOpen || !bucketList) return null;
-
   const roleOrder = { owner: 0, editor: 1, viewer: 2 };
 
   const memberships = useMemo(() => {
-    return [...(bucketList.memberships ?? [])].sort((a, b) => {
+    return [...(bucketList?.memberships ?? [])].sort((a, b) => {
       return (roleOrder[a.role] ?? 99) - (roleOrder[b.role] ?? 99);
     });
-  }, [bucketList.memberships]);
+  }, [bucketList?.memberships]);
 
-  const isOwner = bucketList.owner?.id === currentUser?.id;
+  const isOwner = bucketList?.owner?.id === currentUser?.id;
 
   const startEditingRole = (membership) => {
     setEditingMembershipId(membership.id);
@@ -50,6 +48,8 @@ function ViewMembersModal({
     setEditingMembershipId(null);
     setPendingRole("");
   };
+
+  if (!isOpen || !bucketList) return null;
 
   return (
     <FormModal
@@ -86,12 +86,12 @@ function ViewMembersModal({
               return (
                 <div
                   key={membership.id}
-                  className="rounded-[1.75rem] border border-black/10 bg-white/88 p-4 shadow-[0_10px_30px_rgba(31,24,56,0.08)] backdrop-blur-sm"
+                  className="rounded-[1.75rem] border border-black/10 bg-white/60 p-4 shadow-[0_10px_30px_rgba(31,24,56,0.08)] backdrop-blur-sm"
                 >
                   <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
                     <div className="flex min-w-0 items-center gap-3">
                       <div className="shrink-0">
-                        <Avatar user={memberUser} size="md" />
+                        <Avatar user={memberUser} size="lg" />
                       </div>
 
                       <div className="min-w-0">
@@ -141,7 +141,7 @@ function ViewMembersModal({
                             type="button"
                             onClick={() => onRemoveMember?.(membership)}
                             disabled={isUpdating}
-                            className="rounded-2xl border border-red-300 bg-red-50 px-5 py-3 text-sm font-semibold text-red-600 transition hover:bg-red-100 disabled:cursor-not-allowed disabled:opacity-60"
+                            className="rounded-2xl cursor-pointer border border-red-300 bg-red-50 px-5 py-3 text-sm font-semibold text-red-600 transition hover:bg-red-100"
                           >
                             Remove
                           </button>
@@ -184,7 +184,7 @@ function ViewMembersModal({
                               disabled={
                                 isUpdating || !pendingRole || pendingRole === membership.role
                               }
-                              className="primary-gradient-button rounded-2xl px-5 py-3 text-sm font-semibold disabled:cursor-not-allowed disabled:opacity-60"
+                              className="primary-gradient-button rounded-2xl px-5 py-3 text-sm font-semibold"
                             >
                               {isUpdating ? "Updating..." : "Update"}
                             </button>
@@ -197,7 +197,7 @@ function ViewMembersModal({
                           type="button"
                           onClick={() => onLeaveList?.(membership)}
                           disabled={isUpdating}
-                          className="secondary-modal-button"
+                          className="danger-modal-button"
                         >
                           Leave list
                         </button>
