@@ -5,7 +5,6 @@ export default function BucketListItemsPanel({
   items,
   selectedItemId,
   onSelectItem,
-  onDoubleSelectItem,
 }) {
   return (
     <section className="bucketlist-items-panel">
@@ -41,7 +40,6 @@ export default function BucketListItemsPanel({
                     item={item}
                     isSelected={item.id === selectedItemId}
                     onSelect={() => onSelectItem(item.id)}
-                    onDoubleSelect={() => onDoubleSelectItem?.(item.id)}
                   />
                 </motion.div>
               ))}
