@@ -216,8 +216,8 @@ function ViewMembersModal({
           </div>
         )}
 
-        <div className="rounded-[1.5rem] border border-black/10 bg-white/80 p-4 text-sm text-[var(--muted-text)] shadow-sm">
-          Only the list owner can change member roles or remove other members.
+        <div className="rounded-[1.5rem] flex justify-center border border-black/10 bg-white/80 p-4 text-sm text-[var(--muted-text)] shadow-sm">
+          Life is better done with friends.
         </div>
       </div>
     </FormModal>

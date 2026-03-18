@@ -8,13 +8,14 @@ import {
   Sparkles,
 } from "lucide-react";
 import FormModal from "../UI/FormModal";
+import ConfirmActionModal from "../modals/ConfirmActionModal";
 import { useInvites } from "../../hooks/useInvites";
 import { useBanner } from "../UI/BannerProvider";
 
 const ROLE_CONFIG = {
   editor: {
     title: "Editor access",
-    description: "Can add items, vote and manage the items they created.",
+    description: "Can add items, vote, and manage the items they created.",
     icon: Pencil,
   },
   viewer: {
@@ -78,7 +79,7 @@ function InviteRoleCard({
   copiedRole,
   onGenerate,
   onCopy,
-  onRegenerate,
+  onRequestRegenerate,
 }) {
   const config = ROLE_CONFIG[role];
   const Icon = config.icon;
@@ -92,119 +93,138 @@ function InviteRoleCard({
     return "Not generated";
   }, [status]);
 
-  return (
-    <section className="relative overflow-hidden rounded-[1.75rem] border border-[var(--card-border)] bg-[var(--surface-soft)]/95 p-5 shadow-sm">
-      <div className="pointer-events-none absolute inset-0 opacity-60">
-        <div className="absolute -right-10 -top-10 h-28 w-28 rounded-full bg-white/40 blur-2xl" />
-      </div>
+  const statusClassName = useMemo(() => {
+    if (status === "active") {
+      return "border-emerald-200 bg-emerald-50 text-emerald-700";
+    }
 
-      <div className="relative z-[1]">
-        <div className="flex flex-col gap-4 md:flex-row md:items-start md:justify-between">
+    if (status === "expired") {
+      return "border-amber-200 bg-amber-50 text-amber-700";
+    }
+
+    if (status === "inactive") {
+      return "border-slate-200 bg-slate-100 text-slate-700";
+    }
+
+    return "border-slate-200 bg-slate-100 text-slate-700";
+  }, [status]);
+
+  return (
+    <section className="rounded-[1.6rem] border border-black/10 bg-white/90 p-4 shadow-[0_12px_30px_rgba(31,24,56,0.08)] sm:p-5">
+      <div className="flex flex-col gap-4">
+        <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
           <div className="min-w-0 flex-1">
-            <div className="flex items-center gap-3">
-              <div className="inline-flex h-11 w-11 items-center justify-center rounded-2xl bg-white text-[var(--heading-text)] shadow-sm">
+            <div className="flex items-start gap-3">
+              <div className="inline-flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl border border-black/8 bg-white text-[var(--heading-text)] shadow-sm">
                 <Icon size={18} />
               </div>
 
-              <div>
-                <h3 className="text-lg font-semibold text-[var(--heading-text)]">
-                  {config.title}
-                </h3>
-                <p className="text-sm text-[var(--muted-text)]">
+              <div className="min-w-0">
+                <div className="flex flex-wrap items-center gap-2">
+                  <h3 className="text-base font-semibold text-[var(--heading-text)] sm:text-lg">
+                    {config.title}
+                  </h3>
+
+                  <span
+                    className={`inline-flex rounded-full border px-2.5 py-1 text-[11px] font-semibold ${statusClassName}`}
+                  >
+                    {statusLabel}
+                  </span>
+                </div>
+
+                <p className="mt-1 text-sm leading-6 text-[var(--muted-text)]">
                   {config.description}
                 </p>
               </div>
             </div>
           </div>
-
-          <div className="inline-flex w-fit rounded-full border border-[var(--card-border)] bg-white px-3 py-1 text-xs font-semibold text-[var(--heading-text)] shadow-sm">
-            {statusLabel}
-          </div>
         </div>
 
-        <div className="mt-5">
-          <div className="form-field">
-            <label htmlFor={`${role}-invite-link`} className="form-label">
-              Share link
-            </label>
+        <div className="rounded-[1.25rem] border border-black/8 bg-[var(--surface-soft)]/70 p-3 sm:p-4">
+          <label
+            htmlFor={`${role}-invite-link`}
+            className="mb-2 block text-xs font-semibold uppercase tracking-[0.14em] text-[var(--muted-text)]"
+          >
+            Share link
+          </label>
 
-            <div className="flex flex-col gap-3 md:flex-row">
-              <div className="relative flex-1">
-                <LinkIcon
-                  size={16}
-                  className="pointer-events-none absolute left-4 top-1/2 -translate-y-1/2 text-[var(--muted-text)]"
-                />
+          <div className="flex flex-col gap-3 lg:flex-row">
+            <div className="relative min-w-0 flex-1">
+              <LinkIcon
+                size={16}
+                className="pointer-events-none absolute left-4 top-1/2 -translate-y-1/2 text-[var(--muted-text)]"
+              />
 
-                <input
-                  id={`${role}-invite-link`}
-                  type="text"
-                  readOnly
-                  value={invite?.invite_url ?? ""}
-                  placeholder={
-                    isLoading ? "Loading..." : "No link generated yet"
-                  }
-                  className="form-input-with-icon pl-12"
-                />
-              </div>
+              <input
+                id={`${role}-invite-link`}
+                type="text"
+                readOnly
+                value={invite?.invite_url ?? ""}
+                placeholder={isLoading ? "Loading..." : "No link generated yet"}
+                className="w-full rounded-2xl border border-black/10 bg-white py-3 pl-11 pr-4 text-sm font-medium text-[var(--heading-text)] outline-none placeholder:text-[var(--muted-text)]"
+              />
+            </div>
 
-              {invite ? (
-                <button
-                  type="button"
-                  onClick={() => onCopy(role, invite.invite_url)}
-                  className="inline-flex items-center justify-center gap-2 rounded-2xl border border-[var(--card-border)] bg-white px-4 py-3 font-semibold text-[var(--heading-text)] shadow-sm transition hover:-translate-y-[1px] disabled:opacity-60 cursor-pointer"
-                  disabled={isBusy}
-                >
+            {invite ? (
+              <button
+                type="button"
+                onClick={() => onCopy(role, invite.invite_url)}
+                className="secondary-modal-button"
+                disabled={isBusy}
+              >
+                <span className="inline-flex items-center gap-2">
                   <Copy size={16} />
                   {copiedRole === role ? "Copied!" : "Copy link"}
-                </button>
-              ) : (
-                <button
-                  type="button"
-                  onClick={() => onGenerate(role)}
-                  className="inline-flex items-center justify-center rounded-2xl bg-[var(--primary-cta)] px-4 py-3 font-semibold text-[var(--cta-text)] transition hover:bg-[var(--primary-cta-hover)] disabled:opacity-60 cursor-pointer"
-                  disabled={isBusy || isLoading}
-                >
-                  {isBusy ? "Generating..." : "Generate link"}
-                </button>
-              )}
-            </div>
+                </span>
+              </button>
+            ) : (
+              <button
+                type="button"
+                onClick={() => onGenerate(role)}
+                className="primary-gradient-button"
+                disabled={isBusy || isLoading}
+              >
+                {isBusy ? "Generating..." : "Generate link"}
+              </button>
+            )}
           </div>
         </div>
 
         {invite ? (
-          <div className="mt-4 space-y-4">
-            <div className="rounded-2xl border border-[var(--card-border)] bg-white/80 px-4 py-3">
-              <p className="text-sm font-medium text-[var(--heading-text)]">
-                {formatExpiryText(invite.expires_at)}
-              </p>
-              {formatExactExpiry(invite.expires_at) ? (
-                <p className="mt-1 text-xs text-[var(--muted-text)]">
-                  Exact expiry: {formatExactExpiry(invite.expires_at)}
+          <div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
+            <div className="flex min-w-0 flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-center">
+              <div className="rounded-2xl border border-black/8 bg-white px-4 py-3">
+                <p className="text-sm font-semibold text-[var(--heading-text)]">
+                  {formatExpiryText(invite.expires_at)}
                 </p>
-              ) : null}
+                {formatExactExpiry(invite.expires_at) ? (
+                  <p className="mt-1 text-xs text-[var(--muted-text)]">
+                    Exact expiry: {formatExactExpiry(invite.expires_at)}
+                  </p>
+                ) : null}
+              </div>
+
+              <div className="rounded-2xl border border-amber-200 bg-amber-50 px-4 py-3">
+                <p className="text-xs leading-5 text-amber-800 sm:text-sm">
+                  Regenerating will immediately replace the current link.
+                </p>
+              </div>
             </div>
 
-            <div className="rounded-2xl border border-amber-200 bg-amber-50 px-4 py-3">
-              <p className="text-sm text-amber-900">
-                Generating a new link will replace the current one. Anyone using
-                the old link will no longer be able to join with it.
-              </p>
-            </div>
-
-            <div className="flex justify-end">
-              <button
-                type="button"
-                onClick={() => onRegenerate(role)}
-                className="inline-flex items-center gap-2 rounded-2xl border border-[var(--card-border)] bg-white px-4 py-3 font-semibold text-[var(--heading-text)] shadow-sm transition hover:-translate-y-[1px] disabled:opacity-60 cursor-pointer"
-                disabled={isBusy}
-              >
+            <button
+              type="button"
+              onClick={() => onRequestRegenerate(role)}
+              className="secondary-modal-button"
+              disabled={isBusy}
+            >
+              <span className="inline-flex items-center gap-2">
                 <RefreshCw size={16} className={isBusy ? "animate-spin" : ""} />
                 {isBusy ? "Regenerating..." : "Regenerate link"}
-              </button>
-            </div>
+              </span>
+            </button>
           </div>
         ) : (
-          <div className="mt-4 rounded-2xl border border-dashed border-[var(--card-border)] bg-white/70 px-4 py-3">
+          <div className="rounded-2xl border border-dashed border-black/10 bg-[var(--surface-soft)]/55 px-4 py-3">
             <p className="text-sm text-[var(--muted-text)]">
               No link has been generated for this role yet.
             </p>
@@ -225,6 +245,7 @@ function InviteMembersModal({ isOpen, onClose, bucketListId }) {
   const [actionLoading, setActionLoading] = useState("");
   const [copiedRole, setCopiedRole] = useState("");
   const [error, setError] = useState("");
+  const [confirmRole, setConfirmRole] = useState("");
 
   useEffect(() => {
     if (!isOpen || !bucketListId) return;
@@ -245,22 +266,18 @@ function InviteMembersModal({ isOpen, onClose, bucketListId }) {
 
         if (editorResult.status === "fulfilled") {
           setEditorInvite(editorResult.value);
+        } else if (editorResult.reason?.status === 404) {
+          setEditorInvite(null);
         } else {
-          if (editorResult.reason?.status === 404) {
-            setEditorInvite(null);
-          } else {
-            throw editorResult.reason;
-          }
+          throw editorResult.reason;
         }
 
         if (viewerResult.status === "fulfilled") {
           setViewerInvite(viewerResult.value);
+        } else if (viewerResult.reason?.status === 404) {
+          setViewerInvite(null);
         } else {
-          if (viewerResult.reason?.status === 404) {
-            setViewerInvite(null);
-          } else {
-            throw viewerResult.reason;
-          }
+          throw viewerResult.reason;
         }
       } catch (err) {
         if (!isMounted) return;
@@ -284,7 +301,13 @@ function InviteMembersModal({ isOpen, onClose, bucketListId }) {
     return () => {
       isMounted = false;
     };
-  }, [isOpen, bucketListId]);
+  }, [isOpen, bucketListId, loadInvite, showBanner]);
+
+  useEffect(() => {
+    if (!isOpen) {
+      setConfirmRole("");
+    }
+  }, [isOpen]);
 
   async function handleGenerate(role) {
     try {
@@ -301,9 +324,7 @@ function InviteMembersModal({ isOpen, onClose, bucketListId }) {
 
       showBanner({
         type: "success",
-        message: `${
-          role === "editor" ? "Editor" : "Viewer"
-        } invite link generated.`,
+        message: `${role === "editor" ? "Editor" : "Viewer"} invite link generated.`,
       });
     } catch (err) {
       const message = err.message || `Unable to generate ${role} invite.`;
@@ -318,12 +339,14 @@ function InviteMembersModal({ isOpen, onClose, bucketListId }) {
     }
   }
 
-  async function handleRegenerate(role) {
-    const confirmed = window.confirm(
-      "Generate a new link? The current link will stop working immediately.",
-    );
+  function handleRequestRegenerate(role) {
+    setConfirmRole(role);
+  }
 
-    if (!confirmed) return;
+  async function handleConfirmRegenerate() {
+    if (!confirmRole) return;
+
+    const role = confirmRole;
 
     try {
       setActionLoading(role);
@@ -337,11 +360,11 @@ function InviteMembersModal({ isOpen, onClose, bucketListId }) {
         setViewerInvite(invite);
       }
 
+      setConfirmRole("");
+
       showBanner({
         type: "success",
-        message: `${
-          role === "editor" ? "Editor" : "Viewer"
-        } invite link regenerated. The previous link no longer works.`,
+        message: `${role === "editor" ? "Editor" : "Viewer"} invite link regenerated. The previous link no longer works.`,
       });
     } catch (err) {
       const message = err.message || `Unable to regenerate ${role} invite.`;
@@ -363,9 +386,7 @@ function InviteMembersModal({ isOpen, onClose, bucketListId }) {
 
       showBanner({
         type: "success",
-        message: `${
-          role === "editor" ? "Editor" : "Viewer"
-        } invite link copied.`,
+        message: `${role === "editor" ? "Editor" : "Viewer"} invite link copied.`,
       });
 
       window.setTimeout(() => {
@@ -382,69 +403,79 @@ function InviteMembersModal({ isOpen, onClose, bucketListId }) {
     }
   }
 
+  const confirmRoleLabel = confirmRole === "editor" ? "Editor" : "Viewer";
+
   return (
-    <FormModal
-      isOpen={isOpen}
-      onClose={onClose}
-      title="Invite members"
-      maxWidth="max-w-4xl"
-    >
-      <div className="space-y-6">
-        <div className="relative overflow-hidden rounded-[1.75rem] border border-[var(--card-border)] bg-gradient-to-br from-white via-[var(--surface-soft)] to-white px-5 py-5 shadow-sm">
-          <div className="pointer-events-none absolute inset-0 opacity-80">
-            <div className="absolute -left-8 top-0 h-24 w-24 rounded-full bg-[var(--accent)]/10 blur-2xl" />
-            <div className="absolute right-0 top-0 h-28 w-28 rounded-full bg-[var(--primary-cta)]/10 blur-2xl" />
+    <>
+      <FormModal
+        isOpen={isOpen}
+        onClose={onClose}
+        title="Invite members"
+        subtitle="Generate share links for collaborators and viewers."
+        maxWidth="max-w-4xl"
+      >
+        <div className="space-y-5">
+          <div className="rounded-[1.6rem] border border-black/10 bg-white/88 p-5 shadow-[0_12px_30px_rgba(31,24,56,0.08)]">
+            <div className="flex items-start gap-3">
+              <div className="inline-flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl border border-black/8 bg-white text-[var(--heading-text)] shadow-sm">
+                <Sparkles size={18} />
+              </div>
+
+              <div>
+                <h3 className="text-base font-semibold text-[var(--heading-text)] sm:text-lg">
+                  Share access with confidence
+                </h3>
+                <p className="mt-1 text-sm leading-6 text-[var(--muted-text)]">
+                  Create separate links for editors and viewers. If you regenerate a link,
+                  the previous link stops working immediately.
+                </p>
+              </div>
+            </div>
           </div>
 
-          <div className="relative z-[1] flex items-start gap-4">
-            <div className="inline-flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-white text-[var(--heading-text)] shadow-sm">
-              <Sparkles size={18} />
+          {error ? (
+            <div className="rounded-2xl border border-red-200 bg-red-50 px-4 py-3 text-sm font-medium text-red-700">
+              {error}
             </div>
+          ) : null}
 
-            <div>
-              <h3 className="text-lg font-semibold text-[var(--heading-text)]">
-                Share access with confidence
-              </h3>
-              <p className="mt-1 text-sm leading-6 text-[var(--muted-text)]">
-                Editor: For collaborators who will actively contribute.
-                <br />
-                Viewer: For people who just need to see the list.
-                <br />
-                If you regenerate a link, the old one stops working immediately.
-              </p>
-            </div>
+          <div className="grid gap-4">
+            <InviteRoleCard
+              role="editor"
+              invite={editorInvite}
+              isLoading={isLoading}
+              actionLoading={actionLoading}
+              copiedRole={copiedRole}
+              onGenerate={handleGenerate}
+              onCopy={handleCopy}
+              onRequestRegenerate={handleRequestRegenerate}
+            />
+
+            <InviteRoleCard
+              role="viewer"
+              invite={viewerInvite}
+              isLoading={isLoading}
+              actionLoading={actionLoading}
+              copiedRole={copiedRole}
+              onGenerate={handleGenerate}
+              onCopy={handleCopy}
+              onRequestRegenerate={handleRequestRegenerate}
+            />
           </div>
         </div>
+      </FormModal>
 
-        {error ? (
-          <div className="rounded-2xl border border-red-200 bg-red-50 px-4 py-3 text-sm font-medium text-red-700">
-            {error}
-          </div>
-        ) : null}
-
-        <InviteRoleCard
-          role="editor"
-          invite={editorInvite}
-          isLoading={isLoading}
-          actionLoading={actionLoading}
-          copiedRole={copiedRole}
-          onGenerate={handleGenerate}
-          onCopy={handleCopy}
-          onRegenerate={handleRegenerate}
-        />
-
-        <InviteRoleCard
-          role="viewer"
-          invite={viewerInvite}
-          isLoading={isLoading}
-          actionLoading={actionLoading}
-          copiedRole={copiedRole}
-          onGenerate={handleGenerate}
-          onCopy={handleCopy}
-          onRegenerate={handleRegenerate}
-        />
-      </div>
-    </FormModal>
+      <ConfirmActionModal
+        isOpen={!!confirmRole}
+        onClose={() => setConfirmRole("")}
+        onConfirm={handleConfirmRegenerate}
+        title={`Regenerate ${confirmRoleLabel} link?`}
+        description={`This will immediately replace the current ${confirmRoleLabel.toLowerCase()} invite link. Anyone using the old link will no longer be able to join with it.`}
+        confirmLabel="Regenerate link"
+        tone="danger"
+        isLoading={!!actionLoading}
+      />
+    </>
   );
 }
 
