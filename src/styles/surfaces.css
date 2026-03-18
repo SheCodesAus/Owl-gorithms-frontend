@@ -112,8 +112,29 @@
   background-size: cover;
   background-position: center;
   background-repeat: no-repeat;
+  background-clip: padding-box;
   box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
   transition: transform 0.2s ease;
+}
+
+.dashboard-gradient-banner::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+
+  background: 
+    linear-gradient(rgba(0,0,0,0.4), rgba(0,0,0,0.6)),
+    url("/deep-dusk.jpg");
+
+  background-size: cover;
+  background-position: center;
+
+  z-index: 0;
+}
+
+.dashboard-gradient-banner > * {
+  position: relative;
+  z-index: 1; /* keeps content above blurred bg */
 }
 
 .dashboard-focus-band {

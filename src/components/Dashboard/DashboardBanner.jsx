@@ -43,7 +43,7 @@ function DashboardBanner({ onVote, isVotingItemId, message }) {
   return (
     <>
       <motion.section
-        className="dashboard-gradient-card overflow-hidden"
+        className="dashboard-gradient-banner overflow-hidden"
         initial={{ opacity: 0, y: 14 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.05, duration: 0.35 }}
@@ -69,7 +69,7 @@ function DashboardBanner({ onVote, isVotingItemId, message }) {
                   </p>
                 </div>
               ) : (
-                <p className="text-sm font-semibold text-white/70 sm:text-base">
+                <p className="text-sm font-semibold text-white sm:text-base">
                   No new notifications
                 </p>
               )}
