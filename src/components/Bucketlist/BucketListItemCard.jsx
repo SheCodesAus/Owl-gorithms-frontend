@@ -11,7 +11,7 @@ function formatDate(iso) {
   });
 }
 
-export default function BucketListItemCard({ item, isSelected, onSelect }) {
+export default function BucketListItemCard({ item, isSelected, onSelect, onDoubleSelect }) {
   const handleKeyDown = (event) => {
     if (event.key === "Enter" || event.key === " ") {
       event.preventDefault();
@@ -29,6 +29,7 @@ export default function BucketListItemCard({ item, isSelected, onSelect }) {
         item.is_completed ? "bucketlist-item-card-complete" : ""
       } ${isSelected ? "bucketlist-item-card-selected" : ""}`}
       onClick={onSelect}
+      onDoubleClick={onDoubleSelect}
       onKeyDown={handleKeyDown}
       tabIndex={0}
       role="button"

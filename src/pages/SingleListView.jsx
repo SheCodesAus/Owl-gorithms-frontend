@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
-import { useParams } from "react-router-dom";
+import { useParams, useNavigate } from "react-router-dom";
 import { AnimatePresence, motion } from "framer-motion";
 import { useBucketList } from "../hooks/useBucketList";
 import { useVotes } from "../hooks/useVotes";
@@ -18,6 +18,7 @@ import CalendarExportModal from "../components/modals/CalendarExportModal";
 import EditItemModal from "../components/modals/EditItemModal";
 import DeleteItemModal from "../components/modals/DeleteItemModal";
 import StatusUpdateModal from "../components/modals/StatusUpdateModal";
+import ItemDateModal from "../components/modals/ItemDateModal";
 
 function getNextVoteState(currentVote, currentScore, clickedVote) {
   const nextVote = currentVote === clickedVote ? null : clickedVote;
@@ -38,6 +39,7 @@ function getNextVoteState(currentVote, currentScore, clickedVote) {
 
 export default function SingleListView() {
   const { id } = useParams();
+  const navigate = useNavigate();
   const { auth } = useAuth();
   const { bucketList, isLoading, bucketListError, loadBucketList } =
     useBucketList(Number(id));
@@ -57,9 +59,12 @@ export default function SingleListView() {
   const [voteOverrides, setVoteOverrides] = useState({});
   const [panelMessage, setPanelMessage] = useState("");
 
-  const [isSaving, setIsSaving] = useState(false);
-  const [isDeleting, setIsDeleting] = useState(false);
   const [isSavingStatus, setIsSavingStatus] = useState(false);
+  const [showDateModal, setShowDateModal] = useState(false);
+  const [isSavingDate, setIsSavingDate] = useState(false);
+  const [dateErrors, setDateErrors] = useState({});
+  const [isDeleting, setIsDeleting] = useState(false);
+  const [isSaving, setIsSaving] = useState(false);
 
   const [editErrors, setEditErrors] = useState({});
   const [statusError, setStatusError] = useState("");
@@ -107,16 +112,13 @@ export default function SingleListView() {
   }, [baseItems, voteOverrides]);
 
   useEffect(() => {
-    if (!items.length) {
-      setSelectedItemId(null);
-      return;
-    }
+    if (!selectedItemId) return;
 
     const selectedStillExists = items.some(
       (item) => item.id === selectedItemId,
     );
 
-    if (selectedItemId && !selectedStillExists) {
+    if (!selectedStillExists) {
       setSelectedItemId(null);
     }
   }, [items, selectedItemId]);
@@ -129,22 +131,29 @@ export default function SingleListView() {
   }, [panelMessage]);
 
   useEffect(() => {
-    if (!items.length) {
-      setVoteOverrides({});
+    if (!baseItems.length) {
+      setVoteOverrides((prev) => {
+        if (Object.keys(prev).length === 0) return prev;
+        return {};
+      });
       return;
     }
 
-    const validItemIds = new Set(items.map((item) => String(item.id)));
+    const validItemIds = new Set(baseItems.map((item) => String(item.id)));
 
     setVoteOverrides((prev) => {
       const next = Object.fromEntries(
-        Object.entries(prev).filter(([itemId]) => validItemIds.has(String(itemId))),
+        Object.entries(prev).filter(([itemId]) =>
+          validItemIds.has(String(itemId)),
+        ),
       );
 
-      const hasChanged = Object.keys(next).length !== Object.keys(prev).length;
+      const hasChanged =
+        Object.keys(next).length !== Object.keys(prev).length;
+
       return hasChanged ? next : prev;
     });
-  }, [items]);
+  }, [baseItems]);
 
   const filteredItems = useMemo(() => {
     if (filter === "complete") return items.filter((item) => item.is_completed);
@@ -246,6 +255,22 @@ export default function SingleListView() {
     }
   };
 
+  const handleSaveDate = async (dateData) => {
+    if (!selectedItem) return;
+    setIsSavingDate(true);
+    setDateErrors({});
+    try {
+      await updateItem(selectedItem.id, dateData, auth?.access);
+      await loadBucketList();
+      setShowDateModal(false);
+      setPanelMessage("Date saved.");
+    } catch (error) {
+      setDateErrors({ non_field_errors: error.message });
+    } finally {
+      setIsSavingDate(false);
+    }
+  };
+
   const handleStatusUpdate = async (newStatus) => {
     if (!selectedItem) return;
     setIsSavingStatus(true);
@@ -285,6 +310,14 @@ export default function SingleListView() {
     );
   }
 
+  console.log("selectedItem", selectedItem);
+  console.log("currentUser", currentUser);
+  console.log("isOwner", isOwner);
+  console.log("isCreator", isCreator);
+  console.log("canEdit", canEdit);
+  console.log("auth", auth);
+  console.log("auth.user", auth?.user);
+
   const panelOpen = !!selectedItem;
 
   return (
@@ -319,6 +352,7 @@ export default function SingleListView() {
                 items={filteredItems}
                 selectedItemId={selectedItemId}
                 onSelectItem={setSelectedItemId}
+                onDoubleSelectItem={(itemId) => navigate(`/bucketlists/${id}/items/${itemId}`)}
               />
             </motion.div>
 
@@ -349,8 +383,8 @@ export default function SingleListView() {
                       selectedItem && handleVote(selectedItem, "downvote")
                     }
                     onAddToCalendar={() => setShowCalendarModal(true)}
-                    onAddDate={() => console.log("Open add date modal")}
-                    onEditDate={() => console.log("Open edit date modal")}
+                    onAddDate={() => setShowDateModal(true)}
+                    onEditDate={() => setShowDateModal(true)}
                     onEdit={() => setShowEditModal(true)}
                     onDelete={() => setShowDeleteModal(true)}
                     onUpdateStatus={() => setShowStatusModal(true)}
@@ -407,6 +441,18 @@ export default function SingleListView() {
         isDeleting={isDeleting}
         onClose={() => setShowDeleteModal(false)}
         onConfirm={handleDelete}
+      />
+
+      <ItemDateModal
+        item={selectedItem}
+        isOpen={showDateModal}
+        onSave={handleSaveDate}
+        onClose={() => {
+          setShowDateModal(false);
+          setDateErrors({});
+        }}
+        isSaving={isSavingDate}
+        errors={dateErrors}
       />
 
       <StatusUpdateModal

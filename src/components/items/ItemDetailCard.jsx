@@ -1,11 +1,10 @@
-import { CalendarDays, Ellipsis, Pencil } from "lucide-react";
+import { CalendarDays, Ellipsis, Pencil, Trash2 } from "lucide-react";
 import RelativeTime from "../UI/RelativeTime";
 import VoteControls from "../UI/VoteControls";
 import Avatar from "../UI/Avatar";
 
 function formatDate(iso) {
   if (!iso) return null;
-
   return new Date(iso).toLocaleDateString("en-AU", {
     day: "numeric",
     month: "short",
@@ -13,16 +12,37 @@ function formatDate(iso) {
   });
 }
 
-function formatDateTime(iso) {
-  if (!iso) return null;
+function formatItemDate(item) {
+  if (!item?.start_date) return null;
 
-  return new Date(iso).toLocaleString("en-AU", {
-    day: "numeric",
-    month: "short",
-    year: "numeric",
-    hour: "numeric",
-    minute: "2-digit",
-  });
+  const fmt = (d) =>
+    new Date(d).toLocaleDateString("en-AU", {
+      day: "numeric",
+      month: "short",
+      year: "numeric",
+    });
+
+  const fmtTime = (t) => {
+    const [h, m] = t.split(":");
+    const d = new Date();
+    d.setHours(Number(h), Number(m));
+    return d.toLocaleTimeString("en-AU", { hour: "numeric", minute: "2-digit" });
+  };
+
+  const start = fmt(item.start_date);
+  const end =
+    item.end_date && item.end_date !== item.start_date
+      ? fmt(item.end_date)
+      : null;
+  const timeStr =
+    item.start_time && item.end_time
+      ? `${fmtTime(item.start_time)} – ${fmtTime(item.end_time)}`
+      : null;
+
+  if (end && timeStr) return `${start} – ${end}, ${timeStr}`;
+  if (end) return `${start} – ${end}`;
+  if (timeStr) return `${start}, ${timeStr}`;
+  return start;
 }
 
 function getStatusLabel(status) {
@@ -39,18 +59,6 @@ function getStatusClass(status) {
   return "item-status-badge-proposed";
 }
 
-function getItemDate(item) {
-  return (
-    item?.date ||
-    item?.event_date ||
-    item?.scheduled_for ||
-    item?.scheduled_at ||
-    item?.planned_for ||
-    item?.decision_deadline ||
-    null
-  );
-}
-
 function ItemDetailCard({
   bucketList,
   item,
@@ -64,16 +72,12 @@ function ItemDetailCard({
   onDownvote,
   onAddToCalendar,
   onAddDate,
-  onEditDate,
   onEdit,
   onDelete,
   onUpdateStatus,
   onOptionsClick,
   showBreadcrumb = true,
 }) {
-  const itemDate = getItemDate(item);
-  const hasItemDate = !!itemDate;
-
   return (
     <article className="item-detail-card">
       <div className="item-detail-hero">
@@ -132,11 +136,11 @@ function ItemDetailCard({
       </div>
 
       <div className="item-detail-divider" />
-      <div className="item-meta-row">
 
+      <div className="item-meta-row">
         {item.creator?.display_name || item.creator?.username ? (
           <span className="item-meta-pill">
-            <Avatar user={item.creator} size="md" className="mr-3"/>
+            <Avatar user={item.creator} size="md" className="mr-3" />
             {item.creator.display_name ?? item.creator.username}
           </span>
         ) : null}
@@ -158,51 +162,67 @@ function ItemDetailCard({
 
       <div className="item-detail-divider" />
 
+      {/* Date — display only, no edit button */}
       <section className="item-detail-section">
         <p className="item-detail-label">Date</p>
 
-        {hasItemDate ? (
-          <div className="item-date-row">
-            <div className="item-date-display">
-              <CalendarDays size={15} aria-hidden="true" />
-              <span>{formatDateTime(itemDate)}</span>
-            </div>
-
-            <button
-              type="button"
-              className="item-action-pill"
-              onClick={onEditDate}
-            >
-              <Pencil size={14} aria-hidden="true" />
-              Edit
-            </button>
-          </div>
+        {item.start_date ? (
+          <p className="item-date-empty">
+            <CalendarDays size={15} aria-hidden="true" style={{ display: "inline", verticalAlign: "middle", marginRight: "6px" }} />
+            Scheduled for {formatItemDate(item)}
+          </p>
         ) : (
-          <div className="item-date-row">
-            <p className="item-date-empty">Make it happen. Book it in.</p>
-
-            <button
-              type="button"
-              className="item-action-pill"
-              onClick={onAddDate}
-            >
-              <CalendarDays size={14} aria-hidden="true" className="mr-2" />
-              Add date
-            </button>
-          </div>
+          <p className="item-date-empty">Make it happen. Book it in.</p>
         )}
       </section>
 
       <div className="item-detail-divider" />
 
       <div className="item-action-row">
-        <button
-          type="button"
-          className="item-action-pill"
-          onClick={onAddToCalendar}
-        >
-          Add to calendar
-        </button>
+        {/* Add to calendar — only when date exists */}
+        {item.start_date && (
+          <button
+            type="button"
+            className="item-action-pill"
+            onClick={onAddToCalendar}
+          >
+            Add to calendar
+          </button>
+        )}
+
+        {/* Add date — only when no date exists */}
+        {!item.start_date && (
+          <button
+            type="button"
+            className="item-action-pill"
+            onClick={onAddDate}
+          >
+            <CalendarDays size={14} aria-hidden="true" />
+            <span style={{ marginLeft: "4px" }}>Add date</span>
+          </button>
+        )}
+
+        {canEdit && (
+          <>
+            <button
+              type="button"
+              className="item-action-pill"
+              onClick={onEdit}
+            >
+              <Pencil size={13} aria-hidden="true" />
+              <span style={{ marginLeft: "4px" }}>Edit item</span>
+            </button>
+
+            <button
+              type="button"
+              className="item-action-pill item-action-pill-danger"
+              onClick={onDelete}
+            >
+              <Trash2 size={13} aria-hidden="true" />
+              <span style={{ marginLeft: "4px" }}>Delete item</span>
+            </button>
+          </>
+        )}
       </div>
     </article>
   );
