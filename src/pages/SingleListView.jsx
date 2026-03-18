@@ -112,16 +112,13 @@ export default function SingleListView() {
   }, [baseItems, voteOverrides]);
 
   useEffect(() => {
-    if (!items.length) {
-      setSelectedItemId(null);
-      return;
-    }
+    if (!selectedItemId) return;
 
     const selectedStillExists = items.some(
       (item) => item.id === selectedItemId,
     );
 
-    if (selectedItemId && !selectedStillExists) {
+    if (!selectedStillExists) {
       setSelectedItemId(null);
     }
   }, [items, selectedItemId]);
@@ -133,9 +130,12 @@ export default function SingleListView() {
     return () => window.clearTimeout(timer);
   }, [panelMessage]);
 
-useEffect(() => {
+  useEffect(() => {
     if (!baseItems.length) {
-      setVoteOverrides({});
+      setVoteOverrides((prev) => {
+        if (Object.keys(prev).length === 0) return prev;
+        return {};
+      });
       return;
     }
 
@@ -143,10 +143,14 @@ useEffect(() => {
 
     setVoteOverrides((prev) => {
       const next = Object.fromEntries(
-        Object.entries(prev).filter(([itemId]) => validItemIds.has(String(itemId))),
+        Object.entries(prev).filter(([itemId]) =>
+          validItemIds.has(String(itemId)),
+        ),
       );
 
-      const hasChanged = Object.keys(next).length !== Object.keys(prev).length;
+      const hasChanged =
+        Object.keys(next).length !== Object.keys(prev).length;
+
       return hasChanged ? next : prev;
     });
   }, [baseItems]);
@@ -340,7 +344,9 @@ useEffect(() => {
                 items={filteredItems}
                 selectedItemId={selectedItemId}
                 onSelectItem={setSelectedItemId}
-                onDoubleSelectItem={(itemId) => navigate(`/bucketlists/${id}/items/${itemId}`)}
+                onDoubleSelectItem={(itemId) =>
+                  navigate(`/bucketlists/${id}/items/${itemId}`)
+                }
               />
             </motion.div>
 
