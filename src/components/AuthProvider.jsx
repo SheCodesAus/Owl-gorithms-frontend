@@ -21,13 +21,13 @@ export const AuthProvider = (props) => {
                 Authorization: `Bearer ${token}`,
             },
         })
-        .then((response) => {
+        .then(async (response) => {
             if (!response.ok) {
-                // token invalid or expired
                 window.localStorage.removeItem("access");
                 setAuth({ access: null, user: null });
             } else {
-                setAuth({ access: token, user: true });
+                const userData = await response.json();
+                setAuth({ access: token, user: userData });
             }
         })
         .finally(() => setAuthChecked(true));

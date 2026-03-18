@@ -310,6 +310,14 @@ export default function SingleListView() {
     );
   }
 
+  console.log("selectedItem", selectedItem);
+  console.log("currentUser", currentUser);
+  console.log("isOwner", isOwner);
+  console.log("isCreator", isCreator);
+  console.log("canEdit", canEdit);
+  console.log("auth", auth);
+  console.log("auth.user", auth?.user);
+
   const panelOpen = !!selectedItem;
 
   return (
@@ -344,9 +352,7 @@ export default function SingleListView() {
                 items={filteredItems}
                 selectedItemId={selectedItemId}
                 onSelectItem={setSelectedItemId}
-                onDoubleSelectItem={(itemId) =>
-                  navigate(`/bucketlists/${id}/items/${itemId}`)
-                }
+                onDoubleSelectItem={(itemId) => navigate(`/bucketlists/${id}/items/${itemId}`)}
               />
             </motion.div>
 
