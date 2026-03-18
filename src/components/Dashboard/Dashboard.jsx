@@ -9,6 +9,7 @@ import FormModal from "../UI/FormModal";
 import CreateBucketListForm from "../forms/CreateBucketListForm";
 import CreateItemForm from "../forms/CreateItemForm";
 import InviteMembersModal from "../modals/InviteMembersModal";
+import ViewMembersModal from "../modals/ViewMembersModal";
 
 function getNextVoteState(currentVote, currentScore, clickedVote) {
   const nextVote = currentVote === clickedVote ? null : clickedVote;
@@ -32,6 +33,7 @@ function Dashboard({ user }) {
   const [showCreateModal, setShowCreateModal] = useState(false);
   const [showAddItemModal, setShowAddItemModal] = useState(false);
   const [showInviteModal, setShowInviteModal] = useState(false);
+  const [showMembersModal, setShowMembersModal] = useState(false);
   const [isVotingItemId, setIsVotingItemId] = useState(null);
   const [voteOverrides, setVoteOverrides] = useState({});
   const [dashboardMessage, setDashboardMessage] = useState("");
@@ -39,7 +41,7 @@ function Dashboard({ user }) {
 
   // Track whether we're in mobile overlay mode
   const [isMobile, setIsMobile] = useState(
-    () => window.innerWidth < MOBILE_BREAKPOINT
+    () => window.innerWidth < MOBILE_BREAKPOINT,
   );
 
   useEffect(() => {
@@ -76,6 +78,13 @@ function Dashboard({ user }) {
     setFocusPanelMessage("Item added! Let's go!");
   };
 
+  const handleOpenMembersModal = () => {
+    if (!selectedListId) return;
+    setShowMembersModal(true);
+  };
+
+  const handleCloseMembersModal = () => setShowMembersModal(false);
+
   const handleOpenInviteModal = () => {
     if (!selectedListId) return;
     setShowInviteModal(true);
@@ -88,7 +97,7 @@ function Dashboard({ user }) {
       return;
     }
     const selectedStillExists = bucketLists.some(
-      (bl) => bl.id === selectedListId
+      (bl) => bl.id === selectedListId,
     );
     if (selectedListId && !selectedStillExists) setSelectedListId(null);
   }, [bucketLists, selectedListId]);
@@ -120,7 +129,10 @@ function Dashboard({ user }) {
   };
 
   const setVoteOverride = (itemId, voteScore, userVote) => {
-    setVoteOverrides((prev) => ({ ...prev, [itemId]: { voteScore, userVote } }));
+    setVoteOverrides((prev) => ({
+      ...prev,
+      [itemId]: { voteScore, userVote },
+    }));
   };
 
   const handleVote = async (item, clickedVote) => {
@@ -128,7 +140,7 @@ function Dashboard({ user }) {
     const { nextVote, nextScore } = getNextVoteState(
       previousState.userVote,
       previousState.voteScore,
-      clickedVote
+      clickedVote,
     );
     setVoteOverride(item.id, nextScore, nextVote);
     setIsVotingItemId(item.id);
@@ -147,8 +159,7 @@ function Dashboard({ user }) {
   };
 
   const selectedList = useMemo(() => {
-    const baseList =
-      bucketLists.find((bl) => bl.id === selectedListId) || null;
+    const baseList = bucketLists.find((bl) => bl.id === selectedListId) || null;
     if (!baseList) return null;
     return {
       ...baseList,
@@ -167,12 +178,16 @@ function Dashboard({ user }) {
 
   useEffect(() => {
     if (!selectedList?.items?.length) return;
-    const validItemIds = new Set(selectedList.items.map((item) => String(item.id)));
+    const validItemIds = new Set(
+      selectedList.items.map((item) => String(item.id)),
+    );
     setVoteOverrides((prev) => {
       const next = Object.fromEntries(
-        Object.entries(prev).filter(([id]) => validItemIds.has(String(id)))
+        Object.entries(prev).filter(([id]) => validItemIds.has(String(id))),
       );
-      return Object.keys(next).length !== Object.keys(prev).length ? next : prev;
+      return Object.keys(next).length !== Object.keys(prev).length
+        ? next
+        : prev;
     });
   }, [selectedList]);
 
@@ -190,7 +205,10 @@ function Dashboard({ user }) {
     onDownvoteItem: (item) => handleVote(item, "downvote"),
     isVotingItemId,
     onAddItemClick: handleOpenAddItemModal,
-    onInviteMembersClick: isSelectedListOwner ? handleOpenInviteModal : undefined,
+    onInviteMembersClick: isSelectedListOwner
+      ? handleOpenInviteModal
+      : undefined,
+    onViewMembersClick: handleOpenMembersModal,
     message: focusPanelMessage,
     onClose: () => setSelectedListId(null),
   };
@@ -335,6 +353,13 @@ function Dashboard({ user }) {
         isOpen={showInviteModal}
         onClose={handleCloseInviteModal}
         bucketListId={selectedListId}
+      />
+
+      <ViewMembersModal
+        isOpen={showMembersModal}
+        onClose={handleCloseMembersModal}
+        bucketList={selectedList}
+        currentUser={user}
       />
     </>
   );

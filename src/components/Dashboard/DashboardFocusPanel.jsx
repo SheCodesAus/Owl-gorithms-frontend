@@ -9,6 +9,7 @@ import {
   UserPlus,
   ArrowRight,
   X,
+  Eye,
 } from "lucide-react";
 import Avatar from "../UI/Avatar";
 import AvatarGroup from "../UI/AvatarGroup";
@@ -23,6 +24,7 @@ function DashboardFocusPanel({
   isVotingItemId,
   onAddItemClick,
   onInviteMembersClick,
+  onViewMembersClick,
   message,
   onClose,
   isMobileOverlay = false,
@@ -81,11 +83,10 @@ function DashboardFocusPanel({
       })
     : null;
 
-  const ownerName = bucketList.owner?.display_name || "Unknown owner";
+  const ownerName = bucketList.owner?.display_name || "Unknown";
 
   return (
     <aside className={shellClass}>
-      {/* Close button */}
       {onClose ? (
         <button
           type="button"
@@ -97,7 +98,6 @@ function DashboardFocusPanel({
         </button>
       ) : null}
 
-      {/* Photo background fills the entire card */}
       <motion.div
         key={bucketList.id}
         className={`${bandClass} flex-col`}
@@ -106,11 +106,7 @@ function DashboardFocusPanel({
         exit={{ opacity: 0 }}
         transition={{ duration: 0.2 }}
       >
-
-        {/* ── Header frosted glass ─────────────────────────────────────── */}
         <div className="dashboard-focus-band-inner flex flex-col gap-5">
-
-          {/* Eyebrow + badges */}
           <div className="flex flex-wrap items-center gap-x-3 gap-y-2">
             <p className="mr-2 text-[0.72rem] font-semibold uppercase tracking-[0.2em] text-black/50">
               Overview
@@ -128,7 +124,6 @@ function DashboardFocusPanel({
             </span>
           </div>
 
-          {/* Title + description */}
           <div className="space-y-2">
             <h2 className="brand-font max-w-3xl text-[1.7rem] font-semibold leading-tight text-black sm:text-[2rem]">
               {bucketList.title}
@@ -138,29 +133,43 @@ function DashboardFocusPanel({
             </p>
           </div>
 
-          {/* Members + actions */}
           <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
             <div className="min-w-0">
               <p className="text-xs font-medium uppercase tracking-[0.16em] text-black/50">
                 Members
               </p>
+
               <div className="mt-2 flex flex-wrap items-center gap-3">
                 <div className="shrink-0">
                   <AvatarGroup users={memberUsers} size="sm" max={4} />
                 </div>
-                <p className="text-sm text-black/70">
-                  {memberCount} connected member{memberCount === 1 ? "" : "s"}
-                </p>
+
+                {onViewMembersClick ? (
+                  <button
+                    type="button"
+                    onClick={onViewMembersClick}
+                    className="inline-flex gradient-border cursor-pointer items-center gap-2 rounded-full bg-[#ff9966]/8 px-4 py-2 text-sm font-semibold text-black backdrop-blur-sm transition hover:bg-[#ff9966]/12 focus:outline-none"
+                    aria-label={`View members for ${bucketList.title}`}
+                  >
+                    <Eye size={16} aria-hidden="true" />
+                    View
+                  </button>
+                ) : null}
+
                 {onInviteMembersClick ? (
                   <button
                     type="button"
                     onClick={onInviteMembersClick}
-                    className="inline-flex gradient-border cursor-pointer items-center gap-2 rounded-full bg-[#ff9966]/8 px-4 py-2 text-sm font-semibold text-black backdrop-blur-sm transition hover:[#ff9966]/12 focus:outline-none"
+                    className="inline-flex gradient-border cursor-pointer items-center gap-2 rounded-full bg-[#ff9966]/8 px-4 py-2 text-sm font-semibold text-black backdrop-blur-sm transition hover:bg-[#ff9966]/12 focus:outline-none"
                   >
                     <UserPlus size={16} aria-hidden="true" />
                     Invite
                   </button>
                 ) : null}
+
+                <p className="text-sm text-black/60">
+                  {memberCount} connected member{memberCount === 1 ? "" : "s"}
+                </p>
               </div>
             </div>
 
@@ -173,20 +182,15 @@ function DashboardFocusPanel({
               <Plus size={24} strokeWidth={2.8} className="transition group-hover:rotate-90" />
             </button>
           </div>
-
         </div>
 
-        {/* ── Body frosted glass ───────────────────────────────────────── */}
         <div className="dashboard-focus-band-inner mt-4 flex flex-1 flex-col gap-5">
-
-          {/* Success message */}
           {message ? (
             <div className="rounded-2xl border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm font-medium text-emerald-800">
               {message}
             </div>
           ) : null}
 
-          {/* Progress */}
           <section className="space-y-3 border-b border-black/8 pb-5">
             <div className="flex flex-wrap items-center justify-between gap-3">
               <h3 className="text-base font-semibold text-[var(--heading-text)] sm:text-lg">
@@ -216,7 +220,6 @@ function DashboardFocusPanel({
             </div>
           </section>
 
-          {/* Recent activity */}
           <section className="flex-1">
             <div className="mb-3 flex items-center justify-between gap-3">
               <h3 className="text-base font-semibold text-[var(--heading-text)] sm:text-lg">
@@ -252,7 +255,7 @@ function DashboardFocusPanel({
                                 {item.title}
                               </p>
                               {item.description ? (
-                                <p className="mt-1 line-clamp-1 text-xs text-[var(--muted-text)]">
+                                <p className="mt-1 text-sm text-[var(--muted-text)]">
                                   {item.description}
                                 </p>
                               ) : null}
@@ -290,7 +293,6 @@ function DashboardFocusPanel({
             )}
           </section>
 
-          {/* Open button */}
           <button
             type="button"
             onClick={() => navigate(`/bucketlists/${bucketList.id}`)}
@@ -299,7 +301,6 @@ function DashboardFocusPanel({
             Open
             <ArrowRight size={18} aria-hidden="true" />
           </button>
-
         </div>
       </motion.div>
     </aside>
