@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
-import { motion } from "framer-motion";
+import { AnimatePresence, motion } from "framer-motion";
 import { useBucketLists } from "../../hooks/useBucketLists";
 import { useVotes } from "../../hooks/useVotes";
 import DashboardBanner from "./DashboardBanner";
@@ -81,8 +81,8 @@ function Dashboard({ user }) {
       (bucketList) => bucketList.id === selectedListId,
     );
 
-    if (!selectedListId || !selectedStillExists) {
-      setSelectedListId(bucketLists[0].id);
+    if (selectedListId && !selectedStillExists) {
+      setSelectedListId(null);
     }
   }, [bucketLists, selectedListId]);
 
@@ -189,11 +189,15 @@ function Dashboard({ user }) {
   useEffect(() => {
     if (!selectedList?.items?.length) return;
 
-    const validItemIds = new Set(selectedList.items.map((item) => String(item.id)));
+    const validItemIds = new Set(
+      selectedList.items.map((item) => String(item.id)),
+    );
 
     setVoteOverrides((prev) => {
       const next = Object.fromEntries(
-        Object.entries(prev).filter(([itemId]) => validItemIds.has(String(itemId))),
+        Object.entries(prev).filter(([itemId]) =>
+          validItemIds.has(String(itemId)),
+        ),
       );
 
       const hasChanged = Object.keys(next).length !== Object.keys(prev).length;
@@ -205,6 +209,8 @@ function Dashboard({ user }) {
     selectedList?.owner?.id && user?.id
       ? selectedList.owner.id === user.id
       : false;
+
+  const panelOpen = !!selectedList;
 
   return (
     <>
@@ -220,32 +226,59 @@ function Dashboard({ user }) {
           message={dashboardMessage}
         />
 
-        <section className="grid gap-6 xl:grid-cols-[1.55fr_1.15fr]">
-          <DashboardCardGrid
-            user={user}
-            bucketLists={bucketLists}
-            selectedListId={selectedListId}
-            onSelectList={setSelectedListId}
-            isLoading={isLoading}
-            error={bucketListsError}
-            onRetry={loadBucketLists}
-            onCreateClick={handleOpenCreateModal}
-          />
+        <motion.section
+          className="relative pb-30"
+          animate={{ maxWidth: panelOpen ? "1480px" : "920px" }}
+          transition={{ duration: 0.4, ease: [0.4, 0, 0.2, 1] }}
+        >
+          <div className="relative">
+            <motion.div
+              className="flex flex-col"
+              animate={{ width: panelOpen ? "46%" : "100%" }}
+              transition={{ duration: 0.4, ease: [0.4, 0, 0.2, 1] }}
+              style={{ minWidth: 0 }}
+            >
+              <DashboardCardGrid
+                user={user}
+                bucketLists={bucketLists}
+                selectedListId={selectedListId}
+                onSelectList={setSelectedListId}
+                isLoading={isLoading}
+                error={bucketListsError}
+                onRetry={loadBucketLists}
+                onCreateClick={handleOpenCreateModal}
+              />
+            </motion.div>
 
-          <DashboardFocusPanel
-            bucketList={selectedList}
-            selectedListId={selectedListId}
-            isLoading={isLoading}
-            onUpvoteItem={(item) => handleVote(item, "upvote")}
-            onDownvoteItem={(item) => handleVote(item, "downvote")}
-            isVotingItemId={isVotingItemId}
-            onAddItemClick={handleOpenAddItemModal}
-            onInviteMembersClick={
-              isSelectedListOwner ? handleOpenInviteModal : undefined
-            }
-            message={focusPanelMessage}
-          />
-        </section>
+            <AnimatePresence>
+              {panelOpen && (
+                <motion.div
+                  key="dashboard-focus-panel"
+                  className="absolute top-0 right-0 bottom-0"
+                  style={{ width: "52%" }}
+                  initial={{ opacity: 0, x: 40 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  exit={{ opacity: 0, x: 40 }}
+                  transition={{ duration: 0.35, ease: [0.4, 0, 0.2, 1] }}
+                >
+                  <DashboardFocusPanel
+                    bucketList={selectedList}
+                    isLoading={isLoading}
+                    onUpvoteItem={(item) => handleVote(item, "upvote")}
+                    onDownvoteItem={(item) => handleVote(item, "downvote")}
+                    isVotingItemId={isVotingItemId}
+                    onAddItemClick={handleOpenAddItemModal}
+                    onInviteMembersClick={
+                      isSelectedListOwner ? handleOpenInviteModal : undefined
+                    }
+                    message={focusPanelMessage}
+                    onClose={() => setSelectedListId(null)}
+                  />
+                </motion.div>
+              )}
+            </AnimatePresence>
+          </div>
+        </motion.section>
       </motion.div>
 
       <FormModal
