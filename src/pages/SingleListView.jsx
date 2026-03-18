@@ -103,6 +103,10 @@ export default function SingleListView() {
 
       return {
         ...item,
+        // Back-compat aliases for components still using older API fields.
+        is_completed: item.status === "complete",
+        created_by: item.created_by ?? item.creator ?? null,
+        date_created: item.date_created ?? item.created_at ?? item.created ?? null,
         vote_score: effectiveVote.voteScore,
         score: effectiveVote.voteScore,
         user_vote: effectiveVote.userVote,
@@ -156,8 +160,8 @@ export default function SingleListView() {
   }, [baseItems]);
 
   const filteredItems = useMemo(() => {
-    if (filter === "complete") return items.filter((item) => item.is_completed);
-    if (filter === "pending") return items.filter((item) => !item.is_completed);
+    if (filter === "complete") return items.filter((item) => item.status === "complete");
+    if (filter === "pending") return items.filter((item) => item.status !== "complete");
     return items;
   }, [items, filter]);
 
@@ -166,7 +170,7 @@ export default function SingleListView() {
   }, [items, selectedItemId]);
 
   const completedCount = useMemo(
-    () => items.filter((item) => item.is_completed).length,
+    () => items.filter((item) => item.status === "complete").length,
     [items],
   );
 
@@ -260,7 +264,16 @@ export default function SingleListView() {
     setIsSavingDate(true);
     setDateErrors({});
     try {
-      await updateItem(selectedItem.id, dateData, auth?.access);
+      const shouldAutoLock =
+        isOwner &&
+        selectedItem?.status === "proposed" &&
+        !!(dateData?.start_date ?? selectedItem?.start_date);
+
+      const payload = shouldAutoLock
+        ? { ...dateData, status: "locked_in" }
+        : dateData;
+
+      await updateItem(selectedItem.id, payload, auth?.access);
       await loadBucketList();
       setShowDateModal(false);
       setPanelMessage("Date saved.");
@@ -309,14 +322,6 @@ export default function SingleListView() {
       </section>
     );
   }
-
-  console.log("selectedItem", selectedItem);
-  console.log("currentUser", currentUser);
-  console.log("isOwner", isOwner);
-  console.log("isCreator", isCreator);
-  console.log("canEdit", canEdit);
-  console.log("auth", auth);
-  console.log("auth.user", auth?.user);
 
   const panelOpen = !!selectedItem;
 
