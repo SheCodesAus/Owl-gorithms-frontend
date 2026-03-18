@@ -10,11 +10,75 @@ import {
   ArrowRight,
   X,
   Eye,
+  Clock3,
 } from "lucide-react";
 import Avatar from "../UI/Avatar";
 import AvatarGroup from "../UI/AvatarGroup";
 import RelativeTime from "../UI/RelativeTime";
 import VoteControls from "../UI/VoteControls";
+
+function formatDisplayDate(dateString) {
+  if (!dateString) return "";
+
+  const date = new Date(`${dateString}T00:00:00`);
+  if (Number.isNaN(date.getTime())) return "";
+
+  return date.toLocaleDateString("en-AU", {
+    day: "numeric",
+    month: "short",
+    year: "numeric",
+  });
+}
+
+function formatDisplayTime(timeString) {
+  if (!timeString) return "";
+
+  const [hours, minutes] = timeString.split(":");
+  if (hours == null || minutes == null) return "";
+
+  const date = new Date();
+  date.setHours(Number(hours), Number(minutes), 0, 0);
+
+  if (Number.isNaN(date.getTime())) return "";
+
+  return date.toLocaleTimeString("en-AU", {
+    hour: "numeric",
+    minute: "2-digit",
+  });
+}
+
+function getItemScheduleText(item) {
+  const startDate = formatDisplayDate(item.start_date);
+  const endDate = formatDisplayDate(item.end_date);
+  const startTime = formatDisplayTime(item.start_time);
+  const endTime = formatDisplayTime(item.end_time);
+
+  const hasDate = Boolean(startDate || endDate);
+  const hasTime = Boolean(startTime || endTime);
+
+  if (!hasDate && !hasTime) return "";
+
+  let dateText = "";
+  let timeText = "";
+
+  if (startDate && endDate && startDate !== endDate) {
+    dateText = `${startDate} → ${endDate}`;
+  } else {
+    dateText = startDate || endDate || "";
+  }
+
+  if (startTime && endTime && startTime !== endTime) {
+    timeText = `${startTime} → ${endTime}`;
+  } else {
+    timeText = startTime || endTime || "";
+  }
+
+  if (dateText && timeText) {
+    return `${dateText} • ${timeText}`;
+  }
+
+  return dateText || timeText;
+}
 
 function DashboardFocusPanel({
   bucketList,
@@ -236,6 +300,8 @@ function DashboardFocusPanel({
               <div className="space-y-2.5">
                 {recentItems.map((item, index) => {
                   const isVoting = isVotingItemId === item.id;
+                  const scheduleText = getItemScheduleText(item);
+
                   return (
                     <motion.div
                       key={item.id ?? `${item.title}-${index}`}
@@ -254,11 +320,13 @@ function DashboardFocusPanel({
                               <p className="line-clamp-2 text-sm font-semibold leading-relaxed text-[var(--body-text)] sm:text-base">
                                 {item.title}
                               </p>
+
                               {item.description ? (
                                 <p className="mt-1 text-sm text-[var(--muted-text)]">
                                   {item.description}
                                 </p>
                               ) : null}
+
                               <div className="mt-1.5 flex flex-wrap items-center gap-x-3 gap-y-1">
                                 <p className="text-xs font-medium text-[var(--heading-text)]">
                                   {item.creator?.display_name || "Unknown member"}
@@ -266,8 +334,19 @@ function DashboardFocusPanel({
                                 <p className="text-xs text-black/40">
                                   <RelativeTime timestamp={item.updated_at} />
                                 </p>
+                                {scheduleText ? (
+                                <div className="inline-flex max-w-full items-center gap-2 rounded-full border border-black/8 bg-black/[0.04] px-3 py-1.5 text-xs font-medium text-[var(--heading-text)]">
+                                  {item.start_time || item.end_time ? (
+                                    <Clock3 size={13} aria-hidden="true" />
+                                  ) : (
+                                    <CalendarDays size={13} aria-hidden="true" />
+                                  )}
+                                  <span className="truncate">{scheduleText}</span>
+                                </div>
+                              ) : null}
                               </div>
                             </div>
+
                             <div className="shrink-0">
                               <VoteControls
                                 itemTitle={item.title}
