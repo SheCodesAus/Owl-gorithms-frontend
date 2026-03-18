@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { AnimatePresence, motion } from "framer-motion";
 import { useBucketLists } from "../../hooks/useBucketLists";
 import { useVotes } from "../../hooks/useVotes";
@@ -10,80 +11,79 @@ import CreateBucketListForm from "../forms/CreateBucketListForm";
 import CreateItemForm from "../forms/CreateItemForm";
 import InviteMembersModal from "../modals/InviteMembersModal";
 import ViewMembersModal from "../modals/ViewMembersModal";
+import ConfirmActionModal from "../modals/ConfirmActionModal";
+import updateMembershipRole from "../../api/memberships/update-membership";
+import deleteMembership from "../../api/memberships/delete-membership";
 
 function getNextVoteState(currentVote, currentScore, clickedVote) {
   const nextVote = currentVote === clickedVote ? null : clickedVote;
   let nextScore = currentScore;
+
   if (currentVote === "upvote") nextScore -= 1;
   if (currentVote === "downvote") nextScore += 1;
   if (nextVote === "upvote") nextScore += 1;
   if (nextVote === "downvote") nextScore -= 1;
+
   return { nextVote, nextScore };
 }
 
-// Breakpoint at which we switch to mobile overlay mode
 const MOBILE_BREAKPOINT = 1024;
 
 function Dashboard({ user }) {
+  const navigate = useNavigate();
+
   const { bucketLists, isLoading, bucketListsError, loadBucketLists } =
     useBucketLists();
   const { voteOnItem, clearVote } = useVotes();
 
   const [selectedListId, setSelectedListId] = useState(null);
+
   const [showCreateModal, setShowCreateModal] = useState(false);
   const [showAddItemModal, setShowAddItemModal] = useState(false);
   const [showInviteModal, setShowInviteModal] = useState(false);
   const [showMembersModal, setShowMembersModal] = useState(false);
+
+  const [isUpdatingMemberId, setIsUpdatingMemberId] = useState(null);
+  const [confirmAction, setConfirmAction] = useState(null);
+  const [isConfirmingAction, setIsConfirmingAction] = useState(false);
+
   const [isVotingItemId, setIsVotingItemId] = useState(null);
   const [voteOverrides, setVoteOverrides] = useState({});
+
   const [dashboardMessage, setDashboardMessage] = useState("");
   const [focusPanelMessage, setFocusPanelMessage] = useState("");
 
-  // Track whether we're in mobile overlay mode
   const [isMobile, setIsMobile] = useState(
-    () => window.innerWidth < MOBILE_BREAKPOINT,
+    () => window.innerWidth < MOBILE_BREAKPOINT
   );
 
+  const token = user?.token;
+
+  // ── Responsive state ───────────────────────────────────────────────────
   useEffect(() => {
     const handleResize = () => {
       setIsMobile(window.innerWidth < MOBILE_BREAKPOINT);
     };
+
     window.addEventListener("resize", handleResize);
     return () => window.removeEventListener("resize", handleResize);
   }, []);
 
-  // Close panel when switching to mobile to avoid stale overlay
   useEffect(() => {
-    if (isMobile) setSelectedListId(null);
+    if (isMobile) {
+      setSelectedListId(null);
+    }
   }, [isMobile]);
 
+  // ── Simple modal handlers ──────────────────────────────────────────────
   const handleOpenCreateModal = () => setShowCreateModal(true);
   const handleCloseCreateModal = () => setShowCreateModal(false);
 
-  const handleCreateSuccess = async (newBucketList) => {
-    await loadBucketLists();
-    setSelectedListId(newBucketList.id);
-    setShowCreateModal(false);
-    setDashboardMessage("Created Successfully!");
-  };
-
-  const handleCloseAddItemModal = () => setShowAddItemModal(false);
   const handleOpenAddItemModal = () => {
     if (!selectedListId) return;
     setShowAddItemModal(true);
   };
-  const handleAddItemSuccess = async () => {
-    await loadBucketLists();
-    setShowAddItemModal(false);
-    setFocusPanelMessage("Item added! Let's go!");
-  };
-
-  const handleOpenMembersModal = () => {
-    if (!selectedListId) return;
-    setShowMembersModal(true);
-  };
-
-  const handleCloseMembersModal = () => setShowMembersModal(false);
+  const handleCloseAddItemModal = () => setShowAddItemModal(false);
 
   const handleOpenInviteModal = () => {
     if (!selectedListId) return;
@@ -91,29 +91,27 @@ function Dashboard({ user }) {
   };
   const handleCloseInviteModal = () => setShowInviteModal(false);
 
-  useEffect(() => {
-    if (!bucketLists.length) {
-      setSelectedListId(null);
-      return;
-    }
-    const selectedStillExists = bucketLists.some(
-      (bl) => bl.id === selectedListId,
-    );
-    if (selectedListId && !selectedStillExists) setSelectedListId(null);
-  }, [bucketLists, selectedListId]);
+  const handleOpenMembersModal = () => {
+    if (!selectedListId) return;
+    setShowMembersModal(true);
+  };
+  const handleCloseMembersModal = () => setShowMembersModal(false);
 
-  useEffect(() => {
-    if (!dashboardMessage) return;
-    const timer = window.setTimeout(() => setDashboardMessage(""), 3000);
-    return () => window.clearTimeout(timer);
-  }, [dashboardMessage]);
+  // ── Success handlers ───────────────────────────────────────────────────
+  const handleCreateSuccess = async (newBucketList) => {
+    await loadBucketLists();
+    setSelectedListId(newBucketList.id);
+    setShowCreateModal(false);
+    setDashboardMessage("Created successfully!");
+  };
 
-  useEffect(() => {
-    if (!focusPanelMessage) return;
-    const timer = window.setTimeout(() => setFocusPanelMessage(""), 3000);
-    return () => window.clearTimeout(timer);
-  }, [focusPanelMessage]);
+  const handleAddItemSuccess = async () => {
+    await loadBucketLists();
+    setShowAddItemModal(false);
+    setFocusPanelMessage("Item added! Let's go!");
+  };
 
+  // ── Vote helpers ───────────────────────────────────────────────────────
   const getBaseVoteScore = (item) =>
     item.vote_score ?? item.votes_count ?? item.score ?? 0;
 
@@ -122,6 +120,7 @@ function Dashboard({ user }) {
 
   const getEffectiveItemVoteState = (item) => {
     const override = voteOverrides[item.id];
+
     return {
       voteScore: override?.voteScore ?? getBaseVoteScore(item),
       userVote: override?.userVote ?? getBaseUserVote(item),
@@ -137,13 +136,16 @@ function Dashboard({ user }) {
 
   const handleVote = async (item, clickedVote) => {
     const previousState = getEffectiveItemVoteState(item);
+
     const { nextVote, nextScore } = getNextVoteState(
       previousState.userVote,
       previousState.voteScore,
-      clickedVote,
+      clickedVote
     );
+
     setVoteOverride(item.id, nextScore, nextVote);
     setIsVotingItemId(item.id);
+
     try {
       if (nextVote === null) {
         await clearVote(item.id);
@@ -158,13 +160,16 @@ function Dashboard({ user }) {
     }
   };
 
+  // ── Derived selected list ──────────────────────────────────────────────
   const selectedList = useMemo(() => {
     const baseList = bucketLists.find((bl) => bl.id === selectedListId) || null;
     if (!baseList) return null;
+
     return {
       ...baseList,
       items: (baseList.items ?? []).map((item) => {
         const effectiveVote = getEffectiveItemVoteState(item);
+
         return {
           ...item,
           vote_score: effectiveVote.voteScore,
@@ -176,21 +181,6 @@ function Dashboard({ user }) {
     };
   }, [bucketLists, selectedListId, voteOverrides]);
 
-  useEffect(() => {
-    if (!selectedList?.items?.length) return;
-    const validItemIds = new Set(
-      selectedList.items.map((item) => String(item.id)),
-    );
-    setVoteOverrides((prev) => {
-      const next = Object.fromEntries(
-        Object.entries(prev).filter(([id]) => validItemIds.has(String(id))),
-      );
-      return Object.keys(next).length !== Object.keys(prev).length
-        ? next
-        : prev;
-    });
-  }, [selectedList]);
-
   const isSelectedListOwner =
     selectedList?.owner?.id && user?.id
       ? selectedList.owner.id === user.id
@@ -198,6 +188,139 @@ function Dashboard({ user }) {
 
   const panelOpen = !!selectedList;
 
+  // ── Membership actions ─────────────────────────────────────────────────
+  async function handleChangeMemberRole(membershipId, newRole) {
+    if (!selectedListId || !token) return;
+
+    try {
+      setIsUpdatingMemberId(membershipId);
+
+      await updateMembershipRole(
+        selectedListId,
+        membershipId,
+        { role: newRole },
+        token
+      );
+
+      await loadBucketLists();
+      setFocusPanelMessage("Member role updated.");
+    } catch (error) {
+      setFocusPanelMessage(error.message || "Could not update member role.");
+    } finally {
+      setIsUpdatingMemberId(null);
+    }
+  }
+
+  function handleRequestRemoveMember(membership) {
+    setConfirmAction({
+      type: "remove-member",
+      membership,
+      title: "Are you sure?",
+      description:
+        "This person will lose access to this bucket list unless they are invited again.",
+      confirmLabel: "Remove",
+      tone: "danger",
+    });
+  }
+
+  function handleRequestLeaveList(membership) {
+    setConfirmAction({
+      type: "leave-list",
+      membership,
+      title: "Are you sure?",
+      description:
+        "You will lose access to this bucket list unless someone invites you again.",
+      confirmLabel: "Leave",
+      tone: "danger",
+    });
+  }
+
+  async function handleConfirmAction() {
+    if (!confirmAction?.membership || !selectedListId || !token) return;
+
+    const membership = confirmAction.membership;
+
+    try {
+      setIsConfirmingAction(true);
+      setIsUpdatingMemberId(membership.id);
+
+      await deleteMembership(selectedListId, membership.id, token);
+
+      if (confirmAction.type === "leave-list") {
+        setConfirmAction(null);
+        setShowMembersModal(false);
+        setSelectedListId(null);
+        await loadBucketLists();
+        setDashboardMessage("You left the bucket list.");
+        return;
+      }
+
+      await loadBucketLists();
+      setConfirmAction(null);
+      setFocusPanelMessage("Member removed.");
+    } catch (error) {
+      setFocusPanelMessage(error.message || "Could not complete that action.");
+    } finally {
+      setIsConfirmingAction(false);
+      setIsUpdatingMemberId(null);
+    }
+  }
+
+  // ── Effects that depend on selectedList ────────────────────────────────
+  useEffect(() => {
+    if (!bucketLists.length) {
+      setSelectedListId(null);
+      return;
+    }
+
+    const selectedStillExists = bucketLists.some(
+      (bucketList) => bucketList.id === selectedListId
+    );
+
+    if (selectedListId && !selectedStillExists) {
+      setSelectedListId(null);
+    }
+  }, [bucketLists, selectedListId]);
+
+  useEffect(() => {
+    if (!selectedList) {
+      setShowMembersModal(false);
+    }
+  }, [selectedList]);
+
+  useEffect(() => {
+    if (!selectedList?.items?.length) return;
+
+    const validItemIds = new Set(
+      selectedList.items.map((item) => String(item.id))
+    );
+
+    setVoteOverrides((prev) => {
+      const next = Object.fromEntries(
+        Object.entries(prev).filter(([id]) => validItemIds.has(String(id)))
+      );
+
+      return Object.keys(next).length !== Object.keys(prev).length
+        ? next
+        : prev;
+    });
+  }, [selectedList]);
+
+  useEffect(() => {
+    if (!dashboardMessage) return;
+
+    const timer = window.setTimeout(() => setDashboardMessage(""), 3000);
+    return () => window.clearTimeout(timer);
+  }, [dashboardMessage]);
+
+  useEffect(() => {
+    if (!focusPanelMessage) return;
+
+    const timer = window.setTimeout(() => setFocusPanelMessage(""), 3000);
+    return () => window.clearTimeout(timer);
+  }, [focusPanelMessage]);
+
+  // ── Focus panel props ──────────────────────────────────────────────────
   const focusPanelProps = {
     bucketList: selectedList,
     isLoading,
@@ -221,14 +344,12 @@ function Dashboard({ user }) {
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.35, ease: "easeOut" }}
       >
-        {/* Banner always spans full width */}
         <DashboardBanner
           onVote={handleVote}
           isVotingItemId={isVotingItemId}
           message={dashboardMessage}
         />
 
-        {/* ── Desktop layout ────────────────────────────────────────────── */}
         {!isMobile && (
           <motion.section
             className="relative pb-20"
@@ -237,7 +358,6 @@ function Dashboard({ user }) {
             transition={{ duration: 0.4, ease: [0.4, 0, 0.2, 1] }}
           >
             <div className="relative">
-              {/* Left column — card grid */}
               <motion.div
                 className="flex flex-col"
                 animate={{ width: panelOpen ? "46%" : "100%" }}
@@ -256,7 +376,6 @@ function Dashboard({ user }) {
                 />
               </motion.div>
 
-              {/* Right column — focus panel slides in */}
               <AnimatePresence>
                 {panelOpen && (
                   <motion.div
@@ -276,7 +395,6 @@ function Dashboard({ user }) {
           </motion.section>
         )}
 
-        {/* ── Mobile layout — card grid always full width ───────────────── */}
         {isMobile && (
           <div className="flex flex-col pb-10">
             <DashboardCardGrid
@@ -293,11 +411,9 @@ function Dashboard({ user }) {
         )}
       </motion.div>
 
-      {/* ── Mobile focus panel — full screen overlay, slides from right ── */}
       <AnimatePresence>
         {isMobile && panelOpen && (
           <>
-            {/* Backdrop */}
             <motion.div
               key="mobile-backdrop"
               className="fixed inset-0 z-40 bg-black/40 backdrop-blur-sm"
@@ -308,7 +424,6 @@ function Dashboard({ user }) {
               onClick={() => setSelectedListId(null)}
             />
 
-            {/* Full screen panel sliding from right */}
             <motion.div
               key="dashboard-focus-panel-mobile"
               className="fixed inset-y-0 right-0 z-50 w-full overflow-y-auto"
@@ -323,7 +438,6 @@ function Dashboard({ user }) {
         )}
       </AnimatePresence>
 
-      {/* ── Modals ──────────────────────────────────────────────────────── */}
       <FormModal
         isOpen={showCreateModal}
         onClose={handleCloseCreateModal}
@@ -360,6 +474,21 @@ function Dashboard({ user }) {
         onClose={handleCloseMembersModal}
         bucketList={selectedList}
         currentUser={user}
+        onChangeRole={handleChangeMemberRole}
+        onRemoveMember={handleRequestRemoveMember}
+        onLeaveList={handleRequestLeaveList}
+        isUpdatingMemberId={isUpdatingMemberId}
+      />
+
+      <ConfirmActionModal
+        isOpen={!!confirmAction}
+        onClose={() => setConfirmAction(null)}
+        onConfirm={handleConfirmAction}
+        title={confirmAction?.title}
+        description={confirmAction?.description}
+        confirmLabel={confirmAction?.confirmLabel}
+        tone={confirmAction?.tone}
+        isLoading={isConfirmingAction}
       />
     </>
   );
