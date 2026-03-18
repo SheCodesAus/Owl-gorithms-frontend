@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
-import { useParams } from "react-router-dom";
+import { useParams, useNavigate } from "react-router-dom";
 import { AnimatePresence, motion } from "framer-motion";
 import { useBucketList } from "../hooks/useBucketList";
 import { useVotes } from "../hooks/useVotes";
@@ -39,6 +39,7 @@ function getNextVoteState(currentVote, currentScore, clickedVote) {
 
 export default function SingleListView() {
   const { id } = useParams();
+  const navigate = useNavigate();
   const { auth } = useAuth();
   const { bucketList, isLoading, bucketListError, loadBucketList } =
     useBucketList(Number(id));
@@ -132,13 +133,13 @@ export default function SingleListView() {
     return () => window.clearTimeout(timer);
   }, [panelMessage]);
 
-  useEffect(() => {
-    if (!items.length) {
+useEffect(() => {
+    if (!baseItems.length) {
       setVoteOverrides({});
       return;
     }
 
-    const validItemIds = new Set(items.map((item) => String(item.id)));
+    const validItemIds = new Set(baseItems.map((item) => String(item.id)));
 
     setVoteOverrides((prev) => {
       const next = Object.fromEntries(
@@ -148,7 +149,7 @@ export default function SingleListView() {
       const hasChanged = Object.keys(next).length !== Object.keys(prev).length;
       return hasChanged ? next : prev;
     });
-  }, [items]);
+  }, [baseItems]);
 
   const filteredItems = useMemo(() => {
     if (filter === "complete") return items.filter((item) => item.is_completed);
@@ -339,6 +340,7 @@ export default function SingleListView() {
                 items={filteredItems}
                 selectedItemId={selectedItemId}
                 onSelectItem={setSelectedItemId}
+                onDoubleSelectItem={(itemId) => navigate(`/bucketlists/${id}/items/${itemId}`)}
               />
             </motion.div>
 
