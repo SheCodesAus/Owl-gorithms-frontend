@@ -11,6 +11,7 @@ import CalendarExportModal from "../components/modals/CalendarExportModal";
 import EditItemModal from "../components/modals/EditItemModal";
 import DeleteItemModal from "../components/modals/DeleteItemModal";
 import StatusUpdateModal from "../components/modals/StatusUpdateModal";
+import ItemDateModal from "../components/modals/ItemDateModal";
 
 export default function BucketListItemPage() {
   const { listId, itemId } = useParams();
@@ -32,6 +33,9 @@ export default function BucketListItemPage() {
   const [isSaving, setIsSaving] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
   const [isSavingStatus, setIsSavingStatus] = useState(false);
+  const [showDateModal, setShowDateModal] = useState(false);
+  const [isSavingDate, setIsSavingDate] = useState(false);
+  const [dateErrors, setDateErrors] = useState({});
 
   const [editErrors, setEditErrors] = useState({});
   const [statusError, setStatusError] = useState("");
@@ -144,6 +148,22 @@ export default function BucketListItemPage() {
     }
   };
 
+  const handleSaveDate = async (dateData) => {
+    if (!item) return;
+    setIsSavingDate(true);
+    setDateErrors({});
+    try {
+      const updated = await updateItem(item.id, dateData, auth?.access);
+      setItem(updated);
+      setShowDateModal(false);
+      await loadBucketList();
+    } catch (error) {
+      setDateErrors({ non_field_errors: error.message });
+    } finally {
+      setIsSavingDate(false);
+    }
+  };
+
   const handleStatusUpdate = async (newStatus) => {
     if (!item) return;
 
@@ -223,6 +243,8 @@ export default function BucketListItemPage() {
             onUpvote={() => handleVote(item, "upvote")}
             onDownvote={() => handleVote(item, "downvote")}
             onAddToCalendar={() => setShowCalendarModal(true)}
+            onAddDate={() => setShowDateModal(true)}
+            onEditDate={() => setShowDateModal(true)}
             onEdit={() => setShowEditModal(true)}
             onDelete={() => setShowDeleteModal(true)}
             onUpdateStatus={() => setShowStatusModal(true)}
@@ -256,6 +278,18 @@ export default function BucketListItemPage() {
         isDeleting={isDeleting}
         onClose={() => setShowDeleteModal(false)}
         onConfirm={handleDelete}
+      />
+      
+      <ItemDateModal
+        item={item}
+        isOpen={showDateModal}
+        onSave={handleSaveDate}
+        onClose={() => {
+          setShowDateModal(false);
+          setDateErrors({});
+        }}
+        isSaving={isSavingDate}
+        errors={dateErrors}
       />
 
       <StatusUpdateModal

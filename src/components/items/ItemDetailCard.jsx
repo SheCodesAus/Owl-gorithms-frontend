@@ -25,6 +25,38 @@ function formatDateTime(iso) {
   });
 }
 
+function formatItemDate(item) {
+    if (!item?.start_date) return null;
+
+    const fmt = (d) =>
+        new Date(d).toLocaleDateString("en-AU", {
+            day: "numeric",
+            month: "short",
+            year: "numeric",
+        });
+
+    const fmtTime = (t) => {
+        const [h, m] = t.split(":");
+        const d = new Date();
+        d.setHours(Number(h), Number(m));
+        return d.toLocaleTimeString("en-AU", { hour: "numeric", minute: "2-digit" });
+    };
+
+    const start = fmt(item.start_date);
+    const end = item.end_date && item.end_date !== item.start_date
+        ? fmt(item.end_date)
+        : null;
+
+    const timeStr = item.start_time && item.end_time
+        ? `${fmtTime(item.start_time)} – ${fmtTime(item.end_time)}`
+        : null;
+
+    if (end && timeStr) return `${start} – ${end}, ${timeStr}`;
+    if (end) return `${start} – ${end}`;
+    if (timeStr) return `${start}, ${timeStr}`;
+    return start;
+}
+
 function getStatusLabel(status) {
   if (status === "locked_in") return "Locked In";
   if (status === "complete") return "Complete";
@@ -71,8 +103,6 @@ function ItemDetailCard({
   onOptionsClick,
   showBreadcrumb = true,
 }) {
-  const itemDate = getItemDate(item);
-  const hasItemDate = !!itemDate;
 
   return (
     <article className="item-detail-card">
@@ -156,16 +186,16 @@ function ItemDetailCard({
         ) : null}
       </div>
 
-      <div className="item-detail-divider" />
+<div className="item-detail-divider" />
 
       <section className="item-detail-section">
         <p className="item-detail-label">Date</p>
 
-        {hasItemDate ? (
+        {item.start_date ? (
           <div className="item-date-row">
             <div className="item-date-display">
               <CalendarDays size={15} aria-hidden="true" />
-              <span>{formatDateTime(itemDate)}</span>
+              <span>Scheduled for {formatItemDate(item)}</span>
             </div>
 
             <button
@@ -174,7 +204,7 @@ function ItemDetailCard({
               onClick={onEditDate}
             >
               <Pencil size={14} aria-hidden="true" />
-              Edit
+              <span style={{ marginLeft: "4px" }}>Edit date</span>
             </button>
           </div>
         ) : (
@@ -186,8 +216,8 @@ function ItemDetailCard({
               className="item-action-pill"
               onClick={onAddDate}
             >
-              <CalendarDays size={14} aria-hidden="true" className="mr-2" />
-              Add date
+              <CalendarDays size={14} aria-hidden="true" />
+              <span style={{ marginLeft: "4px" }}>Add date</span>
             </button>
           </div>
         )}
@@ -196,13 +226,15 @@ function ItemDetailCard({
       <div className="item-detail-divider" />
 
       <div className="item-action-row">
-        <button
-          type="button"
-          className="item-action-pill"
-          onClick={onAddToCalendar}
-        >
-          Add to calendar
-        </button>
+        {item.start_date && (
+          <button
+            type="button"
+            className="item-action-pill"
+            onClick={onAddToCalendar}
+          >
+            Add to calendar
+          </button>
+        )}
       </div>
     </article>
   );

@@ -18,6 +18,7 @@ import CalendarExportModal from "../components/modals/CalendarExportModal";
 import EditItemModal from "../components/modals/EditItemModal";
 import DeleteItemModal from "../components/modals/DeleteItemModal";
 import StatusUpdateModal from "../components/modals/StatusUpdateModal";
+import ItemDateModal from "../components/modals/ItemDateModal";
 
 function getNextVoteState(currentVote, currentScore, clickedVote) {
   const nextVote = currentVote === clickedVote ? null : clickedVote;
@@ -57,9 +58,12 @@ export default function SingleListView() {
   const [voteOverrides, setVoteOverrides] = useState({});
   const [panelMessage, setPanelMessage] = useState("");
 
-  const [isSaving, setIsSaving] = useState(false);
-  const [isDeleting, setIsDeleting] = useState(false);
   const [isSavingStatus, setIsSavingStatus] = useState(false);
+  const [showDateModal, setShowDateModal] = useState(false);
+  const [isSavingDate, setIsSavingDate] = useState(false);
+  const [dateErrors, setDateErrors] = useState({});
+  const [isDeleting, setIsDeleting] = useState(false);
+  const [isSaving, setIsSaving] = useState(false);
 
   const [editErrors, setEditErrors] = useState({});
   const [statusError, setStatusError] = useState("");
@@ -246,6 +250,22 @@ export default function SingleListView() {
     }
   };
 
+  const handleSaveDate = async (dateData) => {
+    if (!selectedItem) return;
+    setIsSavingDate(true);
+    setDateErrors({});
+    try {
+      await updateItem(selectedItem.id, dateData, auth?.access);
+      await loadBucketList();
+      setShowDateModal(false);
+      setPanelMessage("Date saved.");
+    } catch (error) {
+      setDateErrors({ non_field_errors: error.message });
+    } finally {
+      setIsSavingDate(false);
+    }
+  };
+
   const handleStatusUpdate = async (newStatus) => {
     if (!selectedItem) return;
     setIsSavingStatus(true);
@@ -349,8 +369,8 @@ export default function SingleListView() {
                       selectedItem && handleVote(selectedItem, "downvote")
                     }
                     onAddToCalendar={() => setShowCalendarModal(true)}
-                    onAddDate={() => console.log("Open add date modal")}
-                    onEditDate={() => console.log("Open edit date modal")}
+                    onAddDate={() => setShowDateModal(true)}
+                    onEditDate={() => setShowDateModal(true)}
                     onEdit={() => setShowEditModal(true)}
                     onDelete={() => setShowDeleteModal(true)}
                     onUpdateStatus={() => setShowStatusModal(true)}
@@ -407,6 +427,18 @@ export default function SingleListView() {
         isDeleting={isDeleting}
         onClose={() => setShowDeleteModal(false)}
         onConfirm={handleDelete}
+      />
+
+      <ItemDateModal
+        item={selectedItem}
+        isOpen={showDateModal}
+        onSave={handleSaveDate}
+        onClose={() => {
+          setShowDateModal(false);
+          setDateErrors({});
+        }}
+        isSaving={isSavingDate}
+        errors={dateErrors}
       />
 
       <StatusUpdateModal
