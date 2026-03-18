@@ -51,7 +51,7 @@ function ItemDetailCard({
         {showBreadcrumb && (
           <div className="item-breadcrumb item-breadcrumb-light">
             <button type="button" className="item-breadcrumb-button item-breadcrumb-button-light" onClick={onBack}>
-              {bucketList.title}
+              {bucketList?.title}
             </button>
             <span className="item-breadcrumb-separator">›</span>
             <span>{item.title}</span>
@@ -92,11 +92,6 @@ function ItemDetailCard({
             {getStatusLabel(item.status)}
           </span>
         </div>
-
-        {item.status === "complete" && item.completed_at && (
-          <span className="item-complete-badge" style={{ textTransform: 'none', fontWeight: 600 }}>
-          </span>
-        )}
       </div>
 
       <div className="item-detail-divider" />
@@ -116,7 +111,12 @@ function ItemDetailCard({
       <div className="item-detail-divider" />
 
       <div className="item-action-row">
-        {item.start_date && <button type="button" className="item-action-pill" onClick={onAddToCalendar}>Add to calendar</button>}
+        {item.start_date && (
+          <button type="button" className="item-action-pill" onClick={onAddToCalendar}>
+            <CalendarDays size={14} />
+            <span style={{ marginLeft: "4px" }}>Add to calendar</span>
+          </button>
+        )}
         {!item.start_date && (
           <button type="button" className="item-action-pill" onClick={onAddDate}>
             <CalendarDays size={14} />
@@ -125,10 +125,9 @@ function ItemDetailCard({
         )}
         {canEdit && (
           <>
-            {/* New "Change status" button that triggers the modal */}
             <button type="button" className="item-action-pill" onClick={onUpdateStatus}>
               <RefreshCw size={13} />
-              <span style={{ marginLeft: "4px" }}>Change status</span>
+              <span style={{ marginLeft: "4px" }}>Update status</span>
             </button>
             <button type="button" className="item-action-pill" onClick={onEdit}>
               <Pencil size={13} />

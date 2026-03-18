@@ -57,7 +57,7 @@ export default function ItemDetailPanel({
               onUpvote={onUpvote}
               onDownvote={onDownvote}
               onAddToCalendar={onAddToCalendar}
-              onAddDate={async () => { await onAddDate(); if (item.status === 'proposed') onUpdateStatus('locked_in'); }}
+              onAddDate={onAddDate}
               onEditDate={onEditDate}
               onEdit={onEdit}
               onDelete={onDelete}
