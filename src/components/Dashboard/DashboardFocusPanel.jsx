@@ -25,13 +25,22 @@ function DashboardFocusPanel({
   onInviteMembersClick,
   message,
   onClose,
+  isMobileOverlay = false,
 }) {
   const navigate = useNavigate();
 
+  const shellClass = isMobileOverlay
+    ? "relative h-full"
+    : "focus-panel-shell relative rounded-[1.75rem]";
+
+  const bandClass = isMobileOverlay
+    ? "dashboard-focus-band flex flex-col min-h-full px-5 py-6 sm:px-6"
+    : "dashboard-focus-band flex flex-col px-5 py-5 sm:px-6 sm:py-6";
+
   if (isLoading) {
     return (
-      <aside className="focus-panel-shell rounded-[1.75rem]">
-        <div className="dashboard-focus-band flex h-full items-center justify-center p-5 sm:p-6">
+      <aside className={shellClass}>
+        <div className={`${bandClass} items-center justify-center`}>
           <div className="dashboard-focus-band-inner space-y-3 text-center">
             <div className="mx-auto h-12 w-12 animate-spin rounded-full border-4 border-[#d8d1ee] border-t-[#6b4eaa]" />
             <p className="text-base font-medium text-[var(--heading-text)] sm:text-lg">
@@ -75,8 +84,7 @@ function DashboardFocusPanel({
   const ownerName = bucketList.owner?.display_name || "Unknown owner";
 
   return (
-    <aside className="focus-panel-shell relative rounded-[1.75rem]">
-
+    <aside className={shellClass}>
       {/* Close button */}
       {onClose ? (
         <button
@@ -92,7 +100,7 @@ function DashboardFocusPanel({
       {/* Photo background fills the entire card */}
       <motion.div
         key={bucketList.id}
-        className="dashboard-focus-band flex flex-col px-5 py-5 sm:px-6 sm:py-6"
+        className={`${bandClass} flex-col`}
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         exit={{ opacity: 0 }}
