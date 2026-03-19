@@ -9,10 +9,17 @@ function CreateBucketListForm({ user, onSuccess, onClose }) {
     title: "",
     description: "",
     decision_deadline: "",
-    has_deadline: false,
+    start_date: "",
+    end_date: "",
+    start_time: "",
+    end_time: "",
     is_public: false,
     allow_viewer_voting: false,
   });
+
+  const [hasDeadline, setHasDeadline] = useState(false);
+  const [hasDate, setHasDate] = useState(false);
+  const [hasTime, setHasTime] = useState(false);
 
   const handleChange = (event) => {
     const { name, value, type, checked } = event.target;
@@ -23,7 +30,54 @@ function CreateBucketListForm({ user, onSuccess, onClose }) {
     }));
   };
 
-  const formatDeadlineForBackend = (value) => {
+  const handleToggleDeadline = () => {
+    setHasDeadline((prev) => {
+      const next = !prev;
+
+      if (!next) {
+        setFormData((current) => ({
+          ...current,
+          decision_deadline: "",
+        }));
+      }
+
+      return next;
+    });
+  };
+
+  const handleToggleDate = () => {
+    setHasDate((prev) => {
+      const next = !prev;
+
+      if (!next) {
+        setFormData((current) => ({
+          ...current,
+          start_date: "",
+          end_date: "",
+        }));
+      }
+
+      return next;
+    });
+  };
+
+  const handleToggleTime = () => {
+    setHasTime((prev) => {
+      const next = !prev;
+
+      if (!next) {
+        setFormData((current) => ({
+          ...current,
+          start_time: "",
+          end_time: "",
+        }));
+      }
+
+      return next;
+    });
+  };
+
+  const formatDateTimeForBackend = (value) => {
     if (!value) return null;
     return value.replace("T", " ") + ":00";
   };
@@ -33,10 +87,17 @@ function CreateBucketListForm({ user, onSuccess, onClose }) {
     setErrors({});
 
     const payload = {
-      ...formData,
-      decision_deadline: formData.has_deadline
-        ? formatDeadlineForBackend(formData.decision_deadline)
+      title: formData.title,
+      description: formData.description,
+      is_public: formData.is_public,
+      allow_viewer_voting: formData.allow_viewer_voting,
+      decision_deadline: hasDeadline
+        ? formatDateTimeForBackend(formData.decision_deadline)
         : null,
+      start_date: hasDate ? formData.start_date || null : null,
+      end_date: hasDate ? formData.end_date || null : null,
+      start_time: hasTime ? formData.start_time || null : null,
+      end_time: hasTime ? formData.end_time || null : null,
     };
 
     try {
@@ -48,7 +109,7 @@ function CreateBucketListForm({ user, onSuccess, onClose }) {
   };
 
   const renderFieldError = (field) => {
-    if (!errors[field]) return null;
+    if (!errors?.[field]) return null;
 
     if (Array.isArray(errors[field])) {
       return (
@@ -72,7 +133,7 @@ function CreateBucketListForm({ user, onSuccess, onClose }) {
           value={formData.title}
           onChange={handleChange}
           className="form-input"
-          placeholder="Trip to Europe"
+          placeholder="Euro summer chaos"
           required
         />
         {renderFieldError("title")}
@@ -88,113 +149,213 @@ function CreateBucketListForm({ user, onSuccess, onClose }) {
           value={formData.description}
           onChange={handleChange}
           className="form-textarea"
-          placeholder="It's a big place. What will we do?"
+          placeholder="What’s the vision? Dream big, add context, set the vibe..."
+          rows={4}
         />
         {renderFieldError("description")}
       </div>
 
-      <div className="form-field">
-        <span className="form-label">MAKE PUBLIC</span>
-
-        <label className="glass-chip-light flex items-center justify-between rounded-2xl px-4 py-3">
-          <div>
-            <p className="font-semibold text-[var(--heading-text)]">
-              Make this list public
-            </p>
-            <p className="mt-1 text-sm text-[var(--muted-text)]">
-              Solo or squad - your call 🚀
-            </p>
-          </div>
-
+      <div className="rounded-[1.4rem] border border-black/10 bg-[var(--surface-soft)]/70 p-4">
+        <label className="flex cursor-pointer items-start gap-3">
           <input
             id="is_public"
             name="is_public"
             type="checkbox"
             checked={formData.is_public}
             onChange={handleChange}
-            className="h-5 w-5 cursor-pointer accent-[var(--primary-cta)]"
+            className="mt-1 h-4 w-4 rounded border-black/20 text-[var(--primary-cta)] focus:ring-[var(--primary-cta)]"
           />
+          <div>
+            <p className="text-sm font-semibold text-[var(--heading-text)]">
+              Make list public
+            </p>
+            <p className="text-sm text-[var(--muted-text)]">
+              Let the world in, or keep it for your inner circle only.
+            </p>
+          </div>
         </label>
         {renderFieldError("is_public")}
       </div>
 
-      <div className="form-field">
-        <span className="form-label">VOTING</span>
-
-        <label className="glass-chip-light flex items-center justify-between rounded-2xl px-4 py-3">
-          <div>
-            <p className="font-semibold text-[var(--heading-text)]">
-              Allow viewers to vote
-            </p>
-            <p className="mt-1 text-sm text-[var(--muted-text)]">
-              Want viewers to do more than stare? Let them cast votes 👍
-            </p>
-          </div>
-
+      <div className="rounded-[1.4rem] border border-black/10 bg-[var(--surface-soft)]/70 p-4">
+        <label className="flex cursor-pointer items-start gap-3">
           <input
             id="allow_viewer_voting"
             name="allow_viewer_voting"
             type="checkbox"
             checked={formData.allow_viewer_voting}
             onChange={handleChange}
-            className="h-5 w-5 cursor-pointer accent-[var(--primary-cta)]"
+            className="mt-1 h-4 w-4 rounded border-black/20 text-[var(--primary-cta)] focus:ring-[var(--primary-cta)]"
           />
+          <div>
+            <p className="text-sm font-semibold text-[var(--heading-text)]">
+              Let viewers vote
+            </p>
+            <p className="text-sm text-[var(--muted-text)]">
+              Don’t just let them watch the chaos. Let them influence it.
+            </p>
+          </div>
         </label>
         {renderFieldError("allow_viewer_voting")}
       </div>
 
-      <div className="form-field">
-        <span className="form-label">DECISION DEADLINE</span>
+      <div className="space-y-3">
+        <div className="rounded-[1.4rem] border border-black/10 bg-[var(--surface-soft)]/70 p-4">
+          <label className="flex cursor-pointer items-start gap-3">
+            <input
+              type="checkbox"
+              checked={hasDeadline}
+              onChange={handleToggleDeadline}
+              className="mt-1 h-4 w-4 rounded border-black/20 text-[var(--primary-cta)] focus:ring-[var(--primary-cta)]"
+            />
+            <div>
+              <p className="text-sm font-semibold text-[var(--heading-text)]">
+                Add decision deadline
+              </p>
+              <p className="text-sm text-[var(--muted-text)]">
+                This is the cutoff for adding new ideas and casting votes. After
+                the deadline hits, both freeze. No last-minute plot twists.
+              </p>
+            </div>
+          </label>
 
-        <label className="glass-chip-light flex items-center justify-between rounded-2xl px-4 py-3">
-          <div>
-            <p className="font-semibold text-[var(--heading-text)]">
-              Count down the days to vote
-            </p>
-            <p className="mt-1 text-sm text-[var(--muted-text)]">
-              Collect ideas and votes from friends.<br>
-              </br>
-              When the deadline ends, the
-              top activities are frozen 🥶
-            </p>
-          </div>
+          {hasDeadline ? (
+            <div className="mt-4">
+              <div className="form-field">
+                <label htmlFor="decision_deadline" className="form-label">
+                  DEADLINE
+                </label>
+                <input
+                  id="decision_deadline"
+                  type="datetime-local"
+                  name="decision_deadline"
+                  value={formData.decision_deadline}
+                  onChange={handleChange}
+                  className="form-input cursor-pointer"
+                />
+                {renderFieldError("decision_deadline")}
+              </div>
+            </div>
+          ) : null}
+        </div>
 
-          <input
-            id="has_deadline"
-            name="has_deadline"
-            type="checkbox"
-            checked={formData.has_deadline}
-            onChange={handleChange}
-            className="h-5 w-5 cursor-pointer accent-[var(--primary-cta)]"
-          />
-        </label>
-        {renderFieldError("decision_deadline")}
+        <div className="rounded-[1.4rem] border border-black/10 bg-[var(--surface-soft)]/70 p-4">
+          <label className="flex cursor-pointer items-start gap-3">
+            <input
+              type="checkbox"
+              checked={hasDate}
+              onChange={handleToggleDate}
+              className="mt-1 h-4 w-4 rounded border-black/20 text-[var(--primary-cta)] focus:ring-[var(--primary-cta)]"
+            />
+            <div>
+              <p className="text-sm font-semibold text-[var(--heading-text)]">
+                Add event date
+              </p>
+              <p className="text-sm text-[var(--muted-text)]">
+                Use this when the whole list revolves around a real planned
+                event, trip, weekend, or occasion.
+              </p>
+            </div>
+          </label>
+
+          {hasDate ? (
+            <div className="mt-4 grid gap-4 md:grid-cols-2">
+              <div className="form-field">
+                <label htmlFor="start_date" className="form-label">
+                  FROM
+                </label>
+                <input
+                  id="start_date"
+                  name="start_date"
+                  type="date"
+                  className="form-input"
+                  value={formData.start_date}
+                  onChange={handleChange}
+                />
+                {renderFieldError("start_date")}
+              </div>
+
+              <div className="form-field">
+                <label htmlFor="end_date" className="form-label">
+                  TO
+                </label>
+                <input
+                  id="end_date"
+                  name="end_date"
+                  type="date"
+                  className="form-input"
+                  value={formData.end_date}
+                  onChange={handleChange}
+                  min={formData.start_date || undefined}
+                />
+                {renderFieldError("end_date")}
+              </div>
+            </div>
+          ) : null}
+        </div>
+
+        <div className="rounded-[1.4rem] border border-black/10 bg-[var(--surface-soft)]/70 p-4">
+          <label className="flex cursor-pointer items-start gap-3">
+            <input
+              type="checkbox"
+              checked={hasTime}
+              onChange={handleToggleTime}
+              className="mt-1 h-4 w-4 rounded border-black/20 text-[var(--primary-cta)] focus:ring-[var(--primary-cta)]"
+            />
+            <div>
+              <p className="text-sm font-semibold text-[var(--heading-text)]">
+                Add event time
+              </p>
+              <p className="text-sm text-[var(--muted-text)]">
+                Perfect for lists built around a booking, meetup, dinner,
+                concert, or anything with a clock attached.
+              </p>
+            </div>
+          </label>
+
+          {hasTime ? (
+            <div className="mt-4 grid gap-4 md:grid-cols-2">
+              <div className="form-field">
+                <label htmlFor="start_time" className="form-label">
+                  START TIME
+                </label>
+                <input
+                  id="start_time"
+                  name="start_time"
+                  type="time"
+                  className="form-input"
+                  value={formData.start_time}
+                  onChange={handleChange}
+                />
+                {renderFieldError("start_time")}
+              </div>
+
+              <div className="form-field">
+                <label htmlFor="end_time" className="form-label">
+                  END TIME
+                </label>
+                <input
+                  id="end_time"
+                  name="end_time"
+                  type="time"
+                  className="form-input"
+                  value={formData.end_time}
+                  onChange={handleChange}
+                />
+                {renderFieldError("end_time")}
+              </div>
+            </div>
+          ) : null}
+        </div>
       </div>
 
-      {formData.has_deadline && (
-        <div className="form-field">
-          <label htmlFor="decision_deadline" className="form-label">
-            DEADLINE
-          </label>
-          <input
-            id="decision_deadline"
-            type="datetime-local"
-            name="decision_deadline"
-            value={formData.decision_deadline}
-            onChange={handleChange}
-            className="form-input cursor-pointer"
-          />
-          {renderFieldError("decision_deadline")}
-        </div>
-      )}
-
-      {errors.non_field_errors && (
+      {errors?.non_field_errors ? (
         <p className="text-center text-sm text-red-500">
           {Array.isArray(errors.non_field_errors)
             ? errors.non_field_errors.join(" ")
             : errors.non_field_errors}
         </p>
-      )}
+      ) : null}
 
       <div className="form-actions">
         <button
@@ -209,7 +370,7 @@ function CreateBucketListForm({ user, onSuccess, onClose }) {
           type="submit"
           className="rounded-2xl primary-gradient-button px-5 py-3 font-semibold"
         >
-          SEND IT
+          Let’s build it
         </button>
       </div>
     </form>

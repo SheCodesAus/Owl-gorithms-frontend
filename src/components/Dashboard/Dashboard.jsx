@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { AnimatePresence, motion } from "framer-motion";
 import { useBucketLists } from "../../hooks/useBucketLists";
 import { useVotes } from "../../hooks/useVotes";
+import { useAuth } from "../../hooks/use-auth";
 import DashboardBanner from "./DashboardBanner";
 import DashboardCardGrid from "./DashboardCardGrid";
 import DashboardFocusPanel from "./DashboardFocusPanel";
@@ -12,8 +13,11 @@ import CreateItemForm from "../forms/CreateItemForm";
 import InviteMembersModal from "../modals/InviteMembersModal";
 import ViewMembersModal from "../modals/ViewMembersModal";
 import ConfirmActionModal from "../modals/ConfirmActionModal";
+import EditBucketListModal from "../modals/EditBucketListModal";
 import updateMembershipRole from "../../api/memberships/update-membership";
 import deleteMembership from "../../api/memberships/delete-membership";
+import deleteBucketList from "../../api/bucketlists/delete-bucketlist";
+import updateBucketList from "../../api/bucketlists/update-bucketlist";
 
 function getNextVoteState(currentVote, currentScore, clickedVote) {
   const nextVote = currentVote === clickedVote ? null : clickedVote;
@@ -43,6 +47,10 @@ function Dashboard({ user }) {
   const [showInviteModal, setShowInviteModal] = useState(false);
   const [showMembersModal, setShowMembersModal] = useState(false);
 
+  const [editingBucketList, setEditingBucketList] = useState(null);
+  const [isSavingBucketList, setIsSavingBucketList] = useState(false);
+  const [editBucketListErrors, setEditBucketListErrors] = useState({});
+
   const [isUpdatingMemberId, setIsUpdatingMemberId] = useState(null);
   const [confirmAction, setConfirmAction] = useState(null);
   const [isConfirmingAction, setIsConfirmingAction] = useState(false);
@@ -57,9 +65,9 @@ function Dashboard({ user }) {
     () => window.innerWidth < MOBILE_BREAKPOINT
   );
 
-  const token = user?.token;
+  const { auth } = useAuth();
+  const token = auth?.access;
 
-  // ── Responsive state ───────────────────────────────────────────────────
   useEffect(() => {
     const handleResize = () => {
       setIsMobile(window.innerWidth < MOBILE_BREAKPOINT);
@@ -75,7 +83,6 @@ function Dashboard({ user }) {
     }
   }, [isMobile]);
 
-  // ── Simple modal handlers ──────────────────────────────────────────────
   const handleOpenCreateModal = () => setShowCreateModal(true);
   const handleCloseCreateModal = () => setShowCreateModal(false);
 
@@ -97,21 +104,19 @@ function Dashboard({ user }) {
   };
   const handleCloseMembersModal = () => setShowMembersModal(false);
 
-  // ── Success handlers ───────────────────────────────────────────────────
   const handleCreateSuccess = async (newBucketList) => {
     await loadBucketLists();
     setSelectedListId(newBucketList.id);
     setShowCreateModal(false);
-    setDashboardMessage("Created successfully!");
+    setDashboardMessage("Fresh list unlocked. Let the chaos begin.");
   };
 
   const handleAddItemSuccess = async () => {
     await loadBucketLists();
     setShowAddItemModal(false);
-    setFocusPanelMessage("Item added! Let's go!");
+    setFocusPanelMessage("New idea dropped. This list is heating up.");
   };
 
-  // ── Vote helpers ───────────────────────────────────────────────────────
   const getBaseVoteScore = (item) =>
     item.vote_score ?? item.votes_count ?? item.score ?? 0;
 
@@ -154,13 +159,13 @@ function Dashboard({ user }) {
       }
     } catch (error) {
       setVoteOverride(item.id, previousState.voteScore, previousState.userVote);
+      setFocusPanelMessage("That vote refused to cooperate. Try again.");
       console.error("Vote failed:", error);
     } finally {
       setIsVotingItemId(null);
     }
   };
 
-  // ── Derived selected list ──────────────────────────────────────────────
   const selectedList = useMemo(() => {
     const baseList = bucketLists.find((bl) => bl.id === selectedListId) || null;
     if (!baseList) return null;
@@ -188,7 +193,77 @@ function Dashboard({ user }) {
 
   const panelOpen = !!selectedList;
 
-  // ── Membership actions ─────────────────────────────────────────────────
+  function handleEditBucketList(bucketList) {
+    if (!bucketList) return;
+    setEditBucketListErrors({});
+    setEditingBucketList(bucketList);
+  }
+
+  function handleCloseEditBucketListModal() {
+    if (isSavingBucketList) return;
+    setEditingBucketList(null);
+    setEditBucketListErrors({});
+  }
+
+  async function handleSaveBucketListEdits(updatedData) {
+    if (!editingBucketList?.id || !token) return;
+
+    try {
+      setIsSavingBucketList(true);
+      setEditBucketListErrors({});
+
+      await updateBucketList(editingBucketList.id, updatedData, token);
+      await loadBucketLists();
+
+      setEditingBucketList(null);
+      setFocusPanelMessage("Fresh polish applied. Your list just leveled up.");
+    } catch (error) {
+      if (error?.responseData && typeof error.responseData === "object") {
+        setEditBucketListErrors(error.responseData);
+      } else {
+        setEditBucketListErrors({
+          non_field_errors: error.message || "Could not update bucket list.",
+        });
+      }
+    } finally {
+      setIsSavingBucketList(false);
+    }
+  }
+
+  function handleDeleteBucketList(bucketList) {
+    if (!bucketList?.id) return;
+
+    setConfirmAction({
+      type: "delete-list",
+      bucketList,
+      title: "Delete this bucket list?",
+      description:
+        "This list and everything inside it will vanish into the void. No dramatic comeback. No undo.",
+      confirmLabel: "Delete list",
+      tone: "danger",
+    });
+  }
+
+  async function handleCopyBucketListLink(bucketList) {
+    if (!bucketList) return;
+
+    if (!bucketList.is_public) {
+      setFocusPanelMessage(
+        "This one’s still under wraps. Only public lists can be shared with the world."
+      );
+      return;
+    }
+
+    try {
+      const shareUrl = `${window.location.origin}/bucketlists/${bucketList.id}`;
+      await navigator.clipboard.writeText(shareUrl);
+      setFocusPanelMessage("Link copied. Time to spark a little bucket list envy.");
+    } catch (error) {
+      console.error("Copy link failed:", error);
+      setFocusPanelMessage("Copy failed. The link slipped through our fingers.");
+    }
+  }
+
   async function handleChangeMemberRole(membershipId, newRole) {
     if (!selectedListId || !token) return;
 
@@ -236,12 +311,37 @@ function Dashboard({ user }) {
   }
 
   async function handleConfirmAction() {
-    if (!confirmAction?.membership || !selectedListId || !token) return;
-
-    const membership = confirmAction.membership;
+    if (!confirmAction || !token) return;
 
     try {
       setIsConfirmingAction(true);
+
+      if (confirmAction.type === "delete-list") {
+        const bucketListId = confirmAction.bucketList?.id;
+        if (!bucketListId) return;
+
+        await deleteBucketList(bucketListId, token);
+
+        const wasSelected = selectedListId === bucketListId;
+
+        setConfirmAction(null);
+
+        if (wasSelected) {
+          setSelectedListId(null);
+          setShowMembersModal(false);
+          setShowInviteModal(false);
+          setShowAddItemModal(false);
+          setEditingBucketList(null);
+        }
+
+        await loadBucketLists();
+        setDashboardMessage("That list had its final scene. Deleted.");
+        return;
+      }
+
+      if (!confirmAction.membership || !selectedListId) return;
+
+      const membership = confirmAction.membership;
       setIsUpdatingMemberId(membership.id);
 
       await deleteMembership(selectedListId, membership.id, token);
@@ -259,14 +359,18 @@ function Dashboard({ user }) {
       setConfirmAction(null);
       setFocusPanelMessage("Member removed.");
     } catch (error) {
-      setFocusPanelMessage(error.message || "Could not complete that action.");
+      const fallbackMessage =
+        confirmAction?.type === "delete-list"
+          ? "Could not delete that bucket list."
+          : "Could not complete that action.";
+
+      setFocusPanelMessage(error.message || fallbackMessage);
     } finally {
       setIsConfirmingAction(false);
       setIsUpdatingMemberId(null);
     }
   }
 
-  // ── Effects that depend on selectedList ────────────────────────────────
   useEffect(() => {
     if (!bucketLists.length) {
       setSelectedListId(null);
@@ -309,18 +413,17 @@ function Dashboard({ user }) {
   useEffect(() => {
     if (!dashboardMessage) return;
 
-    const timer = window.setTimeout(() => setDashboardMessage(""), 3000);
+    const timer = window.setTimeout(() => setDashboardMessage(""), 3200);
     return () => window.clearTimeout(timer);
   }, [dashboardMessage]);
 
   useEffect(() => {
     if (!focusPanelMessage) return;
 
-    const timer = window.setTimeout(() => setFocusPanelMessage(""), 3000);
+    const timer = window.setTimeout(() => setFocusPanelMessage(""), 3200);
     return () => window.clearTimeout(timer);
   }, [focusPanelMessage]);
 
-  // ── Focus panel props ──────────────────────────────────────────────────
   const focusPanelProps = {
     bucketList: selectedList,
     isLoading,
@@ -334,6 +437,11 @@ function Dashboard({ user }) {
     onViewMembersClick: handleOpenMembersModal,
     message: focusPanelMessage,
     onClose: () => setSelectedListId(null),
+    onEditBucketList: isSelectedListOwner ? handleEditBucketList : undefined,
+    onDeleteBucketList: isSelectedListOwner
+      ? handleDeleteBucketList
+      : undefined,
+    onCopyBucketListLink: handleCopyBucketListLink,
   };
 
   return (
@@ -462,6 +570,15 @@ function Dashboard({ user }) {
           onSuccess={handleAddItemSuccess}
         />
       </FormModal>
+
+      <EditBucketListModal
+        bucketList={editingBucketList}
+        isOpen={!!editingBucketList}
+        onClose={handleCloseEditBucketListModal}
+        onSave={handleSaveBucketListEdits}
+        isSaving={isSavingBucketList}
+        errors={editBucketListErrors}
+      />
 
       <InviteMembersModal
         isOpen={showInviteModal}

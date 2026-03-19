@@ -1,3 +1,4 @@
+import { useEffect, useRef, useState } from "react";
 import { motion } from "framer-motion";
 import { useNavigate } from "react-router-dom";
 import {
@@ -11,6 +12,11 @@ import {
   X,
   Eye,
   Clock3,
+  Ellipsis,
+  Pencil,
+  Trash2,
+  ExternalLink,
+  Copy,
 } from "lucide-react";
 import Avatar from "../UI/Avatar";
 import AvatarGroup from "../UI/AvatarGroup";
@@ -89,11 +95,42 @@ function DashboardFocusPanel({
   onAddItemClick,
   onInviteMembersClick,
   onViewMembersClick,
+  onEditBucketList,
+  onDeleteBucketList,
+  onCopyBucketListLink,
   message,
   onClose,
   isMobileOverlay = false,
 }) {
   const navigate = useNavigate();
+
+  const [showOptionsMenu, setShowOptionsMenu] = useState(false);
+  const optionsMenuRef = useRef(null);
+
+  useEffect(() => {
+    function handleClickOutside(event) {
+      if (
+        optionsMenuRef.current &&
+        !optionsMenuRef.current.contains(event.target)
+      ) {
+        setShowOptionsMenu(false);
+      }
+    }
+
+    function handleEscape(event) {
+      if (event.key === "Escape") {
+        setShowOptionsMenu(false);
+      }
+    }
+
+    document.addEventListener("mousedown", handleClickOutside);
+    document.addEventListener("keydown", handleEscape);
+
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+      document.removeEventListener("keydown", handleEscape);
+    };
+  }, []);
 
   const shellClass = isMobileOverlay
     ? "relative h-full"
@@ -149,6 +186,36 @@ function DashboardFocusPanel({
 
   const ownerName = bucketList.owner?.display_name || "Unknown";
 
+  const handleCopyLink = async () => {
+    try {
+      if (onCopyBucketListLink) {
+        onCopyBucketListLink(bucketList);
+      } else {
+        const url = `${window.location.origin}/bucketlists/${bucketList.id}`;
+        await navigator.clipboard.writeText(url);
+      }
+    } catch (error) {
+      console.error("Failed to copy bucket list link", error);
+    } finally {
+      setShowOptionsMenu(false);
+    }
+  };
+
+  const handleOpenFullPage = () => {
+    navigate(`/bucketlists/${bucketList.id}`);
+    setShowOptionsMenu(false);
+  };
+
+  const handleEdit = () => {
+    onEditBucketList?.(bucketList);
+    setShowOptionsMenu(false);
+  };
+
+  const handleDelete = () => {
+    onDeleteBucketList?.(bucketList);
+    setShowOptionsMenu(false);
+  };
+
   return (
     <aside className={shellClass}>
       {onClose ? (
@@ -171,27 +238,86 @@ function DashboardFocusPanel({
         transition={{ duration: 0.2 }}
       >
         <div className="dashboard-focus-band-inner flex flex-col gap-5">
-          <div className="flex flex-wrap items-center gap-x-3 gap-y-2">
-            <p className="mr-2 text-[0.72rem] font-semibold uppercase tracking-[0.2em] text-black/50">
-              Overview
-            </p>
-            <span className="inline-flex items-center gap-1.5 rounded-full bg-black/8 px-3 py-1.5 text-sm text-black/80 backdrop-blur-sm">
-              {bucketList.is_public ? (
-                <Globe size={15} aria-hidden="true" />
-              ) : (
-                <Lock size={15} aria-hidden="true" />
-              )}
-              {bucketList.is_public ? "Public" : "Private"}
-            </span>
-            <span className="rounded-full bg-black/8 px-3 py-1.5 text-sm text-black/80 backdrop-blur-sm">
-              By {ownerName}
-            </span>
+          <div className="flex items-start justify-between gap-4">
+            <div className="flex flex-wrap items-center gap-x-3 gap-y-2">
+              <p className="mr-2 text-[0.72rem] font-semibold uppercase tracking-[0.2em] text-black/50">
+                Overview
+              </p>
+              <span className="inline-flex items-center gap-1.5 rounded-full bg-black/8 px-3 py-1.5 text-sm text-black/80 backdrop-blur-sm">
+                {bucketList.is_public ? (
+                  <Globe size={15} aria-hidden="true" />
+                ) : (
+                  <Lock size={15} aria-hidden="true" />
+                )}
+                {bucketList.is_public ? "Public" : "Private"}
+              </span>
+              <span className="rounded-full bg-black/8 px-3 py-1.5 text-sm text-black/80 backdrop-blur-sm">
+                By {ownerName}
+              </span>
+            </div>
+
+            <div className="relative shrink-0" ref={optionsMenuRef}>
+              <button
+                type="button"
+                className="item-options-button"
+                onClick={() => setShowOptionsMenu((prev) => !prev)}
+                aria-label="Bucket list options"
+                aria-haspopup="menu"
+                aria-expanded={showOptionsMenu}
+                title="Bucket list options"
+              >
+                <Ellipsis size={18} aria-hidden="true" />
+              </button>
+
+              {showOptionsMenu ? (
+                <div className="absolute right-0 top-12 z-30 w-56 overflow-hidden rounded-2xl border border-black/10 bg-white/95 shadow-[0_18px_50px_rgba(0,0,0,0.16)] backdrop-blur-xl">
+                  <button
+                    type="button"
+                    onClick={handleEdit}
+                    className="flex w-full items-center gap-3 px-4 py-3 text-left text-sm font-medium text-[var(--body-text)] transition hover:bg-black/5"
+                  >
+                    <Pencil size={16} aria-hidden="true" />
+                    Edit
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={handleOpenFullPage}
+                    className="flex w-full items-center gap-3 px-4 py-3 text-left text-sm font-medium text-[var(--body-text)] transition hover:bg-black/5"
+                  >
+                    <ExternalLink size={16} aria-hidden="true" />
+                    Open full page
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={handleCopyLink}
+                    className="flex w-full items-center gap-3 px-4 py-3 text-left text-sm font-medium text-[var(--body-text)] transition hover:bg-black/5"
+                  >
+                    <Copy size={16} aria-hidden="true" />
+                    Copy link
+                  </button>
+
+                  <div className="mx-3 h-px bg-black/8" />
+
+                  <button
+                    type="button"
+                    onClick={handleDelete}
+                    className="flex w-full items-center gap-3 px-4 py-3 text-left text-sm font-medium text-rose-600 transition hover:bg-rose-50"
+                  >
+                    <Trash2 size={16} aria-hidden="true" />
+                    Delete bucket list
+                  </button>
+                </div>
+              ) : null}
+            </div>
           </div>
 
           <div className="space-y-2">
             <h2 className="brand-font max-w-3xl text-[1.7rem] font-semibold leading-tight text-black sm:text-[2rem]">
               {bucketList.title}
             </h2>
+
             <p className="max-w-2xl text-sm leading-relaxed text-black/70 sm:text-base">
               {bucketList.description || "No description yet for this bucket list."}
             </p>
@@ -243,7 +369,11 @@ function DashboardFocusPanel({
               aria-label={`Add item to ${bucketList.title}`}
               className="group inline-flex h-14 w-14 cursor-pointer items-center justify-center rounded-full bg-[linear-gradient(135deg,#15803d_0%,#4ade80_100%)] text-white shadow-[0_14px_36px_rgba(8,38,20,0.35)] transition hover:scale-105 hover:shadow-[0_18px_46px_rgba(8,38,20,0.45)] active:scale-95 focus:outline-none focus:ring-2 focus:ring-white/80"
             >
-              <Plus size={24} strokeWidth={2.8} className="transition group-hover:rotate-90" />
+              <Plus
+                size={24}
+                strokeWidth={2.8}
+                className="transition group-hover:rotate-90"
+              />
             </button>
           </div>
         </div>
@@ -335,15 +465,15 @@ function DashboardFocusPanel({
                                   <RelativeTime timestamp={item.updated_at} />
                                 </p>
                                 {scheduleText ? (
-                                <div className="inline-flex max-w-full items-center gap-2 rounded-full border border-black/8 bg-black/[0.04] px-3 py-1.5 text-xs font-medium text-[var(--heading-text)]">
-                                  {item.start_time || item.end_time ? (
-                                    <Clock3 size={13} aria-hidden="true" />
-                                  ) : (
-                                    <CalendarDays size={13} aria-hidden="true" />
-                                  )}
-                                  <span className="truncate">{scheduleText}</span>
-                                </div>
-                              ) : null}
+                                  <div className="inline-flex max-w-full items-center gap-2 rounded-full border border-black/8 bg-black/[0.04] px-3 py-1.5 text-xs font-medium text-[var(--heading-text)]">
+                                    {item.start_time || item.end_time ? (
+                                      <Clock3 size={13} aria-hidden="true" />
+                                    ) : (
+                                      <CalendarDays size={13} aria-hidden="true" />
+                                    )}
+                                    <span className="truncate">{scheduleText}</span>
+                                  </div>
+                                ) : null}
                               </div>
                             </div>
 
