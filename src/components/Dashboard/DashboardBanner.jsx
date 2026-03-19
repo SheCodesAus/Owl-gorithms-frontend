@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { useNotifications } from "../NotificationsProvider";
 import { motion, AnimatePresence } from "framer-motion";
 import { ChevronsDown, ChevronsUp, Bell, ArrowRight, X } from "lucide-react";
 import { Plus, Lock, CheckCircle2, Snowflake, Clock } from "lucide-react";

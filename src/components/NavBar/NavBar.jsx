@@ -3,6 +3,7 @@ import { NavLink, Link, useNavigate } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import { Bell, CheckCheck, Plus, Lock, CheckCircle2, Snowflake, Clock, X } from "lucide-react";
 import { useAuth } from "../../hooks/use-auth";
+import { useNotifications } from "../NotificationsProvider";
 import RelativeTime from "../UI/RelativeTime";
 
 const TYPE_ICON_MAP = {
