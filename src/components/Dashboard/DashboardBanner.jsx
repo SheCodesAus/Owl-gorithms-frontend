@@ -1,10 +1,9 @@
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
-import { ChevronRight, ChevronsDown, ChevronsUp, Bell } from "lucide-react";
-import { useNotifications } from "../../hooks/useNotification";
-import VoteControls from "../UI/VoteControls";
-import RelativeTime from "../UI/RelativeTime";
+import { ChevronsDown, ChevronsUp, Bell, ArrowRight, X } from "lucide-react";
 import { Plus, Lock, CheckCircle2, Snowflake, Clock } from "lucide-react";
+import RelativeTime from "../UI/RelativeTime";
 
 const MAX_EXPANDED = 4;
 
@@ -27,17 +26,38 @@ function NotificationIcon({ type, size = 14 }) {
   );
 }
 
-function DashboardBanner({ onVote, isVotingItemId, message }) {
+function DashboardBanner({ message }) {
+  const navigate = useNavigate();
   const [isExpanded, setIsExpanded] = useState(false);
-  const { notifications, unreadCount, markAsRead } = useNotifications();
+  const { notifications, unreadCount, markAsRead, dismiss, dismissAll } = useNotifications();
 
   const unread = notifications.filter((n) => !n.is_read);
-  const latest = unread[0] ?? notifications[0] ?? null;
-  const expandedItems = unread.slice(0, MAX_EXPANDED);
-  const hasMore = unread.length > MAX_EXPANDED;
+  const latest = unread[0] ?? null;
+  const expandedItems = notifications.slice(0, MAX_EXPANDED);
+  const hasMore = notifications.length > MAX_EXPANDED;
 
-  const handleNotificationClick = (notification) => {
+  const getDestination = (notification) => {
+    if (notification.item_id && notification.bucket_list_id) {
+      return `/bucketlists/${notification.bucket_list_id}/items/${notification.item_id}`;
+    }
+    if (notification.bucket_list_id) {
+      return `/bucketlists/${notification.bucket_list_id}`;
+    }
+    return null;
+  };
+
+  const handleView = (notification) => {
     if (!notification.is_read) markAsRead(notification.id);
+    const dest = getDestination(notification);
+    if (dest) {
+      setIsExpanded(false);
+      navigate(dest);
+    }
+  };
+
+  const handleDismiss = (e, notification) => {
+    e.stopPropagation();
+    dismiss(notification.id);
   };
 
   return (
@@ -51,15 +71,13 @@ function DashboardBanner({ onVote, isVotingItemId, message }) {
         {/* ── Collapsed bar ─────────────────────────────────────────────── */}
         <div className="flex items-center justify-between gap-4 px-4 py-3 sm:px-5">
           <div className="flex min-w-0 flex-1 items-center gap-3 sm:gap-4">
-            {/* Icon */}
+
+            {/* Bell icon */}
             <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-[#ff9a6c] to-[#ff5ea8]">
               <Bell size={16} strokeWidth={2.2} className="text-white" />
-              {unreadCount > 0 && (
-                <span className="sr-only">{unreadCount} unread</span>
-              )}
             </span>
 
-            {/* Latest notification message */}
+            {/* Latest unread message or all-clear state */}
             <div className="min-w-0 flex-1">
               {latest ? (
                 <div className="flex items-center gap-2">
@@ -69,8 +87,8 @@ function DashboardBanner({ onVote, isVotingItemId, message }) {
                   </p>
                 </div>
               ) : (
-                <p className="text-sm font-semibold text-white sm:text-base">
-                  No new notifications
+                <p className="text-sm font-semibold text-white/70 sm:text-base">
+                  {notifications.length > 0 ? "All caught up!" : "No new notifications"}
                 </p>
               )}
             </div>
@@ -83,40 +101,33 @@ function DashboardBanner({ onVote, isVotingItemId, message }) {
             )}
           </div>
 
-          {/* Inline vote controls if latest notification has an item */}
-          {latest?.item_id && !isExpanded && (
-            <div className="shrink-0">
-              <VoteControls
-                itemTitle={latest.item_title ?? "item"}
-                score={latest.item_score ?? 0}
-                activeVote={latest.item_user_vote ?? null}
-                isVoting={isVotingItemId === latest.item_id}
-                onUpvote={() => {
-                  handleNotificationClick(latest);
-                  onVote?.({ id: latest.item_id, title: latest.item_title }, "upvote");
-                }}
-                onDownvote={() => {
-                  handleNotificationClick(latest);
-                  onVote?.({ id: latest.item_id, title: latest.item_title }, "downvote");
-                }}
-                variant="focus"
-              />
-            </div>
-          )}
+          <div className="flex shrink-0 items-center gap-2">
+            {/* View button for latest unread */}
+            {latest && getDestination(latest) && (
+              <motion.button
+                type="button"
+                className="inline-flex cursor-pointer items-center gap-1.5 rounded-2xl bg-white/65 px-3 py-2 text-sm font-semibold text-[#4c2f6e] backdrop-blur-sm transition hover:bg-white/90"
+                whileTap={{ scale: 0.97 }}
+                onClick={() => handleView(latest)}
+              >
+                View
+                <ArrowRight size={14} strokeWidth={2.4} />
+              </motion.button>
+            )}
 
-          {/* Expand/collapse button */}
-          {unread.length > 0 && (
-            <motion.button
-              type="button"
-              className="shrink-0 cursor-pointer rounded-2xl bg-white/65 px-3 py-2 text-sm font-semibold text-[#4c2f6e] backdrop-blur-sm transition hover:bg-white/80 sm:px-4"
-              whileHover={{ y: -1 }}
-              whileTap={{ scale: 0.98 }}
-              onClick={() => setIsExpanded((prev) => !prev)}
-              aria-label={isExpanded ? "Collapse notifications" : "Expand notifications"}
-            >
-              {isExpanded ? <ChevronsUp size={18} /> : <ChevronsDown size={18} />}
-            </motion.button>
-          )}
+            {/* Expand/collapse — show if any notifications exist */}
+            {notifications.length > 0 && (
+              <motion.button
+                type="button"
+                className="shrink-0 cursor-pointer rounded-2xl bg-gradient-to-br from-[#ff9a6c] to-[#ff5ea8] px-3 py-2 text-sm font-semibold text-white transition hover:opacity-90 sm:px-4"
+                whileTap={{ scale: 0.98 }}
+                onClick={() => setIsExpanded((prev) => !prev)}
+                aria-label={isExpanded ? "Collapse notifications" : "Expand notifications"}
+              >
+                {isExpanded ? <ChevronsUp size={18} /> : <ChevronsDown size={18} />}
+              </motion.button>
+            )}
+          </div>
         </div>
 
         {/* ── Expanded notification list ─────────────────────────────────── */}
@@ -131,29 +142,28 @@ function DashboardBanner({ onVote, isVotingItemId, message }) {
               className="overflow-hidden"
             >
               <div
-                className="mx-4 mb-4 space-y-2 overflow-y-auto"
-                style={{ maxHeight: `${MAX_EXPANDED * 80}px` }}
+                className="mx-4 mb-3 space-y-2 overflow-y-auto"
+                style={{ maxHeight: `${MAX_EXPANDED * 76}px` }}
               >
                 {expandedItems.map((notification, index) => (
                   <motion.div
                     key={notification.id}
+                    layout
                     initial={{ opacity: 0, y: 6 }}
                     animate={{ opacity: 1, y: 0 }}
-                    transition={{ delay: index * 0.05, duration: 0.2 }}
+                    exit={{ opacity: 0, x: 20 }}
+                    transition={{ delay: index * 0.04, duration: 0.2 }}
                     className={`flex items-center gap-3 rounded-2xl px-4 py-3 ${
-                      notification.is_read
-                        ? "bg-white/40"
-                        : "bg-white/75"
+                      notification.is_read ? "bg-white/40" : "bg-white/75"
                     }`}
-                    onClick={() => handleNotificationClick(notification)}
                   >
-                    {/* Icon */}
+                    {/* Type icon */}
                     <NotificationIcon type={notification.notification_type} />
 
                     {/* Message + time */}
                     <div className="min-w-0 flex-1">
                       <p className={`text-sm leading-snug text-[var(--heading-text)] ${
-                        notification.is_read ? "font-normal" : "font-semibold"
+                        notification.is_read ? "font-normal opacity-70" : "font-semibold"
                       }`}>
                         {notification.message}
                       </p>
@@ -162,40 +172,49 @@ function DashboardBanner({ onVote, isVotingItemId, message }) {
                       </p>
                     </div>
 
-                    {/* Inline vote if item attached */}
-                    {notification.item_id && (
-                      <div className="shrink-0" onClick={(e) => e.stopPropagation()}>
-                        <VoteControls
-                          itemTitle={notification.item_title ?? "item"}
-                          score={notification.item_score ?? 0}
-                          activeVote={notification.item_user_vote ?? null}
-                          isVoting={isVotingItemId === notification.item_id}
-                          onUpvote={() => {
-                            handleNotificationClick(notification);
-                            onVote?.({ id: notification.item_id, title: notification.item_title }, "upvote");
-                          }}
-                          onDownvote={() => {
-                            handleNotificationClick(notification);
-                            onVote?.({ id: notification.item_id, title: notification.item_title }, "downvote");
-                          }}
-                          variant="focus"
-                        />
-                      </div>
+                    {/* View button */}
+                    {getDestination(notification) && (
+                      <button
+                        type="button"
+                        onClick={() => handleView(notification)}
+                        className="inline-flex cursor-pointer items-center gap-1.5 rounded-xl border border-[var(--dividers)] bg-white px-3 py-1.5 text-xs font-semibold text-[var(--primary-cta)] transition hover:bg-[var(--surface-soft)]"
+                      >
+                        View
+                        <ArrowRight size={12} strokeWidth={2.4} />
+                      </button>
                     )}
 
-                    {/* Unread dot */}
-                    {!notification.is_read && (
-                      <span className="h-2 w-2 shrink-0 rounded-full bg-[var(--accent)]" />
-                    )}
+                    {/* Dismiss button */}
+                    <button
+                      type="button"
+                      onClick={(e) => handleDismiss(e, notification)}
+                      className="inline-flex cursor-pointer h-7 w-7 shrink-0 items-center justify-center rounded-full text-[var(--muted-text)] transition hover:bg-black/8 hover:text-[var(--heading-text)]"
+                      aria-label="Dismiss notification"
+                    >
+                      <X size={13} strokeWidth={2.4} />
+                    </button>
                   </motion.div>
                 ))}
 
                 {hasMore && (
                   <p className="pb-1 text-center text-xs font-medium text-white/70">
-                    +{unread.length - MAX_EXPANDED} more — open notifications for all
+                    +{notifications.length - MAX_EXPANDED} more — check the bell icon for all
                   </p>
                 )}
               </div>
+
+              {/* Dismiss all */}
+              {notifications.length > 1 && (
+                <div className="flex justify-end px-4 pb-3">
+                  <button
+                    type="button"
+                    onClick={dismissAll}
+                    className="cursor-pointer text-xs font-medium text-white/60 transition hover:text-white/90"
+                  >
+                    Dismiss all
+                  </button>
+                </div>
+              )}
             </motion.div>
           )}
         </AnimatePresence>

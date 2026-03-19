@@ -236,7 +236,7 @@ function Dashboard({ user }) {
     setConfirmAction({
       type: "delete-list",
       bucketList,
-      title: "Delete this bucket list?",
+      title: "Are you sure?",
       description:
         "This list and everything inside it will vanish into the void. No dramatic comeback. No undo.",
       confirmLabel: "Delete list",

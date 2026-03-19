@@ -1,9 +1,8 @@
 import { useState } from "react";
 import { NavLink, Link, useNavigate } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
-import { Bell, CheckCheck, Plus, Lock, CheckCircle2, Snowflake, Clock } from "lucide-react";
+import { Bell, CheckCheck, Plus, Lock, CheckCircle2, Snowflake, Clock, X } from "lucide-react";
 import { useAuth } from "../../hooks/use-auth";
-import { useNotifications } from "../../hooks/useNotification";
 import RelativeTime from "../UI/RelativeTime";
 
 const TYPE_ICON_MAP = {
@@ -37,6 +36,7 @@ function NavBar() {
     isLoading,
     markAsRead,
     markAllAsRead,
+    dismiss,
   } = useNotifications();
 
   const handleLogout = () => {
@@ -213,6 +213,17 @@ function NavBar() {
                               {!notification.is_read && (
                                 <span className="mt-1.5 h-2 w-2 shrink-0 rounded-full bg-[var(--accent)]" />
                               )}
+                              <button
+                                type="button"
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  dismiss(notification.id);
+                                }}
+                                className="inline-flex h-6 w-6 shrink-0 cursor-pointer items-center justify-center rounded-full text-[var(--muted-text)] transition hover:bg-black/8 hover:text-[var(--heading-text)]"
+                                aria-label="Dismiss notification"
+                              >
+                                <X size={12} strokeWidth={2.4} />
+                              </button>
                             </div>
                           </motion.button>
                         ))

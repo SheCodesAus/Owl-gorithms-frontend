@@ -274,7 +274,7 @@ function DashboardFocusPanel({
                   <button
                     type="button"
                     onClick={handleEdit}
-                    className="flex w-full items-center gap-3 px-4 py-3 text-left text-sm font-medium text-[var(--body-text)] transition hover:bg-black/5"
+                    className="flex w-full cursor-pointer items-center gap-3 px-4 py-3 text-left text-sm font-medium text-[var(--body-text)] transition hover:bg-black/5"
                   >
                     <Pencil size={16} aria-hidden="true" />
                     Edit
@@ -283,16 +283,16 @@ function DashboardFocusPanel({
                   <button
                     type="button"
                     onClick={handleOpenFullPage}
-                    className="flex w-full items-center gap-3 px-4 py-3 text-left text-sm font-medium text-[var(--body-text)] transition hover:bg-black/5"
+                    className="flex w-full cursor-pointer items-center gap-3 px-4 py-3 text-left text-sm font-medium text-[var(--body-text)] transition hover:bg-black/5"
                   >
                     <ExternalLink size={16} aria-hidden="true" />
-                    Open full page
+                    Open
                   </button>
 
                   <button
                     type="button"
                     onClick={handleCopyLink}
-                    className="flex w-full items-center gap-3 px-4 py-3 text-left text-sm font-medium text-[var(--body-text)] transition hover:bg-black/5"
+                    className="flex w-full cursor-pointer items-center gap-3 px-4 py-3 text-left text-sm font-medium text-[var(--body-text)] transition hover:bg-black/5"
                   >
                     <Copy size={16} aria-hidden="true" />
                     Copy link
@@ -303,10 +303,10 @@ function DashboardFocusPanel({
                   <button
                     type="button"
                     onClick={handleDelete}
-                    className="flex w-full items-center gap-3 px-4 py-3 text-left text-sm font-medium text-rose-600 transition hover:bg-rose-50"
+                    className="flex w-full cursor-pointer items-center gap-3 px-4 py-3 text-left text-sm font-medium text-rose-600 transition hover:bg-rose-50"
                   >
                     <Trash2 size={16} aria-hidden="true" />
-                    Delete bucket list
+                    Delete
                   </button>
                 </div>
               ) : null}
