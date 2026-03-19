@@ -207,7 +207,7 @@ function CreateBucketListForm({ user, onSuccess, onClose }) {
 
         <button
           type="submit"
-          className="rounded-2xl cursor-pointer px-5 py-3 font-semibold bg-[linear-gradient(135deg,#15803d_0%,#4ade80_100%)] text-white shadow-[0_14px_36px_rgba(8,38,20,0.35)] transition hover:scale-105 hover:shadow-[0_18px_46px_rgba(8,38,20,0.45)] active:scale-95 focus:outline-none focus:ring-2 focus:ring-green-300/70"
+          className="rounded-2xl primary-gradient-button px-5 py-3 font-semibold"
         >
           SEND IT
         </button>

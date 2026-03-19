@@ -27,3 +27,9 @@
 .error-state-card {
   color: var(--error);
 }
+
+.focus-panel-shell {
+  position: sticky;
+  top: 1rem;
+  align-self: flex-start;
+}

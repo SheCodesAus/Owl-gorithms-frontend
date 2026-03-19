@@ -18,20 +18,92 @@ export default function EditItemModal({
     end_time: "",
   });
 
+  const [hasDate, setHasDate] = useState(false);
+  const [hasTime, setHasTime] = useState(false);
+
   useEffect(() => {
+    const nextStartDate = item?.start_date ?? "";
+    const nextEndDate = item?.end_date ?? "";
+    const nextStartTime = item?.start_time ?? "";
+    const nextEndTime = item?.end_time ?? "";
+
     setFormData({
       title: item?.title ?? "",
       description: item?.description ?? "",
-      start_date: item?.start_date ?? "",
-      end_date: item?.end_date ?? "",
-      start_time: item?.start_time ?? "",
-      end_time: item?.end_time ?? "",
+      start_date: nextStartDate,
+      end_date: nextEndDate,
+      start_time: nextStartTime,
+      end_time: nextEndTime,
     });
+
+    setHasDate(Boolean(nextStartDate || nextEndDate));
+    setHasTime(Boolean(nextStartTime || nextEndTime));
   }, [item, isOpen]);
 
-  const handleChange = (e) => {
-    const { name, value } = e.target;
-    setFormData((prev) => ({ ...prev, [name]: value }));
+  const handleChange = (event) => {
+    const { name, value } = event.target;
+
+    setFormData((prev) => ({
+      ...prev,
+      [name]: value,
+    }));
+  };
+
+  const handleToggleDate = () => {
+    setHasDate((prev) => {
+      const next = !prev;
+
+      if (!next) {
+        setFormData((current) => ({
+          ...current,
+          start_date: "",
+          end_date: "",
+        }));
+      }
+
+      return next;
+    });
+  };
+
+  const handleToggleTime = () => {
+    setHasTime((prev) => {
+      const next = !prev;
+
+      if (!next) {
+        setFormData((current) => ({
+          ...current,
+          start_time: "",
+          end_time: "",
+        }));
+      }
+
+      return next;
+    });
+  };
+
+  const renderFieldError = (field) => {
+    if (!errors?.[field]) return null;
+
+    if (Array.isArray(errors[field])) {
+      return (
+        <p className="mt-1 text-sm text-red-500">{errors[field].join(" ")}</p>
+      );
+    }
+
+    return <p className="mt-1 text-sm text-red-500">{errors[field]}</p>;
+  };
+
+  const handleSubmit = (event) => {
+    event.preventDefault();
+
+    onSave({
+      title: formData.title,
+      description: formData.description,
+      start_date: hasDate ? formData.start_date || null : null,
+      end_date: hasDate ? formData.end_date || null : null,
+      start_time: hasTime ? formData.start_time || null : null,
+      end_time: hasTime ? formData.end_time || null : null,
+    });
   };
 
   return (
@@ -40,24 +112,13 @@ export default function EditItemModal({
       onClose={onClose}
       title="Edit item"
       subtitle="Update the details for this item."
-      maxWidth="max-w-md"
+      maxWidth="max-w-xl"
     >
-      <form
-        className="form-stack"
-        onSubmit={(e) => {
-          e.preventDefault();
-          onSave({
-            title: formData.title,
-            description: formData.description,
-            start_date: formData.start_date || null,
-            end_date: formData.end_date || null,
-            start_time: formData.start_time || null,
-            end_time: formData.end_time || null,
-          });
-        }}
-      >
+      <form className="form-stack" onSubmit={handleSubmit}>
         <div className="form-field">
-          <label className="form-label" htmlFor="edit-item-title">TITLE</label>
+          <label className="form-label" htmlFor="edit-item-title">
+            TITLE
+          </label>
           <input
             id="edit-item-title"
             name="title"
@@ -65,116 +126,155 @@ export default function EditItemModal({
             className="form-input"
             value={formData.title}
             onChange={handleChange}
+            placeholder="Go skydiving"
             required
           />
-          {errors?.title ? <p className="form-error-text">{errors.title}</p> : null}
+          {renderFieldError("title")}
         </div>
 
         <div className="form-field">
-          <label className="form-label" htmlFor="edit-item-description">DESCRIPTION</label>
+          <label className="form-label" htmlFor="edit-item-description">
+            DESCRIPTION
+          </label>
           <textarea
             id="edit-item-description"
             name="description"
             className="form-textarea"
             value={formData.description}
             onChange={handleChange}
+            placeholder="Update the plan, details, or notes..."
             rows={4}
           />
-          {errors?.description ? (
-            <p className="form-error-text">{errors.description}</p>
-          ) : null}
+          {renderFieldError("description")}
         </div>
 
-        {/* Date row */}
-        <div style={{ display: "flex", gap: "12px" }}>
-          <div className="form-field" style={{ flex: 1 }}>
-            <label className="form-label" htmlFor="edit-start-date">FROM</label>
-            <input
-              id="edit-start-date"
-              name="start_date"
-              type="date"
-              className="form-input"
-              value={formData.start_date}
-              onChange={handleChange}
-            />
-            {errors?.start_date ? (
-              <p className="form-error-text">{errors.start_date}</p>
+        <div className="space-y-3">
+          <div className="rounded-[1.4rem] border border-black/10 bg-[var(--surface-soft)]/70 p-4">
+            <label className="flex cursor-pointer items-start gap-3">
+              <input
+                type="checkbox"
+                checked={hasDate}
+                onChange={handleToggleDate}
+                className="mt-1 h-4 w-4 rounded border-black/20 text-[var(--primary-cta)] focus:ring-[var(--primary-cta)]"
+              />
+              <div>
+                <p className="text-sm font-semibold text-[var(--heading-text)]">
+                  Add date
+                </p>
+                <p className="text-sm text-[var(--muted-text)]">
+                  Include a start date and optional end date for this item.
+                </p>
+              </div>
+            </label>
+
+            {hasDate ? (
+              <div className="mt-4 grid gap-4 md:grid-cols-2">
+                <div className="form-field">
+                  <label className="form-label" htmlFor="edit-start-date">
+                    FROM
+                  </label>
+                  <input
+                    id="edit-start-date"
+                    name="start_date"
+                    type="date"
+                    className="form-input"
+                    value={formData.start_date}
+                    onChange={handleChange}
+                  />
+                  {renderFieldError("start_date")}
+                </div>
+
+                <div className="form-field">
+                  <label className="form-label" htmlFor="edit-end-date">
+                    TO
+                  </label>
+                  <input
+                    id="edit-end-date"
+                    name="end_date"
+                    type="date"
+                    className="form-input"
+                    value={formData.end_date}
+                    onChange={handleChange}
+                    min={formData.start_date || undefined}
+                  />
+                  {renderFieldError("end_date")}
+                </div>
+              </div>
             ) : null}
           </div>
 
-          <div className="form-field" style={{ flex: 1 }}>
-            <label className="form-label" htmlFor="edit-end-date">
-              TO{" "}
-              <span style={{ fontWeight: 400, fontSize: "0.8rem", color: "var(--muted-text)" }}>
-                (optional)
-              </span>
+          <div className="rounded-[1.4rem] border border-black/10 bg-[var(--surface-soft)]/70 p-4">
+            <label className="flex cursor-pointer items-start gap-3">
+              <input
+                type="checkbox"
+                checked={hasTime}
+                onChange={handleToggleTime}
+                className="mt-1 h-4 w-4 rounded border-black/20 text-[var(--primary-cta)] focus:ring-[var(--primary-cta)]"
+              />
+              <div>
+                <p className="text-sm font-semibold text-[var(--heading-text)]">
+                  Add time
+                </p>
+                <p className="text-sm text-[var(--muted-text)]">
+                  Include a start time and optional end time for this item.
+                </p>
+              </div>
             </label>
-            <input
-              id="edit-end-date"
-              name="end_date"
-              type="date"
-              className="form-input"
-              value={formData.end_date}
-              onChange={handleChange}
-              min={formData.start_date || undefined}
-            />
-            {errors?.end_date ? (
-              <p className="form-error-text">{errors.end_date}</p>
-            ) : null}
-          </div>
-        </div>
 
-        {/* Time row */}
-        <div style={{ display: "flex", gap: "12px" }}>
-          <div className="form-field" style={{ flex: 1 }}>
-            <label className="form-label" htmlFor="edit-start-time">
-              START TIME{" "}
-              <span style={{ fontWeight: 400, fontSize: "0.8rem", color: "var(--muted-text)" }}>
-                (optional)
-              </span>
-            </label>
-            <input
-              id="edit-start-time"
-              name="start_time"
-              type="time"
-              className="form-input"
-              value={formData.start_time}
-              onChange={handleChange}
-            />
-            {errors?.start_time ? (
-              <p className="form-error-text">{errors.start_time}</p>
-            ) : null}
-          </div>
+            {hasTime ? (
+              <div className="mt-4 grid gap-4 md:grid-cols-2">
+                <div className="form-field">
+                  <label className="form-label" htmlFor="edit-start-time">
+                    START TIME
+                  </label>
+                  <input
+                    id="edit-start-time"
+                    name="start_time"
+                    type="time"
+                    className="form-input"
+                    value={formData.start_time}
+                    onChange={handleChange}
+                  />
+                  {renderFieldError("start_time")}
+                </div>
 
-          <div className="form-field" style={{ flex: 1 }}>
-            <label className="form-label" htmlFor="edit-end-time">
-              END TIME{" "}
-              <span style={{ fontWeight: 400, fontSize: "0.8rem", color: "var(--muted-text)" }}>
-                (optional)
-              </span>
-            </label>
-            <input
-              id="edit-end-time"
-              name="end_time"
-              type="time"
-              className="form-input"
-              value={formData.end_time}
-              onChange={handleChange}
-            />
-            {errors?.end_time ? (
-              <p className="form-error-text">{errors.end_time}</p>
+                <div className="form-field">
+                  <label className="form-label" htmlFor="edit-end-time">
+                    END TIME
+                  </label>
+                  <input
+                    id="edit-end-time"
+                    name="end_time"
+                    type="time"
+                    className="form-input"
+                    value={formData.end_time}
+                    onChange={handleChange}
+                  />
+                  {renderFieldError("end_time")}
+                </div>
+              </div>
             ) : null}
           </div>
         </div>
 
         {errors?.non_field_errors ? (
-          <p className="form-error-text text-center">{errors.non_field_errors}</p>
+          <p className="text-center text-sm text-red-500">
+            {Array.isArray(errors.non_field_errors)
+              ? errors.non_field_errors.join(" ")
+              : errors.non_field_errors}
+          </p>
         ) : null}
 
         <div className="form-actions">
-          <button type="button" onClick={onClose} className="secondary-modal-button">
+          <button
+            type="button"
+            onClick={onClose}
+            className="secondary-modal-button"
+            disabled={isSaving}
+          >
             Cancel
           </button>
+
           <button
             type="submit"
             disabled={isSaving}

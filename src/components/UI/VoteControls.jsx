@@ -26,7 +26,7 @@ function VoteControls({
           className={`inline-flex h-11 min-w-[3.2rem] cursor-pointer items-center justify-center rounded-[1rem] px-3 transition duration-200 disabled:cursor-not-allowed disabled:opacity-50 ${
             activeVote === "upvote"
               ? "coral-bg text-white shadow-[0_10px_22px_rgba(107,78,170,0.28)]"
-              : "bg-[var(--surface-soft)] text-[var(--heading-text)] hover:-translate-y-[1px] hover:bg-white hover:text-[var(--primary-cta)]"
+              : "bg-[var(--surface-soft)] text-[var(--heading-text)] hover:-translate-y-[1px] hover:bg-[#ff9966]/40 hover:text-[var(--primary-cta)]"
           }`}
           aria-label={
             activeVote === "upvote"
@@ -72,7 +72,7 @@ function VoteControls({
           className={`inline-flex h-11 min-w-[3.2rem] cursor-pointer items-center justify-center rounded-[1rem] px-3 transition duration-200 disabled:cursor-not-allowed disabled:opacity-50 ${
             activeVote === "downvote"
               ? "coral-bg text-white shadow-[0_10px_22px_rgba(255,90,95,0.24)]"
-              : "bg-[var(--surface-soft)] text-[var(--heading-text)] hover:-translate-y-[1px] hover:bg-white hover:text-[var(--accent)]"
+              : "bg-[var(--surface-soft)] text-[var(--heading-text)] hover:-translate-y-[1px] hover:bg-[#ff9966]/40 hover:text-[var(--accent)]"
           }`}
           aria-label={
             activeVote === "downvote"
@@ -98,13 +98,13 @@ function VoteControls({
 
   const upvoteClasses =
     activeVote === "upvote"
-      ? "coral-bg text-[var(--primary-cta)]"
-      : "text-[var(--heading-text)] hover:bg-[var(--surface-soft)]";
+      ? "coral-bg text-white"
+      : "text-[var(--heading-text)] hover:bg-[#ff9966]";
 
   const downvoteClasses =
     activeVote === "downvote"
-      ? "coral-bg text-[var(--primary-cta)]"
-      : "text-[var(--heading-text)] hover:bg-[var(--surface-soft)]";
+      ? "coral-bg text-white"
+      : "text-[var(--heading-text)] hover:bg-[#ff9966]";
 
   const iconSize = isCompact ? 16 : 18;
 
