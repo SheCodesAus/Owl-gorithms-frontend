@@ -1,10 +1,9 @@
 import { MapPin, Search, Sparkles, Globe, Loader2, ExternalLink, Utensils, Landmark } from "lucide-react";
 import { useState, useEffect } from "react";
-import { MapContainer, TileLayer, Marker, Popup, useMap } from "react-leaflet";
+import { MapContainer, TileLayer, Marker, useMap } from "react-leaflet";
 import "leaflet/dist/leaflet.css";
 import L from "leaflet";
 
-// --- Leaflet Icon Fix (Required for React) ---
 import icon from "leaflet/dist/images/marker-icon.png";
 import iconShadow from "leaflet/dist/images/marker-shadow.png";
 let DefaultIcon = L.icon({
@@ -15,12 +14,14 @@ let DefaultIcon = L.icon({
 });
 L.Marker.prototype.options.icon = DefaultIcon;
 
-// Helper component to move the map
-function RecenterMap({ coords }) {
+function RecenterMap({ coords, activeTab, isCountry }) {
   const map = useMap();
   useEffect(() => {
-    if (coords) map.setView(coords, 14);
-  }, [coords, map]);
+    if (coords) {
+      const zoomLevel = isCountry ? 6 : (activeTab === "food" ? 15 : 12);
+      map.setView(coords, zoomLevel);
+    }
+  }, [coords, map, activeTab, isCountry]);
   return null;
 }
 
@@ -29,46 +30,55 @@ export default function ExtendedItemCard({ itemTitle }) {
   const [searchQuery, setSearchQuery] = useState(itemTitle || "");
   const [results, setResults] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
-  const [mapCoords, setMapCoords] = useState([51.505, -0.09]);
+  const [mapCoords, setMapCoords] = useState([0, 0]); 
+  const [isCountry, setIsCountry] = useState(false);
 
   const handleSearch = async () => {
     if (!searchQuery.trim()) return;
     setIsLoading(true);
 
     try {
-      // 1. Geocode the current searchQuery to get coordinates
-      const geoUrl = `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(searchQuery)}&limit=1`;
+      const geoUrl = `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(searchQuery)}&limit=1&addressdetails=1`;
       const geoRes = await fetch(geoUrl);
       const geoData = await geoRes.json();
 
       if (geoData.length > 0) {
         const lat = parseFloat(geoData[0].lat);
         const lon = parseFloat(geoData[0].lon);
+        const isCountryResult = geoData[0].type === "administrative" || geoData[0].addresstype === "country";
+        
+        setIsCountry(isCountryResult);
         setMapCoords([lat, lon]);
 
         if (activeTab === "food") {
-          // 2a. FOOD: Use Overpass API for real local businesses
-          const overpassQuery = `[out:json];node["amenity"~"restaurant|cafe|fast_food|pub"](around:2000,${lat},${lon});out 15;`;
+          const radius = isCountryResult ? 50000 : 3000;
+          const overpassQuery = `[out:json];node["amenity"~"restaurant|cafe"](around:${radius},${lat},${lon});out 25;`;
           const overpassRes = await fetch(`https://overpass-api.de/api/interpreter?data=${encodeURIComponent(overpassQuery)}`);
           const overpassData = await overpassRes.json();
 
-          const formattedFood = overpassData.elements
+          const formattedFood = (overpassData.elements || [])
             .filter(el => el.tags && el.tags.name)
             .map(el => ({
               title: el.tags.name,
-              desc: `${el.tags.cuisine ? el.tags.cuisine.charAt(0).toUpperCase() + el.tags.cuisine.slice(1) : "Local"} ${el.tags.amenity.replace('_', ' ')}`,
+              desc: `${el.tags.cuisine ? el.tags.cuisine.charAt(0).toUpperCase() + el.tags.cuisine.slice(1) : "Local"} ${el.tags.amenity}`,
               link: `https://www.google.com/search?q=${encodeURIComponent(el.tags.name + " " + searchQuery)}`
             }));
           setResults(formattedFood);
 
         } else {
-          // 2b. ATTRACTIONS: Use Wikipedia Geosearch for landmarks
-          const wikiGeoUrl = `https://en.wikipedia.org/w/api.php?action=query&list=geosearch&gscoord=${lat}|${lon}&gsradius=10000&gslimit=12&format=json&origin=*`;
+          const wikiGeoUrl = `https://en.wikipedia.org/w/api.php?action=query&list=geosearch&gscoord=${lat}|${lon}&gsradius=10000&gslimit=20&format=json&origin=*`;
           const wikiGeoRes = await fetch(wikiGeoUrl);
           const wikiGeoData = await wikiGeoRes.json();
+          let places = wikiGeoData.query?.geosearch || [];
 
-          if (wikiGeoData.query?.geosearch) {
-            const places = wikiGeoData.query.geosearch;
+          if (places.length < 5) {
+            const wikiSearchUrl = `https://en.wikipedia.org/w/api.php?action=query&list=search&srsearch=${encodeURIComponent(searchQuery + " world heritage")}&srlimit=15&format=json&origin=*`;
+            const wikiSearchRes = await fetch(wikiSearchUrl);
+            const wikiSearchData = await wikiSearchRes.json();
+            places = (wikiSearchData.query?.search || []).map(p => ({ pageid: p.pageid, title: p.title }));
+          }
+
+          if (places.length > 0) {
             const pageIds = places.map(p => p.pageid).join('|');
             const detailsUrl = `https://en.wikipedia.org/w/api.php?action=query&prop=extracts&exintro&explaintext&exsentences=2&pageids=${pageIds}&format=json&origin=*`;
             const detailsRes = await fetch(detailsUrl);
@@ -76,10 +86,12 @@ export default function ExtendedItemCard({ itemTitle }) {
 
             const formattedWiki = places.map(place => ({
               title: place.title,
-              desc: detailsData.query.pages[place.pageid]?.extract || "Landmark or historic site.",
+              desc: detailsData.query.pages[place.pageid]?.extract || "Tourist attraction.",
               link: `https://en.wikipedia.org/?curid=${place.pageid}`,
             }));
             setResults(formattedWiki);
+          } else {
+            setResults([]);
           }
         }
       }
@@ -91,18 +103,12 @@ export default function ExtendedItemCard({ itemTitle }) {
     }
   };
 
-  // Sync searchQuery with itemTitle ONLY when itemTitle changes (initial load or new item selected)
   useEffect(() => {
-    if (itemTitle) {
-      setSearchQuery(itemTitle);
-    }
+    if (itemTitle) setSearchQuery(itemTitle);
   }, [itemTitle]);
 
-  // Trigger search when Tab changes, but use the current state of searchQuery
   useEffect(() => {
-    if (searchQuery) {
-      handleSearch();
-    }
+    if (searchQuery) handleSearch();
   }, [activeTab]);
 
   return (
@@ -110,7 +116,6 @@ export default function ExtendedItemCard({ itemTitle }) {
       <div className="extended-item-card-header">
         <div className="extended-item-card-title-wrap">
           <p className="extended-item-card-eyebrow">Explore Idea</p>
-          <h2 className="extended-item-card-title">{itemTitle}</h2>
         </div>
         <div className="extended-item-card-icon-shell"><Globe size={18} /></div>
       </div>
@@ -119,7 +124,6 @@ export default function ExtendedItemCard({ itemTitle }) {
 
       <div className="extended-item-card-body">
         <div className="form-field">
-          {/* Search Row */}
           <div className="extended-item-search-row" style={{ display: 'flex', gap: '12px', marginBottom: '16px' }}>
             <div style={{ position: 'relative', flex: 1 }}>
               <Search 
@@ -144,23 +148,16 @@ export default function ExtendedItemCard({ itemTitle }) {
             </button>
           </div>
 
-          {/* Tab Selection Row */}
           <div className="flex gap-3 mb-2">
             <button
               onClick={() => setActiveTab("attractions")}
-              className={activeTab === "attractions" 
-                ? "primary-gradient-button rounded-2xl px-5 py-2 text-sm font-semibold flex items-center gap-2" 
-                : "secondary-modal-button rounded-2xl px-5 py-2 text-sm font-semibold flex items-center gap-2"
-              }
+              className={activeTab === "attractions" ? "primary-gradient-button rounded-2xl px-5 py-2 text-sm font-semibold flex items-center gap-2" : "secondary-modal-button rounded-2xl px-5 py-2 text-sm font-semibold flex items-center gap-2"}
             >
               <Landmark size={16} /> Attractions
             </button>
             <button
               onClick={() => setActiveTab("food")}
-              className={activeTab === "food" 
-                ? "primary-gradient-button rounded-2xl px-5 py-2 text-sm font-semibold flex items-center gap-2" 
-                : "secondary-modal-button rounded-2xl px-5 py-2 text-sm font-semibold flex items-center gap-2"
-              }
+              className={activeTab === "food" ? "primary-gradient-button rounded-2xl px-5 py-2 text-sm font-semibold flex items-center gap-2" : "secondary-modal-button rounded-2xl px-5 py-2 text-sm font-semibold flex items-center gap-2"}
             >
               <Utensils size={16} /> Food
             </button>
@@ -168,10 +165,9 @@ export default function ExtendedItemCard({ itemTitle }) {
         </div>
 
         <div className="extended-item-placeholder-grid">
-          {/* Results Column */}
           <div className="extended-item-placeholder-panel">
             <div className="extended-item-placeholder-heading">
-              <Sparkles size={14} /> <span>{activeTab === "food" ? "Local Restaurants" : "Nearby Landmarks"}</span>
+              <Sparkles size={14} /> <span>{activeTab === "food" ? "Restaurants" : "Landmarks"}</span>
             </div>
 
             <div className="extended-item-placeholder-list" style={{ maxHeight: '420px', overflowY: 'auto' }}>
@@ -191,25 +187,22 @@ export default function ExtendedItemCard({ itemTitle }) {
                   </div>
                 ))
               ) : (
-                <div className="p-8 text-center">
-                  <p className="text-sm text-gray-400">
-                    {isLoading ? "Fetching data..." : `No ${activeTab} found for this location.`}
-                  </p>
+                <div className="p-8 text-center text-gray-400">
+                  {isLoading ? <Loader2 size={24} className="animate-spin mx-auto mb-2" /> : "No results found."}
                 </div>
               )}
             </div>
           </div>
 
-          {/* Map Column */}
           <div className="extended-item-placeholder-panel">
             <div className="extended-item-placeholder-heading">
-              <MapPin size={14} /> <span>Location Preview</span>
+              <MapPin size={14} /> <span>{isCountry ? "Map" : "Location"}</span>
             </div>
             <div style={{ height: '420px', width: '100%', borderRadius: '1.5rem', overflow: 'hidden', border: '1px solid rgba(0,0,0,0.08)' }}>
-              <MapContainer center={mapCoords} zoom={14} style={{ height: "100%", width: "100%" }}>
+              <MapContainer center={mapCoords} zoom={isCountry ? 6 : 12} style={{ height: "100%", width: "100%" }}>
                 <TileLayer url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" />
                 <Marker position={mapCoords} />
-                <RecenterMap coords={mapCoords} />
+                <RecenterMap coords={mapCoords} activeTab={activeTab} isCountry={isCountry} />
               </MapContainer>
             </div>
           </div>
