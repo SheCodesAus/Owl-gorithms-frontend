@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import { motion } from "framer-motion";
 import { useNavigate } from "react-router-dom";
+import { useAuth } from "../../hooks/use-auth";
 import {
   Lock,
   Globe,
@@ -102,6 +103,13 @@ function DashboardFocusPanel({
   onClose,
   isMobileOverlay = false,
 }) {
+  const { auth } = useAuth();
+  const user = auth?.user;
+  const isOwner =
+    bucketList?.owner?.id && user?.id
+      ? Number(bucketList.owner.id) == Number(user.id)
+      : false;
+
   const navigate = useNavigate();
 
   const [showOptionsMenu, setShowOptionsMenu] = useState(false);
@@ -273,15 +281,6 @@ function DashboardFocusPanel({
                 <div className="absolute right-0 top-12 z-30 w-56 overflow-hidden rounded-2xl border border-black/10 bg-white/95 shadow-[0_18px_50px_rgba(0,0,0,0.16)] backdrop-blur-xl">
                   <button
                     type="button"
-                    onClick={handleEdit}
-                    className="flex w-full cursor-pointer items-center gap-3 px-4 py-3 text-left text-sm font-medium text-[var(--body-text)] transition hover:bg-black/5"
-                  >
-                    <Pencil size={16} aria-hidden="true" />
-                    Edit
-                  </button>
-
-                  <button
-                    type="button"
                     onClick={handleOpenFullPage}
                     className="flex w-full cursor-pointer items-center gap-3 px-4 py-3 text-left text-sm font-medium text-[var(--body-text)] transition hover:bg-black/5"
                   >
@@ -298,16 +297,29 @@ function DashboardFocusPanel({
                     Copy link
                   </button>
 
-                  <div className="mx-3 h-px bg-black/8" />
+                  {isOwner ? (
+                    <>
+                      <button
+                        type="button"
+                        onClick={handleEdit}
+                        className="flex w-full cursor-pointer items-center gap-3 px-4 py-3 text-left text-sm font-medium text-[var(--body-text)] transition hover:bg-black/5"
+                      >
+                        <Pencil size={16} aria-hidden="true" />
+                        Edit
+                      </button>
 
-                  <button
-                    type="button"
-                    onClick={handleDelete}
-                    className="flex w-full cursor-pointer items-center gap-3 px-4 py-3 text-left text-sm font-medium text-rose-600 transition hover:bg-rose-50"
-                  >
-                    <Trash2 size={16} aria-hidden="true" />
-                    Delete
-                  </button>
+                      <div className="mx-3 h-px bg-black/8" />
+
+                      <button
+                        type="button"
+                        onClick={handleDelete}
+                        className="flex w-full cursor-pointer items-center gap-3 px-4 py-3 text-left text-sm font-medium text-rose-600 transition hover:bg-rose-50"
+                      >
+                        <Trash2 size={16} aria-hidden="true" />
+                        Delete
+                      </button>
+                    </>
+                  ) : null}
                 </div>
               ) : null}
             </div>
@@ -319,7 +331,8 @@ function DashboardFocusPanel({
             </h2>
 
             <p className="max-w-2xl text-sm leading-relaxed text-black/70 sm:text-base">
-              {bucketList.description || "No description yet for this bucket list."}
+              {bucketList.description ||
+                "No description yet for this bucket list."}
             </p>
           </div>
 
@@ -408,7 +421,9 @@ function DashboardFocusPanel({
                 <p>{completionPercent}% complete</p>
                 <p className="inline-flex items-center gap-1.5">
                   <CalendarDays size={12} aria-hidden="true" />
-                  {formattedDeadline ? `Deadline: ${formattedDeadline}` : "No deadline set"}
+                  {formattedDeadline
+                    ? `Deadline: ${formattedDeadline}`
+                    : "No deadline set"}
                 </p>
               </div>
             </div>
@@ -459,7 +474,8 @@ function DashboardFocusPanel({
 
                               <div className="mt-1.5 flex flex-wrap items-center gap-x-3 gap-y-1">
                                 <p className="text-xs font-medium text-[var(--heading-text)]">
-                                  {item.creator?.display_name || "Unknown member"}
+                                  {item.creator?.display_name ||
+                                    "Unknown member"}
                                 </p>
                                 <p className="text-xs text-black/40">
                                   <RelativeTime timestamp={item.updated_at} />
@@ -469,9 +485,14 @@ function DashboardFocusPanel({
                                     {item.start_time || item.end_time ? (
                                       <Clock3 size={13} aria-hidden="true" />
                                     ) : (
-                                      <CalendarDays size={13} aria-hidden="true" />
+                                      <CalendarDays
+                                        size={13}
+                                        aria-hidden="true"
+                                      />
                                     )}
-                                    <span className="truncate">{scheduleText}</span>
+                                    <span className="truncate">
+                                      {scheduleText}
+                                    </span>
                                   </div>
                                 ) : null}
                               </div>
