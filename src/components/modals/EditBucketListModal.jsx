@@ -125,7 +125,7 @@ export default function EditBucketListModal({
       title: formData.title,
       description: formData.description,
       is_public: formData.is_public,
-      decision_deadline: hasDeadline
+      decision_deadline_input: hasDeadline
         ? formData.decision_deadline || null
         : null,
       start_date: hasDate ? formData.start_date || null : null,
@@ -230,7 +230,7 @@ export default function EditBucketListModal({
                   <input
                     id="edit-bucketlist-decision-deadline"
                     name="decision_deadline"
-                    type="datetime-local"
+                    type="date"
                     className="form-input"
                     value={formData.decision_deadline}
                     onChange={handleChange}

@@ -91,8 +91,8 @@ function CreateBucketListForm({ user, onSuccess, onClose }) {
       description: formData.description,
       is_public: formData.is_public,
       allow_viewer_voting: formData.allow_viewer_voting,
-      decision_deadline: hasDeadline
-        ? formatDateTimeForBackend(formData.decision_deadline)
+      decision_deadline_input: hasDeadline
+        ? formData.decision_deadline || null
         : null,
       start_date: hasDate ? formData.start_date || null : null,
       end_date: hasDate ? formData.end_date || null : null,
@@ -227,7 +227,7 @@ function CreateBucketListForm({ user, onSuccess, onClose }) {
                 </label>
                 <input
                   id="decision_deadline"
-                  type="datetime-local"
+                  type="date"
                   name="decision_deadline"
                   value={formData.decision_deadline}
                   onChange={handleChange}
