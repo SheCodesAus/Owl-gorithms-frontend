@@ -1,5 +1,5 @@
 import { MapPin, Search, Sparkles, Globe, Loader2, ExternalLink, Utensils, Landmark } from "lucide-react";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { MapContainer, TileLayer, Marker, useMap } from "react-leaflet";
 import "leaflet/dist/leaflet.css";
 import L from "leaflet";
@@ -17,7 +17,7 @@ L.Marker.prototype.options.icon = DefaultIcon;
 function RecenterMap({ coords, activeTab, isCountry }) {
   const map = useMap();
   useEffect(() => {
-    if (coords) {
+    if (coords && coords[0] !== 0) {
       const zoomLevel = isCountry ? 6 : (activeTab === "food" ? 15 : 12);
       map.setView(coords, zoomLevel);
     }
@@ -32,14 +32,24 @@ export default function ExtendedItemCard({ itemTitle }) {
   const [isLoading, setIsLoading] = useState(false);
   const [mapCoords, setMapCoords] = useState([0, 0]); 
   const [isCountry, setIsCountry] = useState(false);
+  
+  const clickTimer = useRef(null);
+  const abortControllerRef = useRef(null);
 
   const handleSearch = async () => {
     if (!searchQuery.trim()) return;
+    
+    if (abortControllerRef.current) {
+      abortControllerRef.current.abort();
+    }
+    abortControllerRef.current = new AbortController();
+
     setIsLoading(true);
+    setResults([]); 
 
     try {
       const geoUrl = `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(searchQuery)}&limit=1&addressdetails=1`;
-      const geoRes = await fetch(geoUrl);
+      const geoRes = await fetch(geoUrl, { signal: abortControllerRef.current.signal });
       const geoData = await geoRes.json();
 
       if (geoData.length > 0) {
@@ -53,7 +63,7 @@ export default function ExtendedItemCard({ itemTitle }) {
         if (activeTab === "food") {
           const radius = isCountryResult ? 50000 : 3000;
           const overpassQuery = `[out:json];node["amenity"~"restaurant|cafe"](around:${radius},${lat},${lon});out 25;`;
-          const overpassRes = await fetch(`https://overpass-api.de/api/interpreter?data=${encodeURIComponent(overpassQuery)}`);
+          const overpassRes = await fetch(`https://overpass-api.de/api/interpreter?data=${encodeURIComponent(overpassQuery)}`, { signal: abortControllerRef.current.signal });
           const overpassData = await overpassRes.json();
 
           const formattedFood = (overpassData.elements || [])
@@ -61,34 +71,41 @@ export default function ExtendedItemCard({ itemTitle }) {
             .map(el => ({
               title: el.tags.name,
               desc: `${el.tags.cuisine ? el.tags.cuisine.charAt(0).toUpperCase() + el.tags.cuisine.slice(1) : "Local"} ${el.tags.amenity}`,
-              link: `https://www.google.com/search?q=${encodeURIComponent(el.tags.name + " " + searchQuery)}`
+              link: `https://www.google.com/search?q=${encodeURIComponent(el.tags.name + " " + searchQuery)}`,
+              lat: el.lat,
+              lon: el.lon
             }));
           setResults(formattedFood);
 
         } else {
           const wikiGeoUrl = `https://en.wikipedia.org/w/api.php?action=query&list=geosearch&gscoord=${lat}|${lon}&gsradius=10000&gslimit=20&format=json&origin=*`;
-          const wikiGeoRes = await fetch(wikiGeoUrl);
+          const wikiGeoRes = await fetch(wikiGeoUrl, { signal: abortControllerRef.current.signal });
           const wikiGeoData = await wikiGeoRes.json();
           let places = wikiGeoData.query?.geosearch || [];
 
           if (places.length < 5) {
             const wikiSearchUrl = `https://en.wikipedia.org/w/api.php?action=query&list=search&srsearch=${encodeURIComponent(searchQuery + " world heritage")}&srlimit=15&format=json&origin=*`;
-            const wikiSearchRes = await fetch(wikiSearchUrl);
+            const wikiSearchRes = await fetch(wikiSearchUrl, { signal: abortControllerRef.current.signal });
             const wikiSearchData = await wikiSearchRes.json();
             places = (wikiSearchData.query?.search || []).map(p => ({ pageid: p.pageid, title: p.title }));
           }
 
           if (places.length > 0) {
             const pageIds = places.map(p => p.pageid).join('|');
-            const detailsUrl = `https://en.wikipedia.org/w/api.php?action=query&prop=extracts&exintro&explaintext&exsentences=2&pageids=${pageIds}&format=json&origin=*`;
-            const detailsRes = await fetch(detailsUrl);
+            const detailsUrl = `https://en.wikipedia.org/w/api.php?action=query&prop=coordinates|extracts&exintro&explaintext&exsentences=2&pageids=${pageIds}&format=json&origin=*`;
+            const detailsRes = await fetch(detailsUrl, { signal: abortControllerRef.current.signal });
             const detailsData = await detailsRes.json();
 
-            const formattedWiki = places.map(place => ({
-              title: place.title,
-              desc: detailsData.query.pages[place.pageid]?.extract || "Tourist attraction.",
-              link: `https://en.wikipedia.org/?curid=${place.pageid}`,
-            }));
+            const formattedWiki = places.map(place => {
+              const page = detailsData.query.pages[place.pageid];
+              return {
+                title: place.title,
+                desc: page?.extract || "Tourist attraction.",
+                link: `https://en.wikipedia.org/?curid=${place.pageid}`,
+                lat: page?.coordinates?.[0]?.lat || null,
+                lon: page?.coordinates?.[0]?.lon || null
+              };
+            });
             setResults(formattedWiki);
           } else {
             setResults([]);
@@ -96,15 +113,36 @@ export default function ExtendedItemCard({ itemTitle }) {
         }
       }
     } catch (error) {
-      console.error("Search error:", error);
-      setResults([]);
+      if (error.name !== 'AbortError') {
+        console.error("Search error:", error);
+        setResults([]);
+      }
     } finally {
       setIsLoading(false);
     }
   };
 
+  const handleResultClick = (item) => {
+    if (clickTimer.current) {
+      clearTimeout(clickTimer.current);
+      clickTimer.current = null;
+      window.open(item.link, '_blank');
+    } else {
+      clickTimer.current = setTimeout(() => {
+        if (item.lat && item.lon) {
+          setIsCountry(false);
+          setMapCoords([item.lat, item.lon]);
+        }
+        clickTimer.current = null;
+      }, 300);
+    }
+  };
+
   useEffect(() => {
-    if (itemTitle) setSearchQuery(itemTitle);
+    if (itemTitle) {
+      setSearchQuery(itemTitle);
+      handleSearch();
+    }
   }, [itemTitle]);
 
   useEffect(() => {
@@ -175,8 +213,8 @@ export default function ExtendedItemCard({ itemTitle }) {
                 results.map((item, i) => (
                   <div 
                     key={i} 
-                    className="extended-item-placeholder-card hover:bg-slate-50 transition-colors"
-                    onClick={() => window.open(item.link, '_blank')}
+                    className="extended-item-placeholder-card hover:bg-slate-50 transition-all active:scale-[0.98] select-none"
+                    onClick={() => handleResultClick(item)}
                     style={{ cursor: 'pointer', marginBottom: '12px', padding: '12px', borderRadius: '12px', border: '1px solid #e2e8f0' }}
                   >
                     <div className="flex justify-between items-start">
@@ -196,7 +234,7 @@ export default function ExtendedItemCard({ itemTitle }) {
 
           <div className="extended-item-placeholder-panel">
             <div className="extended-item-placeholder-heading">
-              <MapPin size={14} /> <span>{isCountry ? "Map" : "Location"}</span>
+              <MapPin size={14} /> <span>{isCountry ? "Map" : "Map"}</span>
             </div>
             <div style={{ height: '420px', width: '100%', borderRadius: '1.5rem', overflow: 'hidden', border: '1px solid rgba(0,0,0,0.08)' }}>
               <MapContainer center={mapCoords} zoom={isCountry ? 6 : 12} style={{ height: "100%", width: "100%" }}>
