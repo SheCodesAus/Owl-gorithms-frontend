@@ -1,6 +1,6 @@
 import { Link } from "react-router";
 //import { useAuth } from "./context/AuthContext";
-import "./homepage.css";
+import "../styles/homepage.css";
 
 // SVG icons 
 import iconCreateList from "../assets/icon-create-list.svg?url";
