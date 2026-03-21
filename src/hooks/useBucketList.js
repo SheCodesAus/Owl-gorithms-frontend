@@ -4,6 +4,7 @@ import {
     getBucketList,
     updateBucketList,
     deleteBucketList,
+    toggleFreezeList,
 } from "../api/bucketlists";
 
 export function useBucketList(bucketListId) {
@@ -58,6 +59,15 @@ export function useBucketList(bucketListId) {
         return true;
     };
 
+    const freezeBucketList = async (isFrozen) => {
+        if (!token) throw new Error("User not logged in");
+        if (!bucketListId) throw new Error("Bucket list not found");
+
+        const updated = await toggleFreezeList(bucketListId, isFrozen, token);
+        setBucketList(updated);
+        return updated;
+    };
+
     return {
         bucketList,
         isLoading,
@@ -65,5 +75,6 @@ export function useBucketList(bucketListId) {
         loadBucketList,
         editBucketList,
         removeBucketList,
+        freezeBucketList,
     };
 }
