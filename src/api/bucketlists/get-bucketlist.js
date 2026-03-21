@@ -1,11 +1,16 @@
-async function getBucketList(bucketListId, token) {
+async function getBucketList(bucketListId, token = null) {
     const url = `${import.meta.env.VITE_API_URL}/bucketlists/${bucketListId}/`;
+
+    const headers = {};
+
+    // Only send Authorization header if a token exists
+    if (token) {
+        headers["Authorization"] = `Bearer ${token}`;
+    }
 
     const response = await fetch(url, {
         method: "GET",
-        headers: {
-            "Authorization": `Bearer ${token}`,
-        },
+        headers,
     });
 
     if (!response.ok) {

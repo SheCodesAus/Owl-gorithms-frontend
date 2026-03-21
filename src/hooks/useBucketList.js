@@ -8,14 +8,15 @@ import {
 
 export function useBucketList(bucketListId) {
     const { auth } = useAuth();
-    const token = auth?.access;
+    const token = auth?.access ?? null;
 
     const [bucketList, setBucketList] = useState(null);
     const [isLoading, setIsLoading] = useState(false);
     const [bucketListError, setBucketListError] = useState("");
 
     const loadBucketList = useCallback(async () => {
-        if (!token || !bucketListId) return;
+        // bucketListId is required — token is optional (public lists don't need it)
+        if (!bucketListId) return;
 
         setIsLoading(true);
         setBucketListError("");
@@ -45,7 +46,6 @@ export function useBucketList(bucketListId) {
         );
 
         setBucketList(updatedBucketList);
-
         return updatedBucketList;
     };
 
@@ -55,7 +55,6 @@ export function useBucketList(bucketListId) {
 
         await deleteBucketList(bucketListId, token);
         setBucketList(null);
-
         return true;
     };
 
