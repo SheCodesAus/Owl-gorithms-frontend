@@ -4,18 +4,19 @@ import {
     getBucketList,
     updateBucketList,
     deleteBucketList,
+    toggleFreezeList,
 } from "../api/bucketlists";
 
 export function useBucketList(bucketListId) {
     const { auth } = useAuth();
-    const token = auth?.access;
+    const token = auth?.access ?? null;
 
     const [bucketList, setBucketList] = useState(null);
     const [isLoading, setIsLoading] = useState(false);
     const [bucketListError, setBucketListError] = useState("");
 
     const loadBucketList = useCallback(async () => {
-        if (!token || !bucketListId) return;
+        if (!bucketListId) return;
 
         setIsLoading(true);
         setBucketListError("");
@@ -45,7 +46,6 @@ export function useBucketList(bucketListId) {
         );
 
         setBucketList(updatedBucketList);
-
         return updatedBucketList;
     };
 
@@ -55,8 +55,16 @@ export function useBucketList(bucketListId) {
 
         await deleteBucketList(bucketListId, token);
         setBucketList(null);
-
         return true;
+    };
+
+    const freezeBucketList = async (isFrozen) => {
+        if (!token) throw new Error("User not logged in");
+        if (!bucketListId) throw new Error("Bucket list not found");
+
+        const updated = await toggleFreezeList(bucketListId, isFrozen, token);
+        setBucketList(updated);
+        return updated;
     };
 
     return {
@@ -66,5 +74,6 @@ export function useBucketList(bucketListId) {
         loadBucketList,
         editBucketList,
         removeBucketList,
+        freezeBucketList,
     };
 }
