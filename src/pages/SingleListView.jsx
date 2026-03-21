@@ -321,16 +321,11 @@ export default function SingleListView() {
           {/* ── Desktop layout ─────────────────────────────────────────────── */}
           {!isMobile && (
             <div className="flex items-stretch gap-5">
-              {/* Left column — scrolls if taller than the item panel */}
+              {/* Left column — stretches to match right panel height */}
               <motion.div
                 className="flex flex-col gap-5 min-w-0"
                 animate={{ width: panelOpen ? "45%" : "100%" }}
                 transition={{ duration: 0.4, ease: [0.4, 0, 0.2, 1] }}
-                style={panelOpen ? {
-                  overflowY: "auto",
-                  scrollbarWidth: "thin",
-                  scrollbarColor: "rgba(107,78,170,0.22) transparent",
-                } : {}}
               >
                 <BucketListHeader
                   bucketList={bucketList}
@@ -356,7 +351,7 @@ export default function SingleListView() {
                 />
               </motion.div>
 
-              {/* Right column — full natural height, scrolls to top on item change */}
+              {/* Right column — natural height, panel scrolls internally */}
               <AnimatePresence>
                 {panelOpen && (
                   <motion.div
@@ -442,7 +437,7 @@ export default function SingleListView() {
             />
             <motion.div
               key="focus-panel-mobile"
-              className="fixed inset-0 z-50 overflow-y-auto"
+              className="fixed inset-y-4 left-4 right-4 z-50 overflow-y-auto sm:inset-y-6 sm:left-6 sm:right-6 lg:inset-y-8 lg:left-8 lg:right-8"
               initial={{ x: "100%" }}
               animate={{ x: 0 }}
               exit={{ x: "100%" }}

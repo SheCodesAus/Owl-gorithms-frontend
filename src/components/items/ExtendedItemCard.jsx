@@ -488,7 +488,15 @@ export default function ExtendedItemCard({ itemTitle, isMobileOverlay = false })
               )}
 
               {!isLoadingPlaces && places.length > 0 && (
-                <div className="extended-item-placeholder-list">
+                <div
+                  className="extended-item-placeholder-list"
+                  style={{
+                    maxHeight: isMobileOverlay ? "none" : "calc(4 * 5.5rem)",
+                    overflowY: isMobileOverlay ? "visible" : "auto",
+                    scrollbarWidth: "thin",
+                    scrollbarColor: "rgba(107,78,170,0.22) transparent",
+                  }}
+                >
                   {places.map((place, i) => (
                     <PlaceCard
                       key={i}
