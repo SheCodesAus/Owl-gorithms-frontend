@@ -29,19 +29,10 @@ export default function ItemDetailPanel({
 
   const shellClass = isMobileOverlay
     ? "relative flex flex-col h-full overflow-hidden"
-    : "focus-panel-shell";
+    : "focus-panel-shell relative";
 
   return (
     <aside className={shellClass}>
-      <button
-        type="button"
-        onClick={onClose}
-        className="absolute right-4 top-4 z-20 inline-flex h-9 w-9 cursor-pointer items-center justify-center rounded-full border border-black/10 bg-white/70 text-black shadow-sm backdrop-blur-sm transition hover:bg-white"
-        aria-label="Close focus panel"
-      >
-        <X size={16} />
-      </button>
-
       <motion.div
         key={item.id}
         className="dashboard-focus-band"
@@ -56,6 +47,15 @@ export default function ItemDetailPanel({
         exit={{ opacity: 0 }}
         transition={{ duration: 0.2 }}
       >
+        {/* Close button — inside the band so it's always positioned correctly */}
+        <button
+          type="button"
+          onClick={onClose}
+          className="absolute right-4 top-4 z-20 inline-flex h-9 w-9 cursor-pointer items-center justify-center rounded-full border border-black/10 bg-white/70 text-black shadow-sm backdrop-blur-sm transition hover:bg-white"
+          aria-label="Close focus panel"
+        >
+          <X size={16} />
+        </button>
         {message && (
           <div className="item-panel-message-banner">{message}</div>
         )}

@@ -205,7 +205,7 @@ function ViewMembersModal({
 
                       {isMembershipOwner ? (
                         <span className="text-sm font-semibold text-[var(--muted-text)]">
-                          List owner
+                          Owner
                         </span>
                       ) : null}
                     </div>

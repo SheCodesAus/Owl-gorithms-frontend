@@ -321,16 +321,22 @@ export default function SingleListView() {
           {/* ── Desktop layout ─────────────────────────────────────────────── */}
           {!isMobile && (
             <div className="flex items-stretch gap-5">
-              {/* Left column — stretches to match right panel height */}
+              {/* Left column — scrolls only when taller than focus panel */}
               <motion.div
                 className="flex flex-col gap-5 min-w-0"
                 animate={{ width: panelOpen ? "45%" : "100%" }}
                 transition={{ duration: 0.4, ease: [0.4, 0, 0.2, 1] }}
+                style={panelOpen ? {
+                  overflowY: "auto",
+                  scrollbarWidth: "thin",
+                  scrollbarColor: "rgba(107,78,170,0.22) transparent",
+                } : {}}
               >
                 <BucketListHeader
                   bucketList={bucketList}
                   isOwner={isOwner}
                   onAddItemClick={() => setShowAddItemModal(true)}
+                  onViewMembersClick={() => setShowMembersModal(true)}
                   onInviteMembersClick={isOwner ? () => setShowInviteModal(true) : undefined}
                   onEditBucketList={() => setShowEditListModal(true)}
                   onFreezeBucketList={handleFreezeList}
@@ -476,9 +482,11 @@ export default function SingleListView() {
         <CreateItemForm bucketListId={bucketList?.id} onClose={() => setShowAddItemModal(false)} onSuccess={handleAddItemSuccess} />
       </FormModal>
 
-      <InviteMembersModal isOpen={showInviteModal} onClose={() => setShowInviteModal(false)} bucketListId={bucketList?.id} />
+      <InviteMembersModal 
+      isOpen={showInviteModal} 
+      onClose={() => setShowInviteModal(false)} 
+      bucketListId={bucketList?.id} />
       <CalendarExportModal item={selectedItem} isOpen={showCalendarModal} onClose={() => setShowCalendarModal(false)} />
-
       <EditItemModal
         item={selectedItem}
         isOpen={showEditModal}

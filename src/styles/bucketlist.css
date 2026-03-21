@@ -31,7 +31,7 @@
 
 .bucketlist-title {
   margin: 0 0 0.5rem;
-  font-size: clamp(2rem, 5vw, 2.5rem);
+  font-size: 2rem;
   line-height: 1.1;
   letter-spacing: -0.02em;
   color: var(--heading-text);
