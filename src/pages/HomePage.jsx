@@ -1,7 +1,7 @@
 import { Link } from "react-router";
 //import { useAuth } from "./context/AuthContext";
 import "../styles/homepage.css";
-
+import Lottie from "lottie-react";
 // SVG icons 
 import iconCreateList from "../assets/icon-create-list.svg?url";
 import iconTrackProgress from "../assets/icon-track-progress.svg?url";
