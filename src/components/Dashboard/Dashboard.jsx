@@ -380,17 +380,22 @@ function Dashboard({ user }) {
         {/* Desktop layout */}
         {!isMobile && (
           <motion.section
-            className="relative pb-20"
+            className="pb-20"
             animate={{ maxWidth: panelOpen ? "1480px" : "920px" }}
             style={{ width: "100%", margin: "0 auto" }}
             transition={{ duration: 0.4, ease: [0.4, 0, 0.2, 1] }}
           >
-            <div className="relative">
+            <div className="flex items-stretch gap-5">
+              {/* Card grid — scrolls only when taller than focus panel */}
               <motion.div
-                className="flex flex-col"
+                className="min-w-0"
                 animate={{ width: panelOpen ? "46%" : "100%" }}
                 transition={{ duration: 0.4, ease: [0.4, 0, 0.2, 1] }}
-                style={{ minWidth: 0 }}
+                style={panelOpen ? {
+                  overflowY: "auto",
+                  scrollbarWidth: "thin",
+                  scrollbarColor: "rgba(107,78,170,0.22) transparent",
+                } : {}}
               >
                 <DashboardCardGrid
                   user={user}
@@ -404,12 +409,13 @@ function Dashboard({ user }) {
                 />
               </motion.div>
 
+              {/* Focus panel — renders full height, no scroll */}
               <AnimatePresence>
                 {panelOpen && (
                   <motion.div
                     key="dashboard-focus-panel-desktop"
-                    className="absolute top-0 right-0 bottom-0"
                     style={{ width: "52%" }}
+                    className="shrink-0"
                     initial={{ opacity: 0, x: 40 }}
                     animate={{ opacity: 1, x: 0 }}
                     exit={{ opacity: 0, x: 40 }}

@@ -277,12 +277,17 @@ export default function SingleListView() {
           animate={{ maxWidth: panelOpen ? "1440px" : "860px" }}
           transition={{ duration: 0.4, ease: [0.4, 0, 0.2, 1] }}
         >
-          <div className="relative">
+          <div className="flex items-stretch gap-5">
+            {/* Left column — scrolls if taller than the item panel */}
             <motion.div
-              className="flex flex-col gap-5"
+              className="flex flex-col gap-5 min-w-0"
               animate={{ width: panelOpen ? "45%" : "100%" }}
               transition={{ duration: 0.4, ease: [0.4, 0, 0.2, 1] }}
-              style={{ minWidth: 0 }}
+              style={panelOpen ? {
+                overflowY: "auto",
+                scrollbarWidth: "thin",
+                scrollbarColor: "rgba(107,78,170,0.22) transparent",
+              } : {}}
             >
               <BucketListHeader
                 bucketList={bucketList}
@@ -303,11 +308,12 @@ export default function SingleListView() {
               />
             </motion.div>
 
+            {/* Right column — full natural height, no scroll, no clipping */}
             <AnimatePresence>
               {panelOpen && (
                 <motion.div
                   key="focus-panel"
-                  className="absolute top-0 right-0 bottom-0"
+                  className="shrink-0"
                   style={{ width: "53%" }}
                   initial={{ opacity: 0, x: 40 }}
                   animate={{ opacity: 1, x: 0 }}

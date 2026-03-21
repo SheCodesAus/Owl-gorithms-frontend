@@ -115,10 +115,9 @@
   background-size: cover;
   background-position: center;
   background-repeat: no-repeat;
-  min-height: 100%;
   border-radius: 1.75rem;
 }
-
+ 
 .dashboard-focus-band-inner {
   background: rgba(251, 250, 250, 0.8);
   backdrop-filter: blur(20px);

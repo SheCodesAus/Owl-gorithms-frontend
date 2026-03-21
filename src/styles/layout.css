@@ -28,8 +28,75 @@
   color: var(--error);
 }
 
+/* ── Focus panel shell ───────────────────────────────────────
+   Renders at full natural height. No scroll, no max-height.
+   The card grid scrolls if it's longer than the panel.
+──────────────────────────────────────────────────────────── */
 .focus-panel-shell {
-  position: sticky;
-  top: 1rem;
-  align-self: flex-start;
+  /* No position, no max-height, no overflow constraints.
+     Just a simple wrapper so DashboardFocusPanel and
+     ItemDetailPanel can share layout behaviour. */
+}
+
+/* ── Shared photo-background panel band ──────────────────────
+   Both DashboardFocusPanel and ItemDetailPanel use this base.
+   Each gets its own background-image via a modifier class.
+──────────────────────────────────────────────────────────── */
+.focus-band {
+  position: relative;
+  overflow: hidden;
+  border-radius: 1.75rem;
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.05);
+  /* Fill the sticky shell completely */
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+/* Dashboard focus panel — warm pink photo */
+.focus-band-dashboard {
+  background-image: url("/cloud-pink.jpg");
+}
+
+/* Item detail panel — deep dusk photo */
+.focus-band-item {
+  background-image: url("/deep-dusk2.jpg");
+}
+
+/* Frosted glass inner container — sits on top of the photo */
+.focus-band-inner {
+  background: rgba(251, 250, 250, 0.82);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border-radius: 18px;
+  padding: 20px;
+}
+
+/* Scrollable content area inside the panel */
+.focus-band-scroll {
+  flex: 1;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  padding: 1.25rem;
+  gap: 1rem;
+  /* Hide scrollbar visually but keep it functional */
+  scrollbar-width: thin;
+  scrollbar-color: rgba(107, 78, 170, 0.22) transparent;
+}
+
+.focus-band-scroll::-webkit-scrollbar {
+  width: 6px;
+}
+
+.focus-band-scroll::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.focus-band-scroll::-webkit-scrollbar-thumb {
+  background: rgba(107, 78, 170, 0.22);
+  border-radius: 999px;
 }
