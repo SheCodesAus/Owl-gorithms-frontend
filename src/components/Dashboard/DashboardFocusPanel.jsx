@@ -167,7 +167,8 @@ function DashboardFocusPanel({
   if (!bucketList) return null;
 
   const items = bucketList.items ?? [];
-  const completedCount = items.filter((item) => item.is_completed).length;
+
+  const completedCount = items.filter((item) => item.status === "complete").length;
   const totalCount = items.length;
   const completionPercent = totalCount
     ? Math.round((completedCount / totalCount) * 100)
