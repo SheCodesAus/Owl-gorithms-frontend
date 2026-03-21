@@ -1,6 +1,8 @@
 import { Link } from "react-router-dom";
 import { useState } from "react";
 
+//update style
+
 export default function NotFound() {
     const [hovering, setHovering] = useState(false);
 
