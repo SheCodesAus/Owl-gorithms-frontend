@@ -1,0 +1,36 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 120" width="120" height="120">
+  <defs>
+    <linearGradient id="kickitGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#FF8A5C"/>
+      <stop offset="40%" stop-color="#FF5A5F"/>
+      <stop offset="70%" stop-color="#C76BBA"/>
+      <stop offset="100%" stop-color="#6B4EAA"/>
+    </linearGradient>
+    <linearGradient id="kickitDark" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#D44A4E"/>
+      <stop offset="100%" stop-color="#3D2D6B"/>
+    </linearGradient>
+    <linearGradient id="kickitWarm" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#FF8A5C"/>
+      <stop offset="100%" stop-color="#FF5A5F"/>
+    </linearGradient>
+  </defs>
+
+  <!-- Outer progress ring — background track -->
+  <circle cx="60" cy="60" r="46" fill="none" stroke="rgba(107,78,170,0.15)" stroke-width="10"/>
+
+  <!-- Progress arc — about 75% complete, gradient coloured -->
+  <circle cx="60" cy="60" r="46" fill="none" stroke="url(#kickitGrad)" stroke-width="10"
+    stroke-linecap="round"
+    stroke-dasharray="216.77 289.03"
+    transform="rotate(-90 60 60)"/>
+
+  <!-- Inner circle — geometric solid -->
+  <circle cx="60" cy="60" r="30" fill="url(#kickitDark)"/>
+
+  <!-- Geometric arrow/check pointing up — signals progress -->
+  <polygon points="60,38 74,58 66,58 66,74 54,74 54,58 46,58" fill="url(#kickitWarm)"/>
+
+  <!-- Small accent circle — like the dot on the logo's 'i' -->
+  <circle cx="88" cy="26" r="8" fill="#FF8A5C" opacity="0.8"/>
+</svg>

@@ -1,0 +1,43 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 120" width="120" height="120">
+  <defs>
+    <!-- Gradient matching the Kickit logo: warm orange-coral → pink → purple -->
+    <linearGradient id="kickitGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#FF8A5C"/>
+      <stop offset="40%" stop-color="#FF5A5F"/>
+      <stop offset="70%" stop-color="#C76BBA"/>
+      <stop offset="100%" stop-color="#6B4EAA"/>
+    </linearGradient>
+    <!-- Darker shade for depth -->
+    <linearGradient id="kickitDark" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#D44A4E"/>
+      <stop offset="100%" stop-color="#3D2D6B"/>
+    </linearGradient>
+  </defs>
+
+  <!-- Clipboard body — rounded rectangle -->
+  <rect x="24" y="22" width="72" height="82" rx="10" fill="url(#kickitGrad)"/>
+
+  <!-- Clipboard clip at top — geometric tab -->
+  <rect x="42" y="12" width="36" height="20" rx="6" fill="url(#kickitDark)"/>
+
+  <!-- Geometric circle on clip (like the dot on the 'i' in the logo) -->
+  <circle cx="60" cy="22" r="7" fill="#FF8A5C"/>
+
+  <!-- List lines — white, bold, geometric -->
+  <!-- Check mark 1 (done) -->
+  <rect x="38" y="48" width="14" height="14" rx="3" fill="rgba(255,255,255,0.95)"/>
+  <polyline points="41,55 45,59 50,51" fill="none" stroke="url(#kickitDark)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+  <!-- Line 1 -->
+  <rect x="58" y="51" width="30" height="5" rx="2.5" fill="rgba(255,255,255,0.85)"/>
+
+  <!-- Check mark 2 (done) -->
+  <rect x="38" y="68" width="14" height="14" rx="3" fill="rgba(255,255,255,0.95)"/>
+  <polyline points="41,75 45,79 50,71" fill="none" stroke="url(#kickitDark)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+  <!-- Line 2 -->
+  <rect x="58" y="71" width="24" height="5" rx="2.5" fill="rgba(255,255,255,0.85)"/>
+
+  <!-- Empty checkbox 3 (pending) -->
+  <rect x="38" y="88" width="14" height="14" rx="3" fill="rgba(255,255,255,0.4)"/>
+  <!-- Line 3 (faded — not done yet) -->
+  <rect x="58" y="91" width="28" height="5" rx="2.5" fill="rgba(255,255,255,0.4)"/>
+</svg>

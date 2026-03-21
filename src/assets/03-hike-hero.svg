@@ -1,0 +1,78 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 260 280" width="260" height="280">
+  <defs>
+    <filter id="ds"><feDropShadow dx="0" dy="2" stdDeviation="3" flood-color="#1B2A4A" flood-opacity="0.2"/></filter>
+  </defs>
+  <!-- Sticker shape -->
+  <ellipse cx="130" cy="140" rx="122" ry="132" fill="white" stroke="#E8E2DB" stroke-width="2"/>
+
+  <!-- Compass background -->
+  <g transform="translate(130,128)">
+    <circle cx="0" cy="0" r="70" fill="#B8A9D4" opacity="0.12"/>
+    <circle cx="0" cy="0" r="70" fill="none" stroke="#B8A9D4" stroke-width="1.5" opacity="0.25"/>
+    <circle cx="0" cy="0" r="62" fill="none" stroke="#B8A9D4" stroke-width="0.6" opacity="0.15"/>
+    <!-- Cardinal directions -->
+    <text x="0" y="-52" text-anchor="middle" font-family="'Outfit','Helvetica',sans-serif" font-size="10" font-weight="800" fill="#B8A9D4" opacity="0.35">N</text>
+    <text x="0" y="60" text-anchor="middle" font-family="'Outfit','Helvetica',sans-serif" font-size="10" font-weight="800" fill="#B8A9D4" opacity="0.35">S</text>
+    <text x="55" y="4" text-anchor="middle" font-family="'Outfit','Helvetica',sans-serif" font-size="10" font-weight="800" fill="#B8A9D4" opacity="0.35">E</text>
+    <text x="-55" y="4" text-anchor="middle" font-family="'Outfit','Helvetica',sans-serif" font-size="10" font-weight="800" fill="#B8A9D4" opacity="0.35">W</text>
+    <!-- Compass needle -->
+    <polygon points="0,-40 4,-5 0,-10 -4,-5" fill="#F2765A" opacity="0.3"/>
+    <polygon points="0,40 4,5 0,10 -4,5" fill="#1B2A4A" opacity="0.12"/>
+    <!-- Tick marks -->
+    <g stroke="#B8A9D4" stroke-width="1" opacity="0.2">
+      <line x1="0" y1="-68" x2="0" y2="-64"/>
+      <line x1="0" y1="64" x2="0" y2="68"/>
+      <line x1="-68" y1="0" x2="-64" y2="0"/>
+      <line x1="64" y1="0" x2="68" y2="0"/>
+    </g>
+  </g>
+
+  <!-- Left boot -->
+  <g transform="translate(62,95)" filter="url(#ds)">
+    <!-- Boot body -->
+    <path d="M10,65 L10,30 C10,18 18,8 30,5 L45,5 C50,5 55,10 55,18 L55,45 L60,45 L65,55 L65,70 L55,75 L10,75 Z" fill="#6EC5B8"/>
+    <!-- Boot sole -->
+    <path d="M8,72 L67,72 L65,82 L6,82 Z" fill="#1B2A4A" opacity="0.7"/>
+    <!-- Boot tongue -->
+    <path d="M22,10 L42,10 L38,35 L26,35Z" fill="#5AB8AA"/>
+    <!-- Laces - salmon -->
+    <g stroke="#F2765A" stroke-width="2" stroke-linecap="round" fill="none">
+      <line x1="26" y1="18" x2="38" y2="18"/>
+      <line x1="27" y1="24" x2="37" y2="24"/>
+      <line x1="28" y1="30" x2="36" y2="30"/>
+    </g>
+    <!-- Lace holes -->
+    <g fill="#1B2A4A" opacity="0.3">
+      <circle cx="24" cy="18" r="1.5"/><circle cx="40" cy="18" r="1.5"/>
+      <circle cx="25" cy="24" r="1.5"/><circle cx="39" cy="24" r="1.5"/>
+      <circle cx="26" cy="30" r="1.5"/><circle cx="38" cy="30" r="1.5"/>
+    </g>
+    <!-- Boot detail line -->
+    <path d="M12,55 L55,55" stroke="#4BA89B" stroke-width="1.2" fill="none" opacity="0.5"/>
+    <!-- Ankle padding -->
+    <path d="M15,8 C15,3 25,0 35,0 C45,0 52,3 52,8" fill="#5AB8AA" opacity="0.6"/>
+  </g>
+
+  <!-- Right boot (slightly offset) -->
+  <g transform="translate(128,100) scale(-1,1) translate(-65,0)" filter="url(#ds)">
+    <path d="M10,65 L10,30 C10,18 18,8 30,5 L45,5 C50,5 55,10 55,18 L55,45 L60,45 L65,55 L65,70 L55,75 L10,75 Z" fill="#6EC5B8"/>
+    <path d="M8,72 L67,72 L65,82 L6,82 Z" fill="#1B2A4A" opacity="0.7"/>
+    <path d="M22,10 L42,10 L38,35 L26,35Z" fill="#5AB8AA"/>
+    <g stroke="#F2765A" stroke-width="2" stroke-linecap="round" fill="none">
+      <line x1="26" y1="18" x2="38" y2="18"/>
+      <line x1="27" y1="24" x2="37" y2="24"/>
+      <line x1="28" y1="30" x2="36" y2="30"/>
+    </g>
+    <g fill="#1B2A4A" opacity="0.3">
+      <circle cx="24" cy="18" r="1.5"/><circle cx="40" cy="18" r="1.5"/>
+      <circle cx="25" cy="24" r="1.5"/><circle cx="39" cy="24" r="1.5"/>
+      <circle cx="26" cy="30" r="1.5"/><circle cx="38" cy="30" r="1.5"/>
+    </g>
+    <path d="M12,55 L55,55" stroke="#4BA89B" stroke-width="1.2" fill="none" opacity="0.5"/>
+    <path d="M15,8 C15,3 25,0 35,0 C45,0 52,3 52,8" fill="#5AB8AA" opacity="0.6"/>
+  </g>
+
+  <!-- Text -->
+  <text x="130" y="240" text-anchor="middle" font-family="'Rubik','Arial Black',sans-serif" font-size="18" font-weight="900" fill="#1B2A4A" letter-spacing="2" opacity="0.8">HIKE HERO</text>
+  <text x="130" y="256" text-anchor="middle" font-family="'Outfit','Helvetica',sans-serif" font-size="8" font-weight="700" fill="#F2765A" letter-spacing="3" opacity="0.6">KICKIT OUTDOORS</text>
+</svg>

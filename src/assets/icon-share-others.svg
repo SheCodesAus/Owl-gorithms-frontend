@@ -1,0 +1,49 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 120" width="120" height="120">
+  <defs>
+    <linearGradient id="kickitGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#FF8A5C"/>
+      <stop offset="40%" stop-color="#FF5A5F"/>
+      <stop offset="70%" stop-color="#C76BBA"/>
+      <stop offset="100%" stop-color="#6B4EAA"/>
+    </linearGradient>
+    <linearGradient id="kickitDark" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#D44A4E"/>
+      <stop offset="100%" stop-color="#3D2D6B"/>
+    </linearGradient>
+    <linearGradient id="kickitWarm" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#FF8A5C"/>
+      <stop offset="100%" stop-color="#FF5A5F"/>
+    </linearGradient>
+  </defs>
+
+  <!-- Connection lines between people — drawn first so circles sit on top -->
+  <line x1="36" y1="52" x2="60" y2="38" stroke="url(#kickitGrad)" stroke-width="4" stroke-linecap="round"/>
+  <line x1="84" y1="52" x2="60" y2="38" stroke="url(#kickitGrad)" stroke-width="4" stroke-linecap="round"/>
+  <line x1="36" y1="52" x2="84" y2="52" stroke="url(#kickitGrad)" stroke-width="3" stroke-linecap="round" opacity="0.4"/>
+
+  <!-- Centre person (top) — the sharer -->
+  <!-- Head -->
+  <circle cx="60" cy="28" r="12" fill="url(#kickitWarm)"/>
+  <!-- Body — geometric trapezoid -->
+  <path d="M48,44 L72,44 L68,60 L52,60 Z" fill="url(#kickitWarm)"/>
+
+  <!-- Left person — friend 1 -->
+  <!-- Head -->
+  <circle cx="30" cy="56" r="10" fill="url(#kickitDark)"/>
+  <!-- Body -->
+  <path d="M20,70 L40,70 L37,84 L23,84 Z" fill="url(#kickitDark)"/>
+
+  <!-- Right person — friend 2 -->
+  <!-- Head -->
+  <circle cx="90" cy="56" r="10" fill="url(#kickitGrad)"/>
+  <!-- Body -->
+  <path d="M80,70 L100,70 L97,84 L83,84 Z" fill="url(#kickitGrad)"/>
+
+  <!-- Share/broadcast arcs — radiating from center person -->
+  <path d="M46,18 A20,20 0 0,1 74,18" fill="none" stroke="#FF8A5C" stroke-width="2.5" stroke-linecap="round" opacity="0.5"/>
+  <path d="M42,12 A26,26 0 0,1 78,12" fill="none" stroke="#FF8A5C" stroke-width="2" stroke-linecap="round" opacity="0.3"/>
+
+  <!-- Heart accent — celebrating together -->
+  <path d="M56,90 C56,86 50,82 50,86 C50,90 56,96 56,96 C56,96 62,90 62,86 C62,82 56,86 56,90 Z" fill="var(--accent, #FF5A5F)" opacity="0.7"/>
+  <path d="M64,88 C64,85 60,82 60,85 C60,88 64,92 64,92 C64,92 68,88 68,85 C68,82 64,85 64,88 Z" fill="#FF8A5C" opacity="0.5"/>
+</svg>
