@@ -23,10 +23,8 @@ h6,
 
 .coral-bg {
   background: #ff9966;
-  background: linear-gradient(
-    to right,
-    #ff9966,#ff5e62
-  );
+  background: linear-gradient(to right,
+      #ff9966, #ff5e62);
 }
 
 .gradient-border {
@@ -49,13 +47,13 @@ h6,
   z-index: -1;
 
   /* mask */
-  mask: 
-    linear-gradient(#fff 0 0) content-box, 
+  mask:
+    linear-gradient(#fff 0 0) content-box,
     linear-gradient(#fff 0 0);
   mask-composite: exclude;
 
-  -webkit-mask: 
-    linear-gradient(#fff 0 0) content-box, 
+  -webkit-mask:
+    linear-gradient(#fff 0 0) content-box,
     linear-gradient(#fff 0 0);
   -webkit-mask-composite: xor;
 }

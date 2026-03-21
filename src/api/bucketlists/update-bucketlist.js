@@ -15,7 +15,10 @@ async function updateBucketList(bucketListId, data, token) {
     if (!response.ok) {
         const fallBackError = "Failed to update bucket list";
         const errorMessage = resData?.detail ?? fallBackError;
-        throw new Error(errorMessage);
+
+        const error = new Error(errorMessage);
+        error.responseData = resData;
+        throw error;
     }
 
     return resData;

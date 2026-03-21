@@ -10,13 +10,13 @@ import InviteAcceptPage from "./pages/InviteAcceptPage.jsx";
 
 import { AuthProvider } from "./components/AuthProvider.jsx"
 import { BannerProvider } from "./components/UI/BannerProvider.jsx";
+import { NotificationsProvider } from "./components/NotificationsProvider.jsx";
 import GoogleOAuthCallback from "./components/GoogleOAuthCallback.jsx";
 import NotFound from "./pages/NotFoundPage";
 
 // New pages
 import BucketListItemPage from "./pages/BucketListItemPage.jsx";
 import SingleListView from "./pages/SingleListView.jsx";
-import RegisterPage from "./pages/RegisterPage";
 import "./main.css";
 
 const router = createBrowserRouter([
@@ -26,7 +26,6 @@ const router = createBrowserRouter([
     children: [
       { index: true, element: <HomePage /> },
       { path: "/login", element: <LoginPage /> },
-      // { path: "/register", element: <RegisterPage />},
       { path: "/dashboard", element: <AccountPage /> },
       { path: "/bucketlists/:listId/items/:itemId", element: <BucketListItemPage /> },
       { path: "/bucketlists/:id", element: <SingleListView /> },
@@ -41,7 +40,9 @@ ReactDOM.createRoot(document.getElementById("root")).render(
   <React.StrictMode>
     <AuthProvider>
       <BannerProvider>
+        <NotificationsProvider>
       <RouterProvider router={router} />
+      </NotificationsProvider>
       </BannerProvider>
     </AuthProvider>
   </React.StrictMode>

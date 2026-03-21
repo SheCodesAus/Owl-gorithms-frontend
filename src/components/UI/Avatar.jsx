@@ -36,7 +36,7 @@ function Avatar({ user, size = "sm", className = "", alt = "" }) {
         src={profileImage}
         alt={alt || `${displayName} avatar`}
         referrerPolicy="no-referrer"
-        className={`rounded-full border border-white/70 object-cover shadow-sm ${sizeClasses[size]} ${className}`}
+        className={`rounded-full border border-[#ff9966] object-cover shadow-md ${sizeClasses[size]} ${className}`}
         onError={() => setImageFailed(true)}
       />
     );

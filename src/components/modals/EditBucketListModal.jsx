@@ -1,8 +1,8 @@
 import { useEffect, useState } from "react";
 import FormModal from "../UI/FormModal";
 
-export default function EditItemModal({
-  item,
+export default function EditBucketListModal({
+  bucketList,
   isOpen,
   onSave,
   onClose,
@@ -12,41 +12,66 @@ export default function EditItemModal({
   const [formData, setFormData] = useState({
     title: "",
     description: "",
+    decision_deadline: "",
     start_date: "",
     end_date: "",
     start_time: "",
     end_time: "",
+    is_public: false,
   });
 
+  const [hasDeadline, setHasDeadline] = useState(false);
   const [hasDate, setHasDate] = useState(false);
   const [hasTime, setHasTime] = useState(false);
 
   useEffect(() => {
-    const nextStartDate = item?.start_date ?? "";
-    const nextEndDate = item?.end_date ?? "";
-    const nextStartTime = item?.start_time ?? "";
-    const nextEndTime = item?.end_time ?? "";
+    const nextDeadline = bucketList?.decision_deadline
+      ? bucketList.decision_deadline.slice(0, 16)
+      : "";
+
+    const nextStartDate = bucketList?.start_date ?? "";
+    const nextEndDate = bucketList?.end_date ?? "";
+    const nextStartTime = bucketList?.start_time ?? "";
+    const nextEndTime = bucketList?.end_time ?? "";
 
     setFormData({
-      title: item?.title ?? "",
-      description: item?.description ?? "",
+      title: bucketList?.title ?? "",
+      description: bucketList?.description ?? "",
+      decision_deadline: nextDeadline,
       start_date: nextStartDate,
       end_date: nextEndDate,
       start_time: nextStartTime,
       end_time: nextEndTime,
+      is_public: Boolean(bucketList?.is_public),
     });
 
+    setHasDeadline(Boolean(nextDeadline));
     setHasDate(Boolean(nextStartDate || nextEndDate));
     setHasTime(Boolean(nextStartTime || nextEndTime));
-  }, [item, isOpen]);
+  }, [bucketList, isOpen]);
 
   const handleChange = (event) => {
-    const { name, value } = event.target;
+    const { name, value, type, checked } = event.target;
 
     setFormData((prev) => ({
       ...prev,
-      [name]: value,
+      [name]: type === "checkbox" ? checked : value,
     }));
+  };
+
+  const handleToggleDeadline = () => {
+    setHasDeadline((prev) => {
+      const next = !prev;
+
+      if (!next) {
+        setFormData((current) => ({
+          ...current,
+          decision_deadline: "",
+        }));
+      }
+
+      return next;
+    });
   };
 
   const handleToggleDate = () => {
@@ -99,6 +124,10 @@ export default function EditItemModal({
     onSave({
       title: formData.title,
       description: formData.description,
+      is_public: formData.is_public,
+      decision_deadline_input: hasDeadline
+        ? formData.decision_deadline || null
+        : null,
       start_date: hasDate ? formData.start_date || null : null,
       end_date: hasDate ? formData.end_date || null : null,
       start_time: hasTime ? formData.start_time || null : null,
@@ -110,45 +139,108 @@ export default function EditItemModal({
     <FormModal
       isOpen={isOpen}
       onClose={onClose}
-      title="Edit item"
-      subtitle="Update the details for this item."
+      title="Edit bucket list"
+      subtitle="Update the details for this list."
       maxWidth="max-w-xl"
     >
       <form className="form-stack" onSubmit={handleSubmit}>
         <div className="form-field">
-          <label className="form-label" htmlFor="edit-item-title">
+          <label className="form-label" htmlFor="edit-bucketlist-title">
             TITLE
           </label>
           <input
-            id="edit-item-title"
+            id="edit-bucketlist-title"
             name="title"
             type="text"
             className="form-input"
             value={formData.title}
             onChange={handleChange}
-            placeholder="Go skydiving"
+            placeholder="Summer adventures"
             required
           />
           {renderFieldError("title")}
         </div>
 
         <div className="form-field">
-          <label className="form-label" htmlFor="edit-item-description">
+          <label className="form-label" htmlFor="edit-bucketlist-description">
             DESCRIPTION
           </label>
           <textarea
-            id="edit-item-description"
+            id="edit-bucketlist-description"
             name="description"
             className="form-textarea"
             value={formData.description}
             onChange={handleChange}
-            placeholder="Update the plan, details, or notes..."
+            placeholder="Refine the plan, add context, sharpen the vision..."
             rows={4}
           />
           {renderFieldError("description")}
         </div>
 
+        <div className="rounded-[1.4rem] border border-black/10 bg-[var(--surface-soft)]/70 p-4">
+          <label className="flex cursor-pointer items-start gap-3">
+            <input
+              type="checkbox"
+              name="is_public"
+              checked={formData.is_public}
+              onChange={handleChange}
+              className="mt-1 h-4 w-4 rounded border-black/20 text-[var(--primary-cta)] focus:ring-[var(--primary-cta)]"
+            />
+            <div>
+              <p className="text-sm font-semibold text-[var(--heading-text)]">
+                Make list public
+              </p>
+              <p className="text-sm text-[var(--muted-text)]">
+                Public lists can be viewed and shared. Private ones stay in the
+                inner circle.
+              </p>
+            </div>
+          </label>
+          {renderFieldError("is_public")}
+        </div>
+
         <div className="space-y-3">
+          <div className="rounded-[1.4rem] border border-black/10 bg-[var(--surface-soft)]/70 p-4">
+            <label className="flex cursor-pointer items-start gap-3">
+              <input
+                type="checkbox"
+                checked={hasDeadline}
+                onChange={handleToggleDeadline}
+                className="mt-1 h-4 w-4 rounded border-black/20 text-[var(--primary-cta)] focus:ring-[var(--primary-cta)]"
+              />
+              <div>
+                <p className="text-sm font-semibold text-[var(--heading-text)]">
+                  Add deadline
+                </p>
+                <p className="text-sm text-[var(--muted-text)]">
+                  Set a decision deadline for the list.
+                </p>
+              </div>
+            </label>
+
+            {hasDeadline ? (
+              <div className="mt-4">
+                <div className="form-field">
+                  <label
+                    className="form-label"
+                    htmlFor="edit-bucketlist-decision-deadline"
+                  >
+                    DEADLINE
+                  </label>
+                  <input
+                    id="edit-bucketlist-decision-deadline"
+                    name="decision_deadline"
+                    type="date"
+                    className="form-input"
+                    value={formData.decision_deadline}
+                    onChange={handleChange}
+                  />
+                  {renderFieldError("decision_deadline")}
+                </div>
+              </div>
+            ) : null}
+          </div>
+
           <div className="rounded-[1.4rem] border border-black/10 bg-[var(--surface-soft)]/70 p-4">
             <label className="flex cursor-pointer items-start gap-3">
               <input
@@ -162,7 +254,7 @@ export default function EditItemModal({
                   Add date
                 </p>
                 <p className="text-sm text-[var(--muted-text)]">
-                  Include a start date and optional end date for this item.
+                  Include a start date and optional end date for this list.
                 </p>
               </div>
             </label>
@@ -170,11 +262,11 @@ export default function EditItemModal({
             {hasDate ? (
               <div className="mt-4 grid gap-4 md:grid-cols-2">
                 <div className="form-field">
-                  <label className="form-label" htmlFor="edit-start-date">
+                  <label className="form-label" htmlFor="edit-bucketlist-start-date">
                     FROM
                   </label>
                   <input
-                    id="edit-start-date"
+                    id="edit-bucketlist-start-date"
                     name="start_date"
                     type="date"
                     className="form-input"
@@ -185,11 +277,11 @@ export default function EditItemModal({
                 </div>
 
                 <div className="form-field">
-                  <label className="form-label" htmlFor="edit-end-date">
+                  <label className="form-label" htmlFor="edit-bucketlist-end-date">
                     TO
                   </label>
                   <input
-                    id="edit-end-date"
+                    id="edit-bucketlist-end-date"
                     name="end_date"
                     type="date"
                     className="form-input"
@@ -216,7 +308,7 @@ export default function EditItemModal({
                   Add time
                 </p>
                 <p className="text-sm text-[var(--muted-text)]">
-                  Include a start time and optional end time for this item.
+                  Include a start time and optional end time for this list.
                 </p>
               </div>
             </label>
@@ -224,11 +316,11 @@ export default function EditItemModal({
             {hasTime ? (
               <div className="mt-4 grid gap-4 md:grid-cols-2">
                 <div className="form-field">
-                  <label className="form-label" htmlFor="edit-start-time">
+                  <label className="form-label" htmlFor="edit-bucketlist-start-time">
                     START TIME
                   </label>
                   <input
-                    id="edit-start-time"
+                    id="edit-bucketlist-start-time"
                     name="start_time"
                     type="time"
                     className="form-input"
@@ -239,11 +331,11 @@ export default function EditItemModal({
                 </div>
 
                 <div className="form-field">
-                  <label className="form-label" htmlFor="edit-end-time">
+                  <label className="form-label" htmlFor="edit-bucketlist-end-time">
                     END TIME
                   </label>
                   <input
-                    id="edit-end-time"
+                    id="edit-bucketlist-end-time"
                     name="end_time"
                     type="time"
                     className="form-input"
