@@ -45,11 +45,11 @@ export default function SingleListView() {
   const [showEditModal, setShowEditModal] = useState(false);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [showStatusModal, setShowStatusModal] = useState(false);
+  const [showDateModal, setShowDateModal] = useState(false);
   const [isVotingItemId, setIsVotingItemId] = useState(null);
   const [voteOverrides, setVoteOverrides] = useState({});
   const [panelMessage, setPanelMessage] = useState("");
   const [isSavingStatus, setIsSavingStatus] = useState(false);
-  const [showDateModal, setShowDateModal] = useState(false);
   const [isSavingDate, setIsSavingDate] = useState(false);
   const [dateErrors, setDateErrors] = useState({});
   const [isDeleting, setIsDeleting] = useState(false);
@@ -60,6 +60,30 @@ export default function SingleListView() {
   const baseItems = bucketList?.items ?? [];
   const currentUser = auth?.user;
 
+  // ── Permissions ───────────────────────────────────────────────────────────
+  const currentUserMembership = useMemo(() => {
+    if (!currentUser?.id || !bucketList?.memberships) return null;
+    return bucketList.memberships.find(
+      (m) => Number(m.user?.id) === Number(currentUser.id)
+    ) ?? null;
+  }, [bucketList, currentUser]);
+
+  const isOwner = bucketList?.owner?.id && currentUser?.id
+    ? Number(bucketList.owner.id) === Number(currentUser.id)
+    : false;
+
+  const memberRole = currentUserMembership?.role ?? null;
+
+  // canVote: frozen = no. Owner/editor = yes. Viewer = only if allow_viewer_voting.
+  const canVote = useMemo(() => {
+    if (!currentUser) return false;
+    if (bucketList?.is_frozen) return false;
+    if (isOwner || memberRole === "editor") return true;
+    if (memberRole === "viewer") return bucketList?.allow_viewer_voting ?? false;
+    return false;
+  }, [currentUser, bucketList, isOwner, memberRole]);
+
+  // ── Vote helpers ──────────────────────────────────────────────────────────
   const getBaseVoteScore = (item) => item.vote_score ?? item.votes_count ?? item.score ?? 0;
   const getBaseUserVote = (item) => item.user_vote ?? item.current_user_vote ?? item.vote_type ?? null;
 
@@ -75,6 +99,7 @@ export default function SingleListView() {
     setVoteOverrides((prev) => ({ ...prev, [itemId]: { voteScore, userVote } }));
   };
 
+  // ── Items ─────────────────────────────────────────────────────────────────
   const items = useMemo(() => {
     return baseItems.map((item) => {
       const effectiveVote = getEffectiveVoteState(item);
@@ -109,14 +134,28 @@ export default function SingleListView() {
     return items;
   }, [items, filter]);
 
-  const selectedItem = useMemo(() => items.find((item) => item.id === selectedItemId) ?? null, [items, selectedItemId]);
-  const completedCount = useMemo(() => items.filter((item) => item.status === "complete").length, [items]);
+  const selectedItem = useMemo(
+    () => items.find((item) => item.id === selectedItemId) ?? null,
+    [items, selectedItemId]
+  );
 
-  const isOwner = bucketList?.owner?.id && currentUser?.id ? bucketList.owner.id === currentUser.id : false;
-  const isCreator = selectedItem?.created_by?.id && currentUser?.id ? selectedItem.created_by.id === currentUser.id : false;
-  const canEdit = isOwner || isCreator;
+  const completedCount = useMemo(
+    () => items.filter((item) => item.status === "complete").length,
+    [items]
+  );
 
+  const isCreator = selectedItem?.created_by?.id && currentUser?.id
+    ? Number(selectedItem.created_by.id) === Number(currentUser.id)
+    : false;
+
+  // Owner can always edit. Editors can edit their own items on unfrozen lists.
+  const canEdit = isOwner || (
+    !bucketList?.is_frozen && memberRole === "editor" && isCreator
+  );
+
+  // ── Handlers ──────────────────────────────────────────────────────────────
   const handleVote = async (item, clickedVote) => {
+    if (!canVote) return;
     const previousState = getEffectiveVoteState(item);
     const { nextVote, nextScore } = getNextVoteState(previousState.userVote, previousState.voteScore, clickedVote);
     setVoteOverride(item.id, nextScore, nextVote);
@@ -131,7 +170,9 @@ export default function SingleListView() {
     }
   };
 
-  const effectiveVoteState = selectedItem ? getEffectiveVoteState(selectedItem) : { voteScore: 0, userVote: null };
+  const effectiveVoteState = selectedItem
+    ? getEffectiveVoteState(selectedItem)
+    : { voteScore: 0, userVote: null };
 
   const handleAddItemSuccess = async () => {
     await loadBucketList();
@@ -175,7 +216,10 @@ export default function SingleListView() {
     setIsSavingDate(true);
     setDateErrors({});
     try {
-      const shouldAutoLock = isOwner && selectedItem?.status === "proposed" && !!(dateData?.start_date ?? selectedItem?.start_date);
+      const shouldAutoLock =
+        isOwner &&
+        selectedItem?.status === "proposed" &&
+        !!(dateData?.start_date ?? selectedItem?.start_date);
       const payload = shouldAutoLock ? { ...dateData, status: "locked_in" } : dateData;
       await updateItem(selectedItem.id, payload, auth?.access);
       await loadBucketList();
@@ -190,7 +234,7 @@ export default function SingleListView() {
 
   const handleStatusUpdate = async (val) => {
     if (!selectedItem) return;
-    const newStatus = typeof val === 'string' ? val : val?.status;
+    const newStatus = typeof val === "string" ? val : val?.status;
     if (!newStatus) return;
     setIsSavingStatus(true);
     setStatusError("");
@@ -206,31 +250,77 @@ export default function SingleListView() {
     }
   };
 
-  if (isLoading) return <section className="page-shell"><div className="page-width page-width-wide"><div className="empty-state-card">Loading bucket list...</div></div></section>;
-  if (bucketListError || !bucketList) return <section className="page-shell"><div className="page-width page-width-wide"><div className="error-state-card">{bucketListError || "Something went wrong."}</div></div></section>;
+  // ── Render ────────────────────────────────────────────────────────────────
+  if (isLoading) return (
+    <section className="page-shell">
+      <div className="page-width page-width-wide">
+        <div className="empty-state-card">Loading bucket list...</div>
+      </div>
+    </section>
+  );
+
+  if (bucketListError || !bucketList) return (
+    <section className="page-shell">
+      <div className="page-width page-width-wide">
+        <div className="error-state-card">{bucketListError || "Something went wrong."}</div>
+      </div>
+    </section>
+  );
 
   const panelOpen = !!selectedItem;
 
   return (
     <>
       <section className="page-shell">
-        <motion.div className="page-width page-width-wide" animate={{ maxWidth: panelOpen ? "1440px" : "860px" }} transition={{ duration: 0.4, ease: [0.4, 0, 0.2, 1] }}>
+        <motion.div
+          className="page-width page-width-wide"
+          animate={{ maxWidth: panelOpen ? "1440px" : "860px" }}
+          transition={{ duration: 0.4, ease: [0.4, 0, 0.2, 1] }}
+        >
           <div className="relative">
-            <motion.div className="flex flex-col gap-5" animate={{ width: panelOpen ? "45%" : "100%" }} transition={{ duration: 0.4, ease: [0.4, 0, 0.2, 1] }} style={{ minWidth: 0 }}>
-              <BucketListHeader bucketList={bucketList} onAddItemClick={() => setShowAddItemModal(true)} onInviteMembersClick={() => setShowInviteModal(true)} />
-              <BucketListActionBar completedCount={completedCount} totalCount={items.length} filter={filter} onFilterChange={setFilter} />
-              <BucketListItemsPanel items={filteredItems} selectedItemId={selectedItemId} onSelectItem={setSelectedItemId} onDoubleSelectItem={(itemId) => navigate(`/bucketlists/${id}/items/${itemId}`)} />
+            <motion.div
+              className="flex flex-col gap-5"
+              animate={{ width: panelOpen ? "45%" : "100%" }}
+              transition={{ duration: 0.4, ease: [0.4, 0, 0.2, 1] }}
+              style={{ minWidth: 0 }}
+            >
+              <BucketListHeader
+                bucketList={bucketList}
+                onAddItemClick={() => setShowAddItemModal(true)}
+                onInviteMembersClick={() => setShowInviteModal(true)}
+              />
+              <BucketListActionBar
+                completedCount={completedCount}
+                totalCount={items.length}
+                filter={filter}
+                onFilterChange={setFilter}
+              />
+              <BucketListItemsPanel
+                items={filteredItems}
+                selectedItemId={selectedItemId}
+                onSelectItem={setSelectedItemId}
+                onDoubleSelectItem={(itemId) => navigate(`/bucketlists/${id}/items/${itemId}`)}
+              />
             </motion.div>
 
             <AnimatePresence>
               {panelOpen && (
-                <motion.div key="focus-panel" className="absolute top-0 right-0 bottom-0" style={{ width: "53%" }} initial={{ opacity: 0, x: 40 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: 40 }} transition={{ duration: 0.35, ease: [0.4, 0, 0.2, 1] }}>
+                <motion.div
+                  key="focus-panel"
+                  className="absolute top-0 right-0 bottom-0"
+                  style={{ width: "53%" }}
+                  initial={{ opacity: 0, x: 40 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  exit={{ opacity: 0, x: 40 }}
+                  transition={{ duration: 0.35, ease: [0.4, 0, 0.2, 1] }}
+                >
                   <ItemDetailPanel
                     item={selectedItem}
                     bucketList={bucketList}
                     message={panelMessage}
                     canEdit={canEdit}
                     isOwner={isOwner}
+                    canVote={canVote}
                     voteScore={effectiveVoteState.voteScore}
                     userVote={effectiveVoteState.userVote}
                     isVoting={isVotingItemId === selectedItem?.id}
@@ -242,10 +332,9 @@ export default function SingleListView() {
                     onEdit={() => setShowEditModal(true)}
                     onDelete={() => setShowDeleteModal(true)}
                     onUpdateStatus={(val) => {
-                      if (typeof val === 'string') handleStatusUpdate(val);
+                      if (typeof val === "string") handleStatusUpdate(val);
                       else setShowStatusModal(true);
                     }}
-                    onOptionsClick={() => console.log("Open item options menu")}
                     onClose={() => setSelectedItemId(null)}
                   />
                 </motion.div>

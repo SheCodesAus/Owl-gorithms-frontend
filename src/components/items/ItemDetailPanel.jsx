@@ -8,6 +8,7 @@ export default function ItemDetailPanel({
   message,
   canEdit,
   isOwner,
+  canVote,
   voteScore,
   userVote,
   isVoting,
@@ -25,10 +26,7 @@ export default function ItemDetailPanel({
   if (!item) return null;
 
   return (
-    <aside
-      className="item-detail-panel"
-      style={{ position: "sticky", top: "1rem" }}
-    >
+    <aside className="item-detail-panel" style={{ position: "sticky", top: "1rem" }}>
       <div className="item-detail-panel-shell">
         <button
           type="button"
@@ -50,6 +48,7 @@ export default function ItemDetailPanel({
               item={item}
               canEdit={canEdit}
               isOwner={isOwner}
+              canVote={canVote}
               voteScore={voteScore}
               userVote={userVote}
               isVoting={isVoting}
@@ -65,7 +64,6 @@ export default function ItemDetailPanel({
               onOptionsClick={onOptionsClick}
               showBreadcrumb={false}
             />
-
             <ExtendedItemCard itemTitle={item.title} />
           </div>
         </div>

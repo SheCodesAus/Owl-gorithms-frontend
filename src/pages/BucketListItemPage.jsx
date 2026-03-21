@@ -1,7 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { useBucketList } from "../hooks/useBucketList";
-import { useVotes } from "../hooks/useVotes";
 import { useAuth } from "../hooks/use-auth";
 import { updateItem, deleteItem } from "../api/items";
 
@@ -17,6 +16,7 @@ export default function BucketListItemPage() {
   const navigate = useNavigate();
   const { auth } = useAuth();
   const { bucketList, loadBucketList } = useBucketList(Number(listId));
+  const currentUser = auth?.user;
 
   const [item, setItem] = useState(null);
   const [showStatusModal, setShowStatusModal] = useState(false);
@@ -34,9 +34,42 @@ export default function BucketListItemPage() {
     }
   }, [bucketList, itemId]);
 
+  // ── Permissions ───────────────────────────────────────────────────────────
+  const currentUserMembership = useMemo(() => {
+    if (!currentUser?.id || !bucketList?.memberships) return null;
+    return bucketList.memberships.find(
+      (m) => Number(m.user?.id) === Number(currentUser.id)
+    ) ?? null;
+  }, [bucketList, currentUser]);
+
+  const isOwner = bucketList?.owner?.id && currentUser?.id
+    ? Number(bucketList.owner.id) === Number(currentUser.id)
+    : false;
+
+  const memberRole = currentUserMembership?.role ?? null;
+
+  const isCreator = item?.created_by?.id && currentUser?.id
+    ? Number(item.created_by.id) === Number(currentUser.id)
+    : false;
+
+  // Owner always. Editor can edit their own items on unfrozen lists.
+  const canEdit = isOwner || (
+    !bucketList?.is_frozen && memberRole === "editor" && isCreator
+  );
+
+  // Frozen = no votes. Owner/editor = yes. Viewer = only if allow_viewer_voting.
+  const canVote = useMemo(() => {
+    if (!currentUser) return false;
+    if (bucketList?.is_frozen) return false;
+    if (isOwner || memberRole === "editor") return true;
+    if (memberRole === "viewer") return bucketList?.allow_viewer_voting ?? false;
+    return false;
+  }, [currentUser, bucketList, isOwner, memberRole]);
+
+  // ── Handlers ──────────────────────────────────────────────────────────────
   const handleStatusUpdate = async (val) => {
     if (!item) return;
-    const newStatus = typeof val === 'string' ? val : val?.status;
+    const newStatus = typeof val === "string" ? val : val?.status;
     if (!newStatus) return;
     setIsSavingStatus(true);
     try {
@@ -61,8 +94,31 @@ export default function BucketListItemPage() {
     }
   };
 
+  const handleSave = async (formData) => {
+    if (!item) return;
+    setIsSaving(true);
+    try {
+      await updateItem(item.id, formData, auth?.access);
+      await loadBucketList();
+      setShowEditModal(false);
+    } catch (error) {
+      console.error(error);
+    } finally {
+      setIsSaving(false);
+    }
+  };
+
+  const handleDelete = async () => {
+    if (!item) return;
+    try {
+      await deleteItem(item.id, auth?.access);
+      navigate(`/bucketlists/${listId}`);
+    } catch (error) {
+      console.error(error);
+    }
+  };
+
   if (!item) return null;
-  const canEdit = auth?.user && bucketList?.owner?.id === auth.user.id;
 
   return (
     <>
@@ -72,10 +128,15 @@ export default function BucketListItemPage() {
             bucketList={bucketList}
             item={item}
             canEdit={canEdit}
+            isOwner={isOwner}
+            canVote={canVote}
+            voteScore={item.score ?? 0}
+            userVote={item.user_vote ?? null}
+            isVoting={false}
             onBack={() => navigate(`/bucketlists/${listId}`)}
             onAddDate={() => setShowDateModal(true)}
             onUpdateStatus={(val) => {
-              if (typeof val === 'string') handleStatusUpdate(val);
+              if (typeof val === "string") handleStatusUpdate(val);
               else setShowStatusModal(true);
             }}
             onEdit={() => setShowEditModal(true)}
@@ -85,10 +146,33 @@ export default function BucketListItemPage() {
         </div>
       </section>
 
-      <StatusUpdateModal item={item} isOpen={showStatusModal} onSave={handleStatusUpdate} onClose={() => setShowStatusModal(false)} isSaving={isSavingStatus} error={statusError} />
-      <ItemDateModal item={item} isOpen={showDateModal} onSave={handleSaveDate} onClose={() => setShowDateModal(false)} />
-      <EditItemModal item={item} isOpen={showEditModal} onSave={(data) => updateItem(item.id, data, auth?.access).then(() => loadBucketList())} onClose={() => setShowEditModal(false)} isSaving={isSaving} />
-      <DeleteItemModal item={item} isOpen={showDeleteModal} onClose={() => setShowDeleteModal(false)} onConfirm={() => deleteItem(item.id, auth?.access).then(() => navigate(`/bucketlists/${listId}`))} />
+      <StatusUpdateModal
+        item={item}
+        isOpen={showStatusModal}
+        onSave={handleStatusUpdate}
+        onClose={() => setShowStatusModal(false)}
+        isSaving={isSavingStatus}
+        error={statusError}
+      />
+      <ItemDateModal
+        item={item}
+        isOpen={showDateModal}
+        onSave={handleSaveDate}
+        onClose={() => setShowDateModal(false)}
+      />
+      <EditItemModal
+        item={item}
+        isOpen={showEditModal}
+        onSave={handleSave}
+        onClose={() => setShowEditModal(false)}
+        isSaving={isSaving}
+      />
+      <DeleteItemModal
+        item={item}
+        isOpen={showDeleteModal}
+        onClose={() => setShowDeleteModal(false)}
+        onConfirm={handleDelete}
+      />
     </>
   );
 }
