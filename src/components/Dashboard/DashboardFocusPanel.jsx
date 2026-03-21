@@ -98,6 +98,7 @@ function DashboardFocusPanel({
   onViewMembersClick,
   onEditBucketList,
   onDeleteBucketList,
+  onFreezeBucketList,
   onCopyBucketListLink,
   message,
   onClose,
@@ -219,6 +220,11 @@ function DashboardFocusPanel({
     setShowOptionsMenu(false);
   };
 
+  const handleFreeze = () => {
+    onFreezeBucketList?.(bucketList);
+    setShowOptionsMenu(false);
+  };
+
   const handleDelete = () => {
     onDeleteBucketList?.(bucketList);
     setShowOptionsMenu(false);
@@ -306,6 +312,15 @@ function DashboardFocusPanel({
                       >
                         <Pencil size={16} aria-hidden="true" />
                         Edit
+                      </button>
+
+                      <button
+                        type="button"
+                        onClick={handleFreeze}
+                        className="flex w-full cursor-pointer items-center gap-3 px-4 py-3 text-left text-sm font-medium text-[var(--body-text)] transition hover:bg-black/5"
+                      >
+                        <Pencil size={16} aria-hidden="true" />
+                        Freeze
                       </button>
 
                       <div className="mx-3 h-px bg-black/8" />

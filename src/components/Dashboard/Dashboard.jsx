@@ -438,6 +438,7 @@ function Dashboard({ user }) {
     message: focusPanelMessage,
     onClose: () => setSelectedListId(null),
     onEditBucketList: isSelectedListOwner ? handleEditBucketList : undefined,
+    onFreezeBucketList: isSelectedListOwner ? handleFreezeBucketList : undefined,
     onDeleteBucketList: isSelectedListOwner
       ? handleDeleteBucketList
       : undefined,
