@@ -1,6 +1,7 @@
 import { motion } from "framer-motion";
 import { CheckCircle2 } from "lucide-react";
 import RelativeTime from "../UI/RelativeTime";
+import ReactionBar from "../UI/ReactionBar";
 
 function formatDate(iso) {
   if (!iso) return "";
@@ -11,7 +12,13 @@ function formatDate(iso) {
   });
 }
 
-export default function BucketListItemCard({ item, isSelected, onSelect, onDoubleSelect }) {
+export default function BucketListItemCard({
+  item,
+  isSelected,
+  onSelect,
+  onDoubleSelect,
+  onReactionUpdate,
+}) {
   const handleKeyDown = (event) => {
     if (event.key === "Enter" || event.key === " ") {
       event.preventDefault();
@@ -35,12 +42,11 @@ export default function BucketListItemCard({ item, isSelected, onSelect, onDoubl
       role="button"
       aria-pressed={isSelected}
     >
-      {/* Glow layer — visible on selected/hover */}
+      {/* Glow layer */}
       <div className="bucketlist-item-card-glow" />
 
       <div className="bucketlist-item-top">
         <div className="bucketlist-item-main">
-          {/* Status dot */}
           <div
             className={`bucketlist-item-status-dot ${
               item.is_completed ? "bucketlist-item-status-dot-complete" : ""
@@ -69,7 +75,6 @@ export default function BucketListItemCard({ item, isSelected, onSelect, onDoubl
           </div>
         </div>
 
-        {/* Completed badge — top right */}
         {item.is_completed ? (
           <CheckCircle2
             size={18}
@@ -79,17 +84,34 @@ export default function BucketListItemCard({ item, isSelected, onSelect, onDoubl
         ) : null}
       </div>
 
-      <div className="bucketlist-item-meta">
-        <span>
-          <RelativeTime timestamp={item.date_created} />
-        </span>
-        <span>By {item.created_by?.display_name ?? item.created_by?.username ?? "Unknown"}</span>
-
-        {item.is_completed && item.completed_at ? (
-          <span className="bucketlist-item-complete-badge">
-            ✓ Completed {formatDate(item.completed_at)}
+      <div className="mt-2 flex items-center justify-between gap-2">
+        {/* Meta — left side */}
+        <div className="flex min-w-0 items-center gap-2 text-xs text-[var(--muted-text)] truncate">
+          <span className="truncate">
+            <RelativeTime timestamp={item.date_created} />
           </span>
-        ) : null}
+          <span>·</span>
+          <span className="truncate">By {item.created_by?.display_name ?? item.created_by?.username ?? "Unknown"}</span>
+          {item.is_completed && item.completed_at ? (
+            <>
+              <span>·</span>
+              <span className="bucketlist-item-complete-badge shrink-0">
+                ✓ Completed {formatDate(item.completed_at)}
+              </span>
+            </>
+          ) : null}
+        </div>
+
+        {/* Reactions — right side */}
+        <div className="shrink-0">
+          <ReactionBar
+            itemId={item.id}
+            reactionsSummary={item.reactions_summary ?? {}}
+            userReaction={item.user_reaction ?? null}
+            onReactionUpdate={onReactionUpdate}
+            disabled={item.is_completed}
+          />
+        </div>
       </div>
     </motion.article>
   );
