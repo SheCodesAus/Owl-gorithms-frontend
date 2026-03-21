@@ -68,7 +68,7 @@ export default function ItemDetailPanel({
             onOptionsClick={onOptionsClick}
             showBreadcrumb={false}
           />
-          <ExtendedItemCard itemTitle={item.title} />
+          <ExtendedItemCard itemTitle={item.title} isMobileOverlay={isMobileOverlay} />
         </div>
       </div>
     </div>
