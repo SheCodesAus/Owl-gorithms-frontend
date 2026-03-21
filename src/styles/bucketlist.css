@@ -208,9 +208,9 @@
   padding-right: 0.35rem;
 }
  
-/* Item detail panel scroll — NO height constraint */
 .item-detail-panel-scroll {
   padding: 1rem;
+  /* No max-height, no overflow constraint */
 }
  
 .bucketlist-items-panel-scroll::-webkit-scrollbar {

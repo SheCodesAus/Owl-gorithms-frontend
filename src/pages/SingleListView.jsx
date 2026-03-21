@@ -298,30 +298,24 @@ export default function SingleListView() {
 
   // ── Render ────────────────────────────────────────────────────────────────
   if (isLoading) return (
-    <section className="page-shell">
-      <div className="page-width page-width-wide">
-        <div className="empty-state-card">Loading bucket list...</div>
-      </div>
-    </section>
+    <div style={{ width: "min(100%, 860px)", margin: "0 auto" }}>
+      <div className="empty-state-card">Loading bucket list...</div>
+    </div>
   );
 
   if (bucketListError || !bucketList) return (
-    <section className="page-shell">
-      <div className="page-width page-width-wide">
-        <div className="error-state-card">{bucketListError || "Something went wrong."}</div>
-      </div>
-    </section>
+    <div style={{ width: "min(100%, 860px)", margin: "0 auto" }}>
+      <div className="error-state-card">{bucketListError || "Something went wrong."}</div>
+    </div>
   );
 
   const panelOpen = !!selectedItem;
 
   return (
     <>
-      <section className="page-shell">
-        <motion.div
-          className="page-width page-width-wide"
-          style={{ width: "100%", margin: "0 auto" }}
+      <motion.section
           animate={{ maxWidth: panelOpen ? "1440px" : "860px" }}
+          style={{ width: "100%", margin: "0 auto" }}
           transition={{ duration: 0.4, ease: [0.4, 0, 0.2, 1] }}
         >
           {/* ── Desktop layout ─────────────────────────────────────────────── */}
@@ -431,8 +425,7 @@ export default function SingleListView() {
               />
             </div>
           )}
-        </motion.div>
-      </section>
+        </motion.section>
 
       {/* ── Mobile overlay — slides in from right ──────────────────────────── */}
       <AnimatePresence>
@@ -449,7 +442,7 @@ export default function SingleListView() {
             />
             <motion.div
               key="focus-panel-mobile"
-              className="fixed inset-y-0 right-0 z-50 w-full overflow-y-auto"
+              className="fixed inset-0 z-50 overflow-y-auto"
               initial={{ x: "100%" }}
               animate={{ x: 0 }}
               exit={{ x: "100%" }}

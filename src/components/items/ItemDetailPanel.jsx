@@ -27,7 +27,7 @@ export default function ItemDetailPanel({
   if (!item) return null;
 
   const shellStyle = isMobileOverlay
-    ? { borderRadius: 0, minHeight: "100%" }
+    ? { borderRadius: 0, minHeight: "100vh", maxHeight: "none", overflow: "auto" }
     : {};
 
   return (
