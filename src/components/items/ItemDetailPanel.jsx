@@ -22,11 +22,16 @@ export default function ItemDetailPanel({
   onUpdateStatus,
   onOptionsClick,
   onClose,
+  isMobileOverlay = false,
 }) {
   if (!item) return null;
 
+  const shellStyle = isMobileOverlay
+    ? { borderRadius: 0, minHeight: "100%" }
+    : {};
+
   return (
-    <div className="item-detail-panel-shell">
+    <div className="item-detail-panel-shell" style={shellStyle}>
       <button
         type="button"
         onClick={onClose}

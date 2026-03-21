@@ -5,6 +5,8 @@ import { useBucketList } from "../hooks/useBucketList";
 import { useVotes } from "../hooks/useVotes";
 import { useAuth } from "../hooks/use-auth";
 import { updateItem, deleteItem } from "../api/items";
+import updateMembershipRole from "../api/memberships/update-membership";
+import deleteMembership from "../api/memberships/delete-membership";
 
 import BucketListHeader from "../components/bucketlist/BucketListHeader";
 import BucketListActionBar from "../components/bucketlist/BucketListActionBar";
@@ -19,6 +21,8 @@ import EditItemModal from "../components/modals/EditItemModal";
 import DeleteItemModal from "../components/modals/DeleteItemModal";
 import StatusUpdateModal from "../components/modals/StatusUpdateModal";
 import ItemDateModal from "../components/modals/ItemDateModal";
+import EditBucketListModal from "../components/modals/EditBucketListModal";
+import ConfirmActionModal from "../components/modals/ConfirmActionModal";
 
 function getNextVoteState(currentVote, currentScore, clickedVote) {
   const nextVote = currentVote === clickedVote ? null : clickedVote;
@@ -46,6 +50,11 @@ export default function SingleListView() {
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [showStatusModal, setShowStatusModal] = useState(false);
   const [showDateModal, setShowDateModal] = useState(false);
+  const [showEditListModal, setShowEditListModal] = useState(false);
+  const [showDeleteListModal, setShowDeleteListModal] = useState(false);
+  const [isUpdatingMemberId, setIsUpdatingMemberId] = useState(null);
+  const [confirmMemberAction, setConfirmMemberAction] = useState(null);
+  const [isConfirmingMemberAction, setIsConfirmingMemberAction] = useState(false);
   const [isVotingItemId, setIsVotingItemId] = useState(null);
   const [voteOverrides, setVoteOverrides] = useState({});
   const [panelMessage, setPanelMessage] = useState("");
@@ -56,6 +65,17 @@ export default function SingleListView() {
   const [isSaving, setIsSaving] = useState(false);
   const [editErrors, setEditErrors] = useState({});
   const [statusError, setStatusError] = useState("");
+  const [isMobile, setIsMobile] = useState(() => window.innerWidth < 1024);
+
+  useEffect(() => {
+    const handleResize = () => setIsMobile(window.innerWidth < 1024);
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
+  }, []);
+
+  useEffect(() => {
+    if (isMobile) setSelectedItemId(null);
+  }, [isMobile]);
 
   const baseItems = bucketList?.items ?? [];
   const currentUser = auth?.user;
@@ -154,6 +174,28 @@ export default function SingleListView() {
   );
 
   // ── Handlers ──────────────────────────────────────────────────────────────
+  const handleFreezeList = async () => {
+    if (!auth?.access || !bucketList) return;
+    try {
+      const { toggleFreezeList } = await import("../api/bucketlists");
+      await toggleFreezeList(bucketList.id, !bucketList.is_frozen, auth.access);
+      await loadBucketList();
+    } catch (err) {
+      console.error("Freeze failed:", err);
+    }
+  };
+
+  const handleCopyLink = async () => {
+    if (!bucketList.is_public) return;
+    try {
+      await navigator.clipboard.writeText(
+        `${window.location.origin}/bucketlists/${bucketList.id}`
+      );
+    } catch (err) {
+      console.error("Copy failed:", err);
+    }
+  };
+
   const handleVote = async (item, clickedVote) => {
     if (!canVote) return;
     const previousState = getEffectiveVoteState(item);
@@ -232,6 +274,63 @@ export default function SingleListView() {
     }
   };
 
+  const handleChangeMemberRole = async (membershipId, newRole) => {
+    if (!auth?.access || !bucketList) return;
+    try {
+      setIsUpdatingMemberId(membershipId);
+      await updateMembershipRole(bucketList.id, membershipId, { role: newRole }, auth.access);
+      await loadBucketList();
+    } catch (err) {
+      console.error("Role update failed:", err);
+    } finally {
+      setIsUpdatingMemberId(null);
+    }
+  };
+
+  const handleRequestRemoveMember = (membership) => {
+    setConfirmMemberAction({
+      type: "remove-member",
+      membership,
+      title: "Are you sure?",
+      description: "This person will lose access to this bucket list unless they are invited again.",
+      confirmLabel: "Remove",
+      tone: "danger",
+    });
+  };
+
+  const handleRequestLeaveList = (membership) => {
+    setConfirmMemberAction({
+      type: "leave-list",
+      membership,
+      title: "Are you sure?",
+      description: "You will lose access to this bucket list unless someone invites you again.",
+      confirmLabel: "Leave",
+      tone: "danger",
+    });
+  };
+
+  const handleConfirmMemberAction = async () => {
+    if (!confirmMemberAction || !auth?.access) return;
+    const { membership } = confirmMemberAction;
+    try {
+      setIsConfirmingMemberAction(true);
+      setIsUpdatingMemberId(membership.id);
+      await deleteMembership(bucketList.id, membership.id, auth.access);
+      if (confirmMemberAction.type === "leave-list") {
+        setConfirmMemberAction(null);
+        navigate("/dashboard");
+        return;
+      }
+      await loadBucketList();
+      setConfirmMemberAction(null);
+    } catch (err) {
+      console.error("Member action failed:", err);
+    } finally {
+      setIsConfirmingMemberAction(false);
+      setIsUpdatingMemberId(null);
+    }
+  };
+
   const handleStatusUpdate = async (val) => {
     if (!selectedItem) return;
     const newStatus = typeof val === "string" ? val : val?.status;
@@ -274,25 +373,110 @@ export default function SingleListView() {
       <section className="page-shell">
         <motion.div
           className="page-width page-width-wide"
-          animate={{ maxWidth: panelOpen ? "1440px" : "860px" }}
+          animate={{ maxWidth: !isMobile && panelOpen ? "1440px" : "860px" }}
           transition={{ duration: 0.4, ease: [0.4, 0, 0.2, 1] }}
         >
-          <div className="flex items-stretch gap-5">
-            {/* Left column — scrolls if taller than the item panel */}
-            <motion.div
-              className="flex flex-col gap-5 min-w-0"
-              animate={{ width: panelOpen ? "45%" : "100%" }}
-              transition={{ duration: 0.4, ease: [0.4, 0, 0.2, 1] }}
-              style={panelOpen ? {
-                overflowY: "auto",
-                scrollbarWidth: "thin",
-                scrollbarColor: "rgba(107,78,170,0.22) transparent",
-              } : {}}
-            >
+          {/* ── Desktop layout ─────────────────────────────────────────────── */}
+          {!isMobile && (
+            <div className="flex items-stretch gap-5">
+              {/* Left column — scrolls if taller than the item panel */}
+              <motion.div
+                className="flex flex-col gap-5 min-w-0"
+                animate={{ width: panelOpen ? "45%" : "100%" }}
+                transition={{ duration: 0.4, ease: [0.4, 0, 0.2, 1] }}
+                style={panelOpen ? {
+                  overflowY: "auto",
+                  scrollbarWidth: "thin",
+                  scrollbarColor: "rgba(107,78,170,0.22) transparent",
+                } : {}}
+              >
+                <BucketListHeader
+                  bucketList={bucketList}
+                  isOwner={isOwner}
+                  currentUser={currentUser}
+                  onAddItemClick={() => setShowAddItemModal(true)}
+                  onInviteMembersClick={isOwner ? () => setShowInviteModal(true) : undefined}
+                  onEditBucketList={() => setShowEditListModal(true)}
+                  onFreezeBucketList={handleFreezeList}
+                  onDeleteBucketList={() => setShowDeleteListModal(true)}
+                  onCopyLink={handleCopyLink}
+                  onChangeRole={handleChangeMemberRole}
+                  onRemoveMember={handleRequestRemoveMember}
+                  onLeaveList={handleRequestLeaveList}
+                  isUpdatingMemberId={isUpdatingMemberId}
+                />
+                <BucketListActionBar
+                  completedCount={completedCount}
+                  totalCount={items.length}
+                  filter={filter}
+                  onFilterChange={setFilter}
+                />
+                <BucketListItemsPanel
+                  items={filteredItems}
+                  selectedItemId={selectedItemId}
+                  onSelectItem={setSelectedItemId}
+                  onDoubleSelectItem={(itemId) => navigate(`/bucketlists/${id}/items/${itemId}`)}
+                />
+              </motion.div>
+
+              {/* Right column — full natural height */}
+              <AnimatePresence>
+                {panelOpen && (
+                  <motion.div
+                    key="focus-panel-desktop"
+                    className="shrink-0"
+                    style={{ width: "53%" }}
+                    initial={{ opacity: 0, x: 40 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    exit={{ opacity: 0, x: 40 }}
+                    transition={{ duration: 0.35, ease: [0.4, 0, 0.2, 1] }}
+                  >
+                    <ItemDetailPanel
+                      item={selectedItem}
+                      bucketList={bucketList}
+                      message={panelMessage}
+                      canEdit={canEdit}
+                      isOwner={isOwner}
+                      canVote={canVote}
+                      voteScore={effectiveVoteState.voteScore}
+                      userVote={effectiveVoteState.userVote}
+                      isVoting={isVotingItemId === selectedItem?.id}
+                      onUpvote={() => selectedItem && handleVote(selectedItem, "upvote")}
+                      onDownvote={() => selectedItem && handleVote(selectedItem, "downvote")}
+                      onAddToCalendar={() => setShowCalendarModal(true)}
+                      onAddDate={() => setShowDateModal(true)}
+                      onEditDate={() => setShowDateModal(true)}
+                      onEdit={() => setShowEditModal(true)}
+                      onDelete={() => setShowDeleteModal(true)}
+                      onUpdateStatus={(val) => {
+                        if (typeof val === "string") handleStatusUpdate(val);
+                        else setShowStatusModal(true);
+                      }}
+                      onClose={() => setSelectedItemId(null)}
+                    />
+                  </motion.div>
+                )}
+              </AnimatePresence>
+            </div>
+          )}
+
+          {/* ── Mobile layout — full width list ────────────────────────────── */}
+          {isMobile && (
+            <div className="flex flex-col gap-5 pb-10">
               <BucketListHeader
                 bucketList={bucketList}
+                isOwner={isOwner}
+                currentUser={currentUser}
                 onAddItemClick={() => setShowAddItemModal(true)}
-                onInviteMembersClick={() => setShowInviteModal(true)}
+                onInviteMembersClick={isOwner ? () => setShowInviteModal(true) : undefined}
+                onEditBucketList={() => setShowEditListModal(true)}
+                onFreezeBucketList={handleFreezeList}
+                onDeleteBucketList={() => setShowDeleteListModal(true)}
+                onCopyLink={handleCopyLink}
+                onChangeRole={handleChangeMemberRole}
+                onRemoveMember={handleRequestRemoveMember}
+                onLeaveList={handleRequestLeaveList}
+                isUpdatingMemberId={isUpdatingMemberId}
               />
               <BucketListActionBar
                 completedCount={completedCount}
@@ -306,49 +490,60 @@ export default function SingleListView() {
                 onSelectItem={setSelectedItemId}
                 onDoubleSelectItem={(itemId) => navigate(`/bucketlists/${id}/items/${itemId}`)}
               />
-            </motion.div>
-
-            {/* Right column — full natural height, no scroll, no clipping */}
-            <AnimatePresence>
-              {panelOpen && (
-                <motion.div
-                  key="focus-panel"
-                  className="shrink-0"
-                  style={{ width: "53%" }}
-                  initial={{ opacity: 0, x: 40 }}
-                  animate={{ opacity: 1, x: 0 }}
-                  exit={{ opacity: 0, x: 40 }}
-                  transition={{ duration: 0.35, ease: [0.4, 0, 0.2, 1] }}
-                >
-                  <ItemDetailPanel
-                    item={selectedItem}
-                    bucketList={bucketList}
-                    message={panelMessage}
-                    canEdit={canEdit}
-                    isOwner={isOwner}
-                    canVote={canVote}
-                    voteScore={effectiveVoteState.voteScore}
-                    userVote={effectiveVoteState.userVote}
-                    isVoting={isVotingItemId === selectedItem?.id}
-                    onUpvote={() => selectedItem && handleVote(selectedItem, "upvote")}
-                    onDownvote={() => selectedItem && handleVote(selectedItem, "downvote")}
-                    onAddToCalendar={() => setShowCalendarModal(true)}
-                    onAddDate={() => setShowDateModal(true)}
-                    onEditDate={() => setShowDateModal(true)}
-                    onEdit={() => setShowEditModal(true)}
-                    onDelete={() => setShowDeleteModal(true)}
-                    onUpdateStatus={(val) => {
-                      if (typeof val === "string") handleStatusUpdate(val);
-                      else setShowStatusModal(true);
-                    }}
-                    onClose={() => setSelectedItemId(null)}
-                  />
-                </motion.div>
-              )}
-            </AnimatePresence>
-          </div>
+            </div>
+          )}
         </motion.div>
       </section>
+
+      {/* ── Mobile overlay — slides in from right ──────────────────────────── */}
+      <AnimatePresence>
+        {isMobile && panelOpen && (
+          <>
+            <motion.div
+              key="mobile-backdrop"
+              className="fixed inset-0 z-40 bg-black/40 backdrop-blur-sm"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              transition={{ duration: 0.3 }}
+              onClick={() => setSelectedItemId(null)}
+            />
+            <motion.div
+              key="focus-panel-mobile"
+              className="fixed inset-y-0 right-0 z-50 w-full overflow-y-auto"
+              initial={{ x: "100%" }}
+              animate={{ x: 0 }}
+              exit={{ x: "100%" }}
+              transition={{ duration: 0.35, ease: [0.4, 0, 0.2, 1] }}
+            >
+              <ItemDetailPanel
+                item={selectedItem}
+                bucketList={bucketList}
+                message={panelMessage}
+                canEdit={canEdit}
+                isOwner={isOwner}
+                canVote={canVote}
+                voteScore={effectiveVoteState.voteScore}
+                userVote={effectiveVoteState.userVote}
+                isVoting={isVotingItemId === selectedItem?.id}
+                onUpvote={() => selectedItem && handleVote(selectedItem, "upvote")}
+                onDownvote={() => selectedItem && handleVote(selectedItem, "downvote")}
+                onAddToCalendar={() => setShowCalendarModal(true)}
+                onAddDate={() => setShowDateModal(true)}
+                onEditDate={() => setShowDateModal(true)}
+                onEdit={() => setShowEditModal(true)}
+                onDelete={() => setShowDeleteModal(true)}
+                onUpdateStatus={(val) => {
+                  if (typeof val === "string") handleStatusUpdate(val);
+                  else setShowStatusModal(true);
+                }}
+                onClose={() => setSelectedItemId(null)}
+                isMobileOverlay
+              />
+            </motion.div>
+          </>
+        )}
+      </AnimatePresence>
 
       <FormModal isOpen={showAddItemModal} onClose={() => setShowAddItemModal(false)} title="Drop in a fresh idea" subtitle="Add something wild to this list.">
         <CreateItemForm bucketListId={bucketList?.id} onClose={() => setShowAddItemModal(false)} onSuccess={handleAddItemSuccess} />
@@ -384,6 +579,43 @@ export default function SingleListView() {
         onClose={() => { setShowStatusModal(false); setStatusError(""); }}
         isSaving={isSavingStatus}
         error={statusError}
+      />
+
+      <EditBucketListModal
+        bucketList={bucketList}
+        isOpen={showEditListModal}
+        onClose={() => setShowEditListModal(false)}
+        onSave={async (data) => {
+          const { default: updateBucketList } = await import("../api/bucketlists/update-bucketlist");
+          await updateBucketList(bucketList.id, data, auth?.access);
+          await loadBucketList();
+          setShowEditListModal(false);
+        }}
+      />
+
+      <ConfirmActionModal
+        isOpen={showDeleteListModal}
+        onClose={() => setShowDeleteListModal(false)}
+        onConfirm={async () => {
+          const { default: deleteBucketList } = await import("../api/bucketlists/delete-bucketlist");
+          await deleteBucketList(bucketList.id, auth?.access);
+          navigate("/dashboard");
+        }}
+        title="Delete this list?"
+        description="This list and everything inside it will be permanently deleted. This cannot be undone."
+        confirmLabel="Delete list"
+        tone="danger"
+      />
+
+      <ConfirmActionModal
+        isOpen={!!confirmMemberAction}
+        onClose={() => setConfirmMemberAction(null)}
+        onConfirm={handleConfirmMemberAction}
+        title={confirmMemberAction?.title}
+        description={confirmMemberAction?.description}
+        confirmLabel={confirmMemberAction?.confirmLabel}
+        tone={confirmMemberAction?.tone}
+        isLoading={isConfirmingMemberAction}
       />
     </>
   );
