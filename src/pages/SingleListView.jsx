@@ -335,6 +335,7 @@ export default function SingleListView() {
                 <BucketListHeader
                   bucketList={bucketList}
                   isOwner={isOwner}
+                  currentUser={currentUser}
                   onAddItemClick={() => setShowAddItemModal(true)}
                   onViewMembersClick={() => setShowMembersModal(true)}
                   onInviteMembersClick={isOwner ? () => setShowInviteModal(true) : undefined}

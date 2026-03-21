@@ -59,11 +59,7 @@ function ViewMembersModal({
       subtitle="See everyone connected to this bucket list."
     >
       <div className="space-y-4">
-        {memberships.length === 0 ? (
-          <div className="rounded-[1.5rem] border border-black/10 bg-white/80 p-4 text-sm text-[var(--muted-text)] shadow-sm">
-            No members found.
-          </div>
-        ) : (
+
           <div className="space-y-3">
             {memberships.map((membership) => {
               const memberUser = membership.user;
@@ -214,11 +210,11 @@ function ViewMembersModal({
               );
             })}
           </div>
-        )}
 
+        {memberships.length === 1 ?
         <div className="rounded-[1.5rem] flex justify-center border border-black/10 bg-white/80 p-4 text-sm text-[var(--muted-text)] shadow-sm">
-          Life is better done with friends.
-        </div>
+          Life is better done with friends. What are you waiting for?
+        </div> : null }
       </div>
     </FormModal>
   );
