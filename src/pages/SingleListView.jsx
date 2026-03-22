@@ -362,11 +362,14 @@ const filteredItems = useMemo(() => {
                 <BucketListSearchBar value={search} onChange={setSearch} />
 
                 <BucketListItemsPanel
-                  items={filteredItems}
-                  selectedItemId={selectedItemId}
-                  onSelectItem={setSelectedItemId}
-                  onDoubleSelectItem={(itemId) => navigate(`/bucketlists/${id}/items/${itemId}`)}
-                />
+                items={filteredItems}
+                selectedItemId={selectedItemId}
+                onSelectItem={setSelectedItemId}
+                onDoubleSelectItem={(itemId) => navigate(`/bucketlists/${id}/items/${itemId}`)}
+                getItemVoteState={getEffectiveVoteState}
+                isVotingItemId={isVotingItemId}
+                onVote={handleVote}
+              />
               </motion.div>
 
               {/* Right column — natural height, panel scrolls internally */}
