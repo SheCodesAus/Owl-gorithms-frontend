@@ -6,7 +6,12 @@ export default function BucketListActionBar({
   filter,
   onFilterChange,
 }) {
-  const FILTERS = ["all", "pending", "complete"];
+  const FILTERS = [
+    { value: "all", label: "All" },
+    { value: "proposed", label: "Proposed" },
+    { value: "locked_in", label: "Locked In" },
+    { value: "complete", label: "Complete" },
+  ];
 
   return (
     <motion.section
@@ -29,7 +34,7 @@ export default function BucketListActionBar({
             role="tablist"
             aria-label="Item filters"
           >
-            {FILTERS.map((value) => (
+            {FILTERS.map(({ value, label }) => (
               <button
                 key={value}
                 type="button"
@@ -40,7 +45,7 @@ export default function BucketListActionBar({
                 }`}
                 onClick={() => onFilterChange(value)}
               >
-                {value}
+                {label}
               </button>
             ))}
           </div>

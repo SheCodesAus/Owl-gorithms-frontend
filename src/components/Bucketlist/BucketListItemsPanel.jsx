@@ -6,6 +6,9 @@ export default function BucketListItemsPanel({
   selectedItemId,
   onSelectItem,
   onDoubleSelectItem,
+  getItemVoteState,
+  isVotingItemId,
+  onVote,
 }) {
   return (
     <section className="bucketlist-items-panel">
@@ -29,22 +32,31 @@ export default function BucketListItemsPanel({
             </motion.div>
           ) : (
             <div className="bucketlist-items-stack">
-              {items.map((item, index) => (
-                <motion.div
-                  key={item.id}
-                  initial={{ opacity: 0, y: 10 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  exit={{ opacity: 0, y: -6 }}
-                  transition={{ delay: index * 0.03, duration: 0.22 }}
-                >
-                  <BucketListItemCard
-                    item={item}
-                    isSelected={item.id === selectedItemId}
-                    onSelect={() => onSelectItem(item.id)}
-                    onDoubleSelect={() => onDoubleSelectItem?.(item.id)}
-                  />
-                </motion.div>
-              ))}
+              {items.map((item, index) => {
+                const voteState = getItemVoteState?.(item) ?? { voteScore: 0, userVote: null };
+
+                return (
+                  <motion.div
+                    key={item.id}
+                    initial={{ opacity: 0, y: 10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0, y: -6 }}
+                    transition={{ delay: index * 0.03, duration: 0.22 }}
+                  >
+                    <BucketListItemCard
+                      item={item}
+                      isSelected={item.id === selectedItemId}
+                      onSelect={() => onSelectItem(item.id)}
+                      onDoubleSelect={() => onDoubleSelectItem?.(item.id)}
+                      voteScore={voteState.voteScore}
+                      userVote={voteState.userVote}
+                      isVoting={isVotingItemId === item.id}
+                      onUpvote={() => onVote?.(item, "upvote")}
+                      onDownvote={() => onVote?.(item, "downvote")}
+                    />
+                  </motion.div>
+                );
+              })}
             </div>
           )}
         </AnimatePresence>

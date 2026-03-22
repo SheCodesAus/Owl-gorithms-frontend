@@ -1,6 +1,7 @@
 import { motion } from "framer-motion";
 import { CheckCircle2 } from "lucide-react";
 import RelativeTime from "../UI/RelativeTime";
+import VoteControls from "../UI/VoteControls";
 
 function formatDate(iso) {
   if (!iso) return "";
@@ -11,7 +12,17 @@ function formatDate(iso) {
   });
 }
 
-export default function BucketListItemCard({ item, isSelected, onSelect, onDoubleSelect }) {
+export default function BucketListItemCard({
+  item,
+  isSelected,
+  onSelect,
+  onDoubleSelect,
+  voteScore,
+  userVote,
+  isVoting,
+  onUpvote,
+  onDownvote,
+}) {
   const handleKeyDown = (event) => {
     if (event.key === "Enter" || event.key === " ") {
       event.preventDefault();
@@ -35,12 +46,10 @@ export default function BucketListItemCard({ item, isSelected, onSelect, onDoubl
       role="button"
       aria-pressed={isSelected}
     >
-      {/* Glow layer — visible on selected/hover */}
       <div className="bucketlist-item-card-glow" />
 
       <div className="bucketlist-item-top">
         <div className="bucketlist-item-main">
-          {/* Status dot */}
           <div
             className={`bucketlist-item-status-dot ${
               item.is_completed ? "bucketlist-item-status-dot-complete" : ""
@@ -69,21 +78,36 @@ export default function BucketListItemCard({ item, isSelected, onSelect, onDoubl
           </div>
         </div>
 
-        {/* Completed badge — top right */}
-        {item.is_completed ? (
-          <CheckCircle2
-            size={18}
-            className="mt-0.5 shrink-0 text-emerald-500"
-            aria-label="Completed"
+        {/* Vote controls — stop propagation so clicks don't select the card */}
+        <div
+          onClick={(e) => e.stopPropagation()}
+          onDoubleClick={(e) => e.stopPropagation()}
+          style={{ flexShrink: 0 }}
+        >
+          <VoteControls
+            itemTitle={item.title}
+            score={voteScore ?? 0}
+            activeVote={userVote ?? null}
+            isVoting={isVoting}
+            onUpvote={onUpvote}
+            onDownvote={onDownvote}
+            variant="compact"
           />
-        ) : null}
+        </div>
       </div>
 
       <div className="bucketlist-item-meta">
         <span>
-          <RelativeTime timestamp={item.date_created} />
+          {" "}
+          {item.creator?.display_name ??
+            item.creator?.username ??
+            item.created_by?.display_name ??
+            item.created_by?.username ??
+            "Unknown"}
         </span>
-        <span>By {item.created_by?.display_name ?? item.created_by?.username ?? "Unknown"}</span>
+        <span>
+          <RelativeTime timestamp={item.updated_at ?? item.date_created} />
+        </span>
 
         {item.is_completed && item.completed_at ? (
           <span className="bucketlist-item-complete-badge">
