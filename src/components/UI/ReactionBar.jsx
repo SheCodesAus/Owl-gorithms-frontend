@@ -5,12 +5,12 @@ import { useAuth } from "../../hooks/use-auth";
 import { reactToItem } from "../../api/reactions";
 
 const REACTIONS = [
-  { key: "fire",     label: "This is heating up",   emoji: "🔥", lottie: "/reactions/fire.json",     freezeFrame: 10 },
-  { key: "love",     label: "Obsessed",              emoji: "😍", lottie: "/reactions/love.json",     freezeFrame: 46 },
-  { key: "sketchy",  label: "I have questions",      emoji: "😰", lottie: "/reactions/sketchy.json",  freezeFrame: 44 },
-  { key: "dead",     label: "This will kill us",     emoji: "😭", lottie: "/reactions/dead.json",     freezeFrame: 40 },
-  { key: "hardpass", label: "Not a chance",          emoji: "😤", lottie: "/reactions/hardpass.json", freezeFrame: 69 },
-  { key: "nope",     label: "Nah, I'm good",         emoji: "🙅", lottie: "/reactions/nope.json",     freezeFrame: 69 },
+  { key: "fire",     label: "This is heating up",   emoji: "🔥", lottie: "/reactions/fire.json",     freezeFrame: null },
+  { key: "love",     label: "Obsessed",              emoji: "😍", lottie: "/reactions/love.json",     freezeFrame: null },
+  { key: "sketchy",  label: "I have questions",      emoji: "😰", lottie: "/reactions/sketchy.json",  freezeFrame: null },
+  { key: "dead",     label: "This will kill us",     emoji: "😭", lottie: "/reactions/dead.json",     freezeFrame: null },
+  { key: "hardpass", label: "Not a chance",          emoji: "😤", lottie: "/reactions/hardpass.json", freezeFrame: null },
+  { key: "nope",     label: "Nah, I'm good",         emoji: "🙅", lottie: "/reactions/nope.json",     freezeFrame: null },
 ];
 
 function LottieIcon({ src, emoji, size = 32, playing = false, freezeFrame = null }) {
@@ -70,16 +70,16 @@ function LottieIcon({ src, emoji, size = 32, playing = false, freezeFrame = null
   return <div ref={ref} style={{ width: size, height: size, flexShrink: 0 }} aria-hidden="true" />;
 }
 
-function ReactionPicker({ onReact, userReaction, onClose }) {
+function ReactionPicker({ onReact, userReaction, onClose, openedByClick }) {
   const [hoveredKey, setHoveredKey] = useState(null);
   return (
     <motion.div
-      className="absolute bottom-full right-0 z-30 mb-2"
+      className="absolute bottom-full left-0 z-30 mb-2"
       initial={{ opacity: 0, scale: 0.85, y: 8 }}
       animate={{ opacity: 1, scale: 1, y: 0 }}
       exit={{ opacity: 0, scale: 0.85, y: 8 }}
       transition={{ duration: 0.18, ease: [0.4, 0, 0.2, 1] }}
-      onMouseLeave={onClose}
+      onMouseLeave={openedByClick ? undefined : onClose}
     >
       <div className="flex items-center gap-1 rounded-full border border-white/50 bg-white/95 px-3 py-2 shadow-[0_8px_32px_rgba(39,16,76,0.18)] backdrop-blur-md">
         {REACTIONS.map((r) => {
@@ -116,6 +116,9 @@ function ReactionPicker({ onReact, userReaction, onClose }) {
   );
 }
 
+// ── Tweak this to change which frame the animation rests on when not hovered
+const FREEZE_FRAME = 0;
+
 function ReactionCount({ reactionKey, count, isActive }) {
   const reaction = REACTIONS.find((r) => r.key === reactionKey);
   const [hovered, setHovered] = useState(false);
@@ -131,7 +134,7 @@ function ReactionCount({ reactionKey, count, isActive }) {
           : "border-[var(--dividers)] bg-white/70 text-[var(--muted-text)]"
       }`}
     >
-      <LottieIcon src={reaction.lottie} emoji={reaction.emoji} size={20} playing={hovered} freezeFrame={reaction.freezeFrame} />
+      <LottieIcon src={reaction.lottie} emoji={reaction.emoji} size={20} playing={hovered} freezeFrame={FREEZE_FRAME} />
       <span>{count}</span>
     </motion.span>
   );
@@ -146,6 +149,7 @@ export default function ReactionBar({
 }) {
   const { auth } = useAuth();
   const [pickerOpen, setPickerOpen] = useState(false);
+  const [openedByClick, setOpenedByClick] = useState(false);
   const [isReacting, setIsReacting] = useState(false);
   const [localSummary, setLocalSummary] = useState(reactionsSummary);
   const [localUserReaction, setLocalUserReaction] = useState(userReaction);
@@ -161,6 +165,7 @@ export default function ReactionBar({
     function handleClickOutside(e) {
       if (containerRef.current && !containerRef.current.contains(e.target)) {
         setPickerOpen(false);
+        setOpenedByClick(false);
       }
     }
     document.addEventListener("mousedown", handleClickOutside);
@@ -168,8 +173,11 @@ export default function ReactionBar({
   }, []);
 
   const handleMouseEnter = () => {
-    if (disabled) return;
-    hoverTimerRef.current = setTimeout(() => setPickerOpen(true), 300);
+    if (disabled || openedByClick) return;
+    hoverTimerRef.current = setTimeout(() => {
+      setOpenedByClick(false);
+      setPickerOpen(true);
+    }, 300);
   };
 
   const handleMouseLeave = () => {
@@ -232,7 +240,12 @@ export default function ReactionBar({
         <motion.button
           type="button"
           aria-label="Add reaction"
-          onClick={(e) => { e.stopPropagation(); setPickerOpen((p) => !p); }}
+          onClick={(e) => {
+            e.stopPropagation();
+            const opening = !pickerOpen;
+            setPickerOpen(opening);
+            setOpenedByClick(opening);
+          }}
           whileTap={{ scale: 0.9 }}
           className={`inline-flex h-7 w-7 cursor-pointer items-center justify-center rounded-full border transition ${
             pickerOpen
@@ -252,7 +265,8 @@ export default function ReactionBar({
           <ReactionPicker
             onReact={handleReact}
             userReaction={localUserReaction}
-            onClose={() => setPickerOpen(false)}
+            onClose={() => { setPickerOpen(false); setOpenedByClick(false); }}
+            openedByClick={openedByClick}
           />
         )}
       </AnimatePresence>
