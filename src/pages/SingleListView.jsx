@@ -8,6 +8,7 @@ import { updateItem, deleteItem } from "../api/items";
 
 import BucketListHeader from "../components/bucketlist/BucketListHeader";
 import BucketListActionBar from "../components/bucketlist/BucketListActionBar";
+import BucketListSearchBar from "../components/Bucketlist/BucketListSearchBar";
 import BucketListItemsPanel from "../components/bucketlist/BucketListItemsPanel";
 import ItemDetailPanel from "../components/items/ItemDetailPanel";
 
@@ -41,6 +42,7 @@ export default function SingleListView() {
 
   const [selectedItemId, setSelectedItemId] = useState(null);
   const [filter, setFilter] = useState("all");
+  const [search, setSearch] = useState("");
   const [showAddItemModal, setShowAddItemModal] = useState(false);
   const [showInviteModal, setShowInviteModal] = useState(false);
   const [showCalendarModal, setShowCalendarModal] = useState(false);
@@ -152,11 +154,24 @@ export default function SingleListView() {
     return () => window.clearTimeout(timer);
   }, [panelMessage]);
 
-  const filteredItems = useMemo(() => {
-    if (filter === "complete") return items.filter((item) => item.status === "complete");
-    if (filter === "pending") return items.filter((item) => item.status !== "complete");
-    return items;
-  }, [items, filter]);
+const filteredItems = useMemo(() => {
+    let result = items;
+
+    if (filter !== "all") {
+      result = result.filter((item) => item.status === filter);
+    }
+
+    if (search.trim()) {
+      const term = search.trim().toLowerCase();
+      result = result.filter(
+        (item) =>
+          item.title?.toLowerCase().includes(term) ||
+          item.description?.toLowerCase().includes(term),
+      );
+    }
+
+    return result;
+  }, [items, filter, search]);
 
   const selectedItem = useMemo(
     () => items.find((item) => item.id === selectedItemId) ?? null,
@@ -343,6 +358,9 @@ export default function SingleListView() {
                   filter={filter}
                   onFilterChange={setFilter}
                 />
+
+                <BucketListSearchBar value={search} onChange={setSearch} />
+
                 <BucketListItemsPanel
                   items={filteredItems}
                   selectedItemId={selectedItemId}

@@ -1,9 +1,14 @@
-const FILTERS = ["all", "pending", "complete"];
+const FILTERS = [
+  { value: "all", label: "All" },
+  { value: "proposed", label: "Proposed" },
+  { value: "locked_in", label: "Locked In" },
+  { value: "complete", label: "Complete" },
+];
 
 export default function BucketListFilterTabs({ filter, onChange }) {
   return (
     <div className="bucketlist-filter-row" role="tablist" aria-label="Item filters">
-      {FILTERS.map((value) => {
+      {FILTERS.map(({ value, label }) => {
         const isActive = filter === value;
 
         return (
@@ -15,7 +20,7 @@ export default function BucketListFilterTabs({ filter, onChange }) {
             }`}
             onClick={() => onChange(value)}
           >
-            {value}
+            {label}
           </button>
         );
       })}
