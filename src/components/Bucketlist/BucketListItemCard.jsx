@@ -98,15 +98,15 @@ export default function BucketListItemCard({
 
       <div className="bucketlist-item-meta">
         <span>
-          <RelativeTime timestamp={item.updated_at ?? item.date_created} />
-        </span>
-        <span>
-          By{" "}
+          {" "}
           {item.creator?.display_name ??
             item.creator?.username ??
             item.created_by?.display_name ??
             item.created_by?.username ??
             "Unknown"}
+        </span>
+        <span>
+          <RelativeTime timestamp={item.updated_at ?? item.date_created} />
         </span>
 
         {item.is_completed && item.completed_at ? (
