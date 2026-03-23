@@ -8,13 +8,13 @@ import { updateItem, deleteItem } from "../api/items";
 
 import BucketListHeader from "../components/bucketlist/BucketListHeader";
 import BucketListActionBar from "../components/bucketlist/BucketListActionBar";
-import BucketListSearchBar from "../components/Bucketlist/BucketListSearchBar";
 import BucketListItemsPanel from "../components/bucketlist/BucketListItemsPanel";
 import ItemDetailPanel from "../components/items/ItemDetailPanel";
 
 import FormModal from "../components/UI/FormModal";
 import CreateItemForm from "../components/forms/CreateItemForm";
 import InviteMembersModal from "../components/modals/InviteMembersModal";
+import ViewMembersModal from "../components/modals/ViewMembersModal";
 import CalendarExportModal from "../components/modals/CalendarExportModal";
 import EditItemModal from "../components/modals/EditItemModal";
 import DeleteItemModal from "../components/modals/DeleteItemModal";
@@ -42,9 +42,9 @@ export default function SingleListView() {
 
   const [selectedItemId, setSelectedItemId] = useState(null);
   const [filter, setFilter] = useState("all");
-  const [search, setSearch] = useState("");
   const [showAddItemModal, setShowAddItemModal] = useState(false);
   const [showInviteModal, setShowInviteModal] = useState(false);
+  const [showMembersModal, setShowMembersModal] = useState(false);
   const [showCalendarModal, setShowCalendarModal] = useState(false);
   const [showEditModal, setShowEditModal] = useState(false);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
@@ -76,12 +76,12 @@ export default function SingleListView() {
 
   const panelScrollRef = useRef(null);
 
-  // Scroll page to top of detail panel when a new item is selected
+  // On mobile, scroll to top of detail panel when a new item is selected
   useEffect(() => {
-    if (selectedItemId && panelScrollRef.current) {
+    if (isMobile && selectedItemId && panelScrollRef.current) {
       panelScrollRef.current.scrollIntoView({ behavior: "smooth", block: "start" });
     }
-  }, [selectedItemId]);
+  }, [selectedItemId, isMobile]);
 
   const baseItems = bucketList?.items ?? [];
   const currentUser = auth?.user;
@@ -154,24 +154,11 @@ export default function SingleListView() {
     return () => window.clearTimeout(timer);
   }, [panelMessage]);
 
-const filteredItems = useMemo(() => {
-    let result = items;
-
-    if (filter !== "all") {
-      result = result.filter((item) => item.status === filter);
-    }
-
-    if (search.trim()) {
-      const term = search.trim().toLowerCase();
-      result = result.filter(
-        (item) =>
-          item.title?.toLowerCase().includes(term) ||
-          item.description?.toLowerCase().includes(term),
-      );
-    }
-
-    return result;
-  }, [items, filter, search]);
+  const filteredItems = useMemo(() => {
+    if (filter === "complete") return items.filter((item) => item.status === "complete");
+    if (filter === "pending") return items.filter((item) => item.status !== "complete");
+    return items;
+  }, [items, filter]);
 
   const selectedItem = useMemo(
     () => items.find((item) => item.id === selectedItemId) ?? null,
@@ -212,6 +199,46 @@ const filteredItems = useMemo(() => {
       );
     } catch (err) {
       console.error("Copy failed:", err);
+    }
+  };
+
+  const [isUpdatingMemberId, setIsUpdatingMemberId] = useState(null);
+
+  const handleChangeMemberRole = async (membershipId, newRole) => {
+    setIsUpdatingMemberId(membershipId);
+    try {
+      const { default: updateMembership } = await import("../api/memberships/update-membership");
+      await updateMembership(membershipId, { role: newRole }, auth?.access);
+      await loadBucketList();
+    } catch (err) {
+      console.error("Role change failed:", err);
+    } finally {
+      setIsUpdatingMemberId(null);
+    }
+  };
+
+  const handleRemoveMember = async (membership) => {
+    setIsUpdatingMemberId(membership.id);
+    try {
+      const { default: removeMembership } = await import("../api/memberships/delete-membership");
+      await removeMembership(membership.id, auth?.access);
+      await loadBucketList();
+    } catch (err) {
+      console.error("Remove member failed:", err);
+    } finally {
+      setIsUpdatingMemberId(null);
+    }
+  };
+
+  const handleLeaveList = async (membership) => {
+    setIsUpdatingMemberId(membership.id);
+    try {
+      const { default: removeMembership } = await import("../api/memberships/delete-membership");
+      await removeMembership(membership.id, auth?.access);
+      navigate("/dashboard");
+    } catch (err) {
+      console.error("Leave list failed:", err);
+      setIsUpdatingMemberId(null);
     }
   };
 
@@ -350,7 +377,6 @@ const filteredItems = useMemo(() => {
                 <BucketListHeader
                   bucketList={bucketList}
                   isOwner={isOwner}
-                  currentUser={currentUser}
                   onAddItemClick={() => setShowAddItemModal(true)}
                   onViewMembersClick={() => setShowMembersModal(true)}
                   onInviteMembersClick={isOwner ? () => setShowInviteModal(true) : undefined}
@@ -365,18 +391,12 @@ const filteredItems = useMemo(() => {
                   filter={filter}
                   onFilterChange={setFilter}
                 />
-
-                <BucketListSearchBar value={search} onChange={setSearch} />
-
                 <BucketListItemsPanel
-                items={filteredItems}
-                selectedItemId={selectedItemId}
-                onSelectItem={setSelectedItemId}
-                onDoubleSelectItem={(itemId) => navigate(`/bucketlists/${id}/items/${itemId}`)}
-                getItemVoteState={getEffectiveVoteState}
-                isVotingItemId={isVotingItemId}
-                onVote={handleVote}
-              />
+                  items={filteredItems}
+                  selectedItemId={selectedItemId}
+                  onSelectItem={setSelectedItemId}
+                  onDoubleSelectItem={(itemId) => navigate(`/bucketlists/${id}/items/${itemId}`)}
+                />
               </motion.div>
 
               {/* Right column — natural height, panel scrolls internally */}
@@ -428,6 +448,7 @@ const filteredItems = useMemo(() => {
                 bucketList={bucketList}
                 isOwner={isOwner}
                 onAddItemClick={() => setShowAddItemModal(true)}
+                onViewMembersClick={() => setShowMembersModal(true)}
                 onInviteMembersClick={isOwner ? () => setShowInviteModal(true) : undefined}
                 onEditBucketList={() => setShowEditListModal(true)}
                 onFreezeBucketList={handleFreezeList}
@@ -504,11 +525,20 @@ const filteredItems = useMemo(() => {
         <CreateItemForm bucketListId={bucketList?.id} onClose={() => setShowAddItemModal(false)} onSuccess={handleAddItemSuccess} />
       </FormModal>
 
-      <InviteMembersModal 
-      isOpen={showInviteModal} 
-      onClose={() => setShowInviteModal(false)} 
-      bucketListId={bucketList?.id} />
+      <InviteMembersModal isOpen={showInviteModal} onClose={() => setShowInviteModal(false)} bucketListId={bucketList?.id} />
+
+      <ViewMembersModal
+        isOpen={showMembersModal}
+        onClose={() => setShowMembersModal(false)}
+        bucketList={bucketList}
+        currentUser={currentUser}
+        onChangeRole={handleChangeMemberRole}
+        onRemoveMember={handleRemoveMember}
+        onLeaveList={handleLeaveList}
+        isUpdatingMemberId={isUpdatingMemberId}
+      />
       <CalendarExportModal item={selectedItem} isOpen={showCalendarModal} onClose={() => setShowCalendarModal(false)} />
+
       <EditItemModal
         item={selectedItem}
         isOpen={showEditModal}

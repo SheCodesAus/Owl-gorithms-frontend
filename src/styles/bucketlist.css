@@ -191,7 +191,35 @@
 .bucketlist-items-panel {
   min-width: 0;
   min-height: 0;
+  border: 1px solid rgba(107,78,170,0.1);
+  border-radius: 1.25rem;
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  overflow: hidden;
+  box-shadow: 0 2px 12px rgba(107,78,170,0.07);
+  padding: 3px;
+}
+ 
+.bucketlist-items-panel-scroll {
+  height: 100%;
+  max-height: 200vh;
+  overflow-y: auto;
+  padding: 0.75rem 0.75rem 0.75rem 0.75rem;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(107,78,170,0.22) transparent;
+}
+ 
+.bucketlist-items-panel-scroll::-webkit-scrollbar {
+  width: 6px;
+}
+ 
+.bucketlist-items-panel-scroll::-webkit-scrollbar-track {
   background: transparent;
+}
+ 
+.bucketlist-items-panel-scroll::-webkit-scrollbar-thumb {
+  background: rgba(107,78,170,0.22);
+  border-radius: 999px;
 }
  
 .item-detail-panel {
@@ -200,31 +228,11 @@
   background: transparent;
 }
 
-/* Bucket list items panel — keeps scroll behaviour */
-.bucketlist-items-panel-scroll {
-  height: 100%;
-  max-height: 72vh;
-  overflow-y: auto;
-  padding-right: 0.35rem;
-}
- 
 .item-detail-panel-scroll {
   padding: 1rem;
   /* No max-height, no overflow constraint */
 }
  
-.bucketlist-items-panel-scroll::-webkit-scrollbar {
-  width: 8px;
-}
- 
-.bucketlist-items-panel-scroll::-webkit-scrollbar-track {
-  background: transparent;
-}
- 
-.bucketlist-items-panel-scroll::-webkit-scrollbar-thumb {
-  background: rgba(107, 78, 170, 0.22);
-  border-radius: 999px;
-}
 
 .bucketlist-items-stack {
   display: flex;
@@ -232,42 +240,37 @@
   gap: 0.75rem;
 }
 
-/* ── Base card ── */
 .bucketlist-item-card {
   position: relative;
-  padding: 1.1rem 1.25rem 1.1rem 1.6rem; /* extra left padding for accent bar */
+  padding: 5px 5px 5px 8px;
   cursor: pointer;
-  transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease, background 0.25s ease;
-  background: var(--cta-text);
-  border: 1px solid var(--card-border);
+  transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
+  background: linear-gradient(135deg, rgba(107,78,170,0.06) 0%, rgba(255,94,98,0.03) 100%);
+  border: 1px solid rgba(107,78,170,0.12);
   border-radius: 1.25rem;
-  box-shadow: 0 1px 4px rgba(107, 78, 170, 0.06);
-  overflow: hidden; /* keeps accent bar clipped to border-radius */
+  box-shadow: 0 2px 8px rgba(107,78,170,0.07);
+  overflow: hidden;
 }
  
-/* ── Hover / focus ── */
 .bucketlist-item-card:hover,
 .bucketlist-item-card:focus-visible {
   transform: translateY(-2px);
-  border-color: var(--dividers);
-  box-shadow: 0 10px 30px rgba(107, 78, 170, 0.12);
+  border-color: rgba(107,78,170,0.25);
+  box-shadow: 0 8px 24px rgba(107,78,170,0.13);
   outline: none;
 }
  
-/* ── Selected — faint brand tint ── */
 .bucketlist-item-card-selected {
   border-color: var(--primary-cta);
-  background: linear-gradient(135deg, rgba(107,78,170,0.04) 0%, rgba(255,94,98,0.03) 100%);
-  box-shadow: 0 0 0 3px rgba(107, 78, 170, 0.12), 0 10px 30px rgba(107, 78, 170, 0.1);
+  background: linear-gradient(135deg, rgba(107,78,170,0.09) 0%, rgba(255,94,98,0.05) 100%);
+  box-shadow: 0 0 0 3px rgba(107,78,170,0.15), 0 8px 24px rgba(107,78,170,0.14);
 }
  
-/* ── Complete ── */
 .bucketlist-item-card-complete {
-  opacity: 0.72;
-  background: var(--surface-soft);
+  opacity: 0.7;
 }
  
-/* ── Glow overlay — glassmorphism shimmer on hover/select ── */
+/* ── Glow overlay ── */
 .bucketlist-item-card-glow {
   pointer-events: none;
   position: absolute;
@@ -275,9 +278,9 @@
   border-radius: inherit;
   opacity: 0;
   background: radial-gradient(
-    ellipse at 70% 30%,
-    rgba(107, 78, 170, 0.07) 0%,
-    rgba(255, 94, 98, 0.04) 50%,
+    ellipse at 70% 20%,
+    rgba(107,78,170,0.09) 0%,
+    rgba(255,94,98,0.05) 50%,
     transparent 75%
   );
   transition: opacity 0.3s ease;
@@ -292,10 +295,10 @@
 .bucketlist-item-accent-bar {
   position: absolute;
   left: 0;
-  top: 0.75rem;
-  bottom: 0.75rem;
-  width: 3px;
-  border-radius: 0 3px 3px 0;
+  top: 0.6rem;
+  bottom: 0.6rem;
+  width: 4px;
+  border-radius: 0 4px 4px 0;
 }
  
 .bucketlist-item-accent-bar-proposed {
@@ -307,109 +310,88 @@
 }
  
 .bucketlist-item-accent-bar-complete {
-  background: linear-gradient(180deg, #4ade80 0%, #16a34a 100%);
+  background: linear-gradient(180deg, #C76BBA 0%, #6B4EAA 100%);
 }
  
-/* ── Status badge ── */
+/* ── Frosted glass inner ── */
+.bucketlist-item-card-inner {
+  background: rgba(255,255,255,0.82);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border-radius: 0.9rem;
+  padding: 0.85rem 1rem;
+  border: 1px solid rgba(255,255,255,0.7);
+}
+ 
+/* ── Title ── */
+.bucketlist-item-title {
+  margin: 0 0 0.2rem;
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: var(--heading-text);
+  line-height: 1.4;
+}
+ 
+.bucketlist-item-title-complete {
+  color: var(--muted-text);
+}
+ 
+/* ── Description ── */
+.bucketlist-item-description {
+  margin: 0;
+  color: var(--muted-text);
+  line-height: 1.55;
+  font-size: 0.875rem;
+}
+ 
+.bucketlist-item-description-empty {
+  font-style: italic;
+  opacity: 0.5;
+}
+ 
+/* ── Reactions footer strip ── */
+.bucketlist-item-reactions-row {
+  display: flex;
+  align-items: center;
+  border-top: 1px solid rgba(107,78,170,0.08);
+  margin-top: 0.6rem;
+  padding-top: 0.5rem;
+}
+ 
+/* ── Status badges ── */
 .item-status-badge {
   display: inline-flex;
   align-items: center;
   flex-shrink: 0;
   border-radius: 999px;
-  padding: 0.2rem 0.65rem;
-  font-size: 0.7rem;
+  padding: 0.2rem 0.6rem;
+  font-size: 0.68rem;
   font-weight: 700;
-  letter-spacing: 0.04em;
+  letter-spacing: 0.05em;
   text-transform: uppercase;
   white-space: nowrap;
 }
  
 .item-status-badge-proposed {
-  background: rgba(107, 78, 170, 0.08);
+  background: rgba(107,78,170,0.1);
   color: #6B4EAA;
 }
  
 .item-status-badge-locked {
-  background: rgba(67, 56, 202, 0.1);
+  background: rgba(67,56,202,0.1);
   color: #4338ca;
 }
  
 .item-status-badge-complete {
-  background: #f0fdf4;
-  color: #16a34a;
+  background: rgba(199,107,186,0.12);
+  color: #C76BBA;
 }
  
-/* ── Reactions row ── */
-.bucketlist-item-reactions-row {
-  display: flex;
-  align-items: center;
-  border-top: 1px solid var(--card-border);
-  padding-top: 0.5rem;
-  margin-top: 0.1rem;
-}
-
-.bucketlist-item-top {
-  display: flex;
-  justify-content: space-between;
-  gap: 1rem;
-}
-
-.bucketlist-item-main {
-  display: flex;
-  gap: 0.9rem;
-  flex: 1;
-  min-width: 0;
-}
-
-.bucketlist-item-status-dot {
-  width: 1rem;
-  height: 1rem;
-  border-radius: 999px;
-  border: 2px solid var(--dividers);
-  flex-shrink: 0;
-  margin-top: 0.2rem;
-}
-
-.bucketlist-item-status-dot-complete {
-  background: var(--primary-cta);
-  border-color: var(--primary-cta);
-}
-
-.bucketlist-item-copy {
-  min-width: 0;
-}
-
-.bucketlist-item-title {
-  margin: 0 0 0.3rem;
-  font-size: 1rem;
-  color: var(--heading-text);
-}
-
-.bucketlist-item-title-complete {
-  text-decoration: line-through;
-  color: var(--muted-text);
-}
-
-.bucketlist-item-description {
-  margin: 0;
-  color: var(--muted-text);
-  line-height: 1.6;
-  font-size: 0.92rem;
-}
-
-.bucketlist-item-meta {
-  display: flex;
-  gap: 0.85rem;
-  flex-wrap: wrap;
-  margin-top: 0.9rem;
-  color: var(--muted-text);
-  font-size: 0.8rem;
-}
-
+/* ── Completed badge (inline meta) ── */
 .bucketlist-item-complete-badge {
-  background: #f0fdf4;
-  color: #16a34a;
+  background: rgba(199,107,186,0.12);
+  color: #C76BBA;
   border-radius: 999px;
-  padding: 0.2rem 0.65rem;
+  padding: 0.15rem 0.55rem;
   font-weight: 700;
 }

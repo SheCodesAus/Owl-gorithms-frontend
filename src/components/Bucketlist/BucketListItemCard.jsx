@@ -13,9 +13,18 @@ function formatDate(iso) {
 }
 
 const STATUS_CONFIG = {
-  proposed:  { label: "Proposed",  className: "item-status-badge item-status-badge-proposed" },
-  locked_in: { label: "Locked in", className: "item-status-badge item-status-badge-locked" },
-  complete:  { label: "Complete",  className: "item-status-badge item-status-badge-complete" },
+  proposed: {
+    label: "Proposed",
+    pill: "item-status-badge item-status-badge-proposed",
+  },
+  locked_in: {
+    label: "Locked in",
+    pill: "item-status-badge item-status-badge-locked",
+  },
+  complete: {
+    label: "Complete",
+    pill: "item-status-badge item-status-badge-complete",
+  },
 };
 
 export default function BucketListItemCard({
@@ -46,9 +55,7 @@ export default function BucketListItemCard({
       initial={{ opacity: 0, y: 8 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.22 }}
-      className={`bucketlist-item-card ${
-        status === "complete" ? "bucketlist-item-card-complete" : ""
-      } ${isSelected ? "bucketlist-item-card-selected" : ""}`}
+      className={`bucketlist-item-card ${status === "complete" ? "bucketlist-item-card-complete" : ""} ${isSelected ? "bucketlist-item-card-selected" : ""}`}
       onClick={onSelect}
       onDoubleClick={onDoubleSelect}
       onKeyDown={handleKeyDown}
@@ -59,37 +66,82 @@ export default function BucketListItemCard({
       {/* Glow */}
       <div className="bucketlist-item-card-glow" />
 
-      {/* Left accent bar */}
-      <div className={`bucketlist-item-accent-bar bucketlist-item-accent-bar-${status}`} />
+      {/* Accent bar */}
+      <div
+        className={`bucketlist-item-accent-bar bucketlist-item-accent-bar-${status}`}
+      />
 
-      {/* ── Main layout ── */}
-      <div className="flex items-stretch gap-3">
-
-        {/* Left: content */}
-        <div className="flex min-w-0 flex-1 flex-col gap-2">
-
-          {/* Title + status badge */}
-          <div className="flex items-start justify-between gap-2">
-            <h3 className={`bucketlist-item-title ${status === "complete" ? "bucketlist-item-title-complete" : ""}`}>
+      {/* ── Frosted glass inner ── */}
+      <div className="bucketlist-item-card-inner">
+        {/* ── Top: content + vote controls ── */}
+        <div className="flex items-stretch gap-3">
+          {/* Content */}
+          <div className="flex min-w-0 flex-1 flex-col gap-1.5">
+            {/* Title + badge */}
+            <h3
+              className={`bucketlist-item-title ${status === "complete" ? "bucketlist-item-title-complete" : ""}`}
+            >
               {item.title}
             </h3>
-            <span className={statusConfig.className}>
-              {statusConfig.label}
-            </span>
+
+            {/* Description */}
+            {item.description ? (
+              <p className="bucketlist-item-description line-clamp-2">
+                {item.description}
+              </p>
+            ) : (
+              <p className="bucketlist-item-description bucketlist-item-description-empty">
+                No description yet.
+              </p>
+            )}
+
+            {/* Meta */}
+            <div className="mt-auto flex items-center gap-1.5 pt-1 text-xs text-[var(--muted-text)]">
+              <span className="font-medium">
+                {item.creator?.display_name ??
+                  item.creator?.username ??
+                  item.created_by?.display_name ??
+                  item.created_by?.username ??
+                  "Unknown"}
+              </span>
+              <span className="opacity-40">·</span>
+              <span>
+                <RelativeTime
+                  timestamp={item.updated_at ?? item.date_created}
+                />
+              </span>
+              {status === "complete" && item.completed_at ? (
+                <>
+                  <span className="opacity-40">·</span>
+                  <span className="bucketlist-item-complete-badge shrink-0">
+                    ✓ {formatDate(item.completed_at)}
+                  </span>
+                </>
+              ) : null}
+            </div>
           </div>
 
-          {/* Description */}
-          {item.description ? (
-            <p className="bucketlist-item-description line-clamp-2">{item.description}</p>
-          ) : (
-            <p className="bucketlist-item-description bucketlist-item-description-empty">
-              No description yet.
-            </p>
-          )}
-
-          {/* Reactions */}
+          {/* Vote controls */}
           <div
-            className="bucketlist-item-reactions-row"
+            className="flex shrink-0 items-center"
+            onClick={(e) => e.stopPropagation()}
+            onDoubleClick={(e) => e.stopPropagation()}
+          >
+            <VoteControls
+              itemTitle={item.title}
+              score={voteScore ?? 0}
+              activeVote={userVote ?? null}
+              isVoting={isVoting}
+              onUpvote={onUpvote}
+              onDownvote={onDownvote}
+              variant="compact"
+            />
+          </div>
+        </div>
+
+        {/* ── Reactions footer ── */}
+          <div
+            className="bucketlist-item-reactions-row flex items-start justify-between"
             onClick={(e) => e.stopPropagation()}
             onDoubleClick={(e) => e.stopPropagation()}
           >
@@ -100,50 +152,10 @@ export default function BucketListItemCard({
               onReactionUpdate={onReactionUpdate}
               disabled={status === "complete"}
             />
-          </div>
-
-          {/* Meta */}
-          <div className="flex items-center gap-1.5 text-xs text-[var(--muted-text)]">
-            <span className="font-medium">
-              {item.creator?.display_name ??
-                item.creator?.username ??
-                item.created_by?.display_name ??
-                item.created_by?.username ??
-                "Unknown"}
-            </span>
-            <span className="opacity-40">·</span>
-            <span>
-              <RelativeTime timestamp={item.updated_at ?? item.date_created} />
-            </span>
-            {status === "complete" && item.completed_at ? (
-              <>
-                <span className="opacity-40">·</span>
-                <span className="bucketlist-item-complete-badge shrink-0">
-                  ✓ Completed {formatDate(item.completed_at)}
-                </span>
-              </>
-            ) : null}
-          </div>
-
+            <div className="flex items-start justify-between gap-2">
+          <span className={statusConfig.pill}>{statusConfig.label}</span>
         </div>
-
-        {/* Right: vote controls — vertically centred */}
-        <div
-          className="flex shrink-0 items-center"
-          onClick={(e) => e.stopPropagation()}
-          onDoubleClick={(e) => e.stopPropagation()}
-        >
-          <VoteControls
-            itemTitle={item.title}
-            score={voteScore ?? 0}
-            activeVote={userVote ?? null}
-            isVoting={isVoting}
-            onUpvote={onUpvote}
-            onDownvote={onDownvote}
-            variant="compact"
-          />
-        </div>
-
+      </div>
       </div>
     </motion.article>
   );
