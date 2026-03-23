@@ -33,9 +33,7 @@
    The card grid scrolls if it's longer than the panel.
 ──────────────────────────────────────────────────────────── */
 .focus-panel-shell {
-  /* No position, no max-height, no overflow constraints.
-     Just a simple wrapper so DashboardFocusPanel and
-     ItemDetailPanel can share layout behaviour. */
+color: none;
 }
 
 /* ── Shared photo-background panel band ──────────────────────
@@ -50,18 +48,17 @@
   background-position: center;
   background-repeat: no-repeat;
   box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.05);
-  /* Fill the sticky shell completely */
   flex: 1;
   display: flex;
   flex-direction: column;
 }
 
-/* Dashboard focus panel — warm pink photo */
+/* Dashboard focus panel photo */
 .focus-band-dashboard {
   background-image: url("/cloud-pink.jpg");
 }
 
-/* Item detail panel — deep dusk photo */
+/* Item detail panel photo */
 .focus-band-item {
   background-image: url("/deep-dusk2.jpg");
 }

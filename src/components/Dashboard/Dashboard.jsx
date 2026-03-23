@@ -7,7 +7,7 @@ import { useAuth } from "../../hooks/use-auth";
 import DashboardBanner from "./DashboardBanner";
 import DashboardCardGrid from "./DashboardCardGrid";
 import DashboardFocusPanel from "./DashboardFocusPanel";
-import DashboardSearchBar from "./DashboardSearchBar";
+import SurpriseMeModal from "../modals/SurpriseMeModal";
 import FormModal from "../UI/FormModal";
 import CreateBucketListForm from "../forms/CreateBucketListForm";
 import CreateItemForm from "../forms/CreateItemForm";
@@ -35,8 +35,7 @@ const MOBILE_BREAKPOINT = 1024;
 
 function Dashboard({ user }) {
   const navigate = useNavigate();
-  const { bucketLists, isLoading, bucketListsError, loadBucketLists } =
-    useBucketLists();
+  const { bucketLists, isLoading, bucketListsError, loadBucketLists } = useBucketLists();
   const { voteOnItem, clearVote } = useVotes();
   const { auth } = useAuth();
   const token = auth?.access;
@@ -45,7 +44,12 @@ function Dashboard({ user }) {
   const [dashboardSearch, setDashboardSearch] = useState("");
   const [dashboardFilter, setDashboardFilter] = useState("all");
   const [dashboardSort, setDashboardSort] = useState("default");
+  const [showSurpriseModal, setShowSurpriseModal] = useState(false);
   const [showCreateModal, setShowCreateModal] = useState(false);
+
+  const handleSurpriseNavigate = (listId, itemId) => {
+    navigate(`/bucketlists/${listId}?item=${itemId}`);
+  };
   const [showAddItemModal, setShowAddItemModal] = useState(false);
   const [showInviteModal, setShowInviteModal] = useState(false);
   const [showMembersModal, setShowMembersModal] = useState(false);
@@ -59,13 +63,10 @@ function Dashboard({ user }) {
   const [voteOverrides, setVoteOverrides] = useState({});
   const [dashboardMessage, setDashboardMessage] = useState("");
   const [focusPanelMessage, setFocusPanelMessage] = useState("");
-  const [isMobile, setIsMobile] = useState(
-    () => window.innerWidth < MOBILE_BREAKPOINT,
-  );
+  const [isMobile, setIsMobile] = useState(() => window.innerWidth < MOBILE_BREAKPOINT);
 
   useEffect(() => {
-    const handleResize = () =>
-      setIsMobile(window.innerWidth < MOBILE_BREAKPOINT);
+    const handleResize = () => setIsMobile(window.innerWidth < MOBILE_BREAKPOINT);
     window.addEventListener("resize", handleResize);
     return () => window.removeEventListener("resize", handleResize);
   }, []);
@@ -77,20 +78,11 @@ function Dashboard({ user }) {
   // ── Modal handlers ────────────────────────────────────────────────────────
   const handleOpenCreateModal = () => setShowCreateModal(true);
   const handleCloseCreateModal = () => setShowCreateModal(false);
-  const handleOpenAddItemModal = () => {
-    if (!selectedListId) return;
-    setShowAddItemModal(true);
-  };
+  const handleOpenAddItemModal = () => { if (!selectedListId) return; setShowAddItemModal(true); };
   const handleCloseAddItemModal = () => setShowAddItemModal(false);
-  const handleOpenInviteModal = () => {
-    if (!selectedListId) return;
-    setShowInviteModal(true);
-  };
+  const handleOpenInviteModal = () => { if (!selectedListId) return; setShowInviteModal(true); };
   const handleCloseInviteModal = () => setShowInviteModal(false);
-  const handleOpenMembersModal = () => {
-    if (!selectedListId) return;
-    setShowMembersModal(true);
-  };
+  const handleOpenMembersModal = () => { if (!selectedListId) return; setShowMembersModal(true); };
   const handleCloseMembersModal = () => setShowMembersModal(false);
 
   const handleCreateSuccess = async (newBucketList) => {
@@ -107,10 +99,8 @@ function Dashboard({ user }) {
   };
 
   // ── Votes ─────────────────────────────────────────────────────────────────
-  const getBaseVoteScore = (item) =>
-    item.vote_score ?? item.votes_count ?? item.score ?? 0;
-  const getBaseUserVote = (item) =>
-    item.user_vote ?? item.current_user_vote ?? item.vote_type ?? null;
+  const getBaseVoteScore = (item) => item.vote_score ?? item.votes_count ?? item.score ?? 0;
+  const getBaseUserVote = (item) => item.user_vote ?? item.current_user_vote ?? item.vote_type ?? null;
 
   const getEffectiveItemVoteState = (item) => {
     const override = voteOverrides[item.id];
@@ -121,19 +111,12 @@ function Dashboard({ user }) {
   };
 
   const setVoteOverride = (itemId, voteScore, userVote) => {
-    setVoteOverrides((prev) => ({
-      ...prev,
-      [itemId]: { voteScore, userVote },
-    }));
+    setVoteOverrides((prev) => ({ ...prev, [itemId]: { voteScore, userVote } }));
   };
 
   const handleVote = async (item, clickedVote) => {
     const previousState = getEffectiveItemVoteState(item);
-    const { nextVote, nextScore } = getNextVoteState(
-      previousState.userVote,
-      previousState.voteScore,
-      clickedVote,
-    );
+    const { nextVote, nextScore } = getNextVoteState(previousState.userVote, previousState.voteScore, clickedVote);
     setVoteOverride(item.id, nextScore, nextVote);
     setIsVotingItemId(item.id);
     try {
@@ -157,27 +140,19 @@ function Dashboard({ user }) {
       result = result.filter(
         (bl) =>
           bl.title?.toLowerCase().includes(q) ||
-          bl.description?.toLowerCase().includes(q),
+          bl.description?.toLowerCase().includes(q)
       );
     }
 
     // Icon filters
-    if (dashboardFilter === "frozen")
-      result = result.filter((bl) => bl.is_frozen);
-    else if (dashboardFilter === "public")
-      result = result.filter((bl) => bl.is_public);
-    else if (dashboardFilter === "mine")
-      result = result.filter((bl) => bl.owner?.id === user?.id);
-    else if (dashboardFilter === "shared")
-      result = result.filter((bl) => bl.owner?.id !== user?.id);
+    if (dashboardFilter === "frozen")  result = result.filter((bl) => bl.is_frozen);
+    else if (dashboardFilter === "public") result = result.filter((bl) => bl.is_public);
+    else if (dashboardFilter === "mine")   result = result.filter((bl) => bl.owner?.id === user?.id);
+    else if (dashboardFilter === "shared") result = result.filter((bl) => bl.owner?.id !== user?.id);
 
     // Sort
     if (dashboardSort === "recent")
-      result.sort(
-        (a, b) =>
-          new Date(b.updated_at ?? b.created_at) -
-          new Date(a.updated_at ?? a.created_at),
-      );
+      result.sort((a, b) => new Date(b.updated_at ?? b.created_at) - new Date(a.updated_at ?? a.created_at));
     else if (dashboardSort === "newest")
       result.sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
     else if (dashboardSort === "oldest")
@@ -188,14 +163,8 @@ function Dashboard({ user }) {
       result.sort((a, b) => (b.items?.length ?? 0) - (a.items?.length ?? 0));
     else if (dashboardSort === "most_complete") {
       result.sort((a, b) => {
-        const pctA = a.items?.length
-          ? a.items.filter((i) => i.status === "complete").length /
-            a.items.length
-          : 0;
-        const pctB = b.items?.length
-          ? b.items.filter((i) => i.status === "complete").length /
-            b.items.length
-          : 0;
+        const pctA = a.items?.length ? a.items.filter((i) => i.status === "complete").length / a.items.length : 0;
+        const pctB = b.items?.length ? b.items.filter((i) => i.status === "complete").length / b.items.length : 0;
         return pctB - pctA;
       });
     }
@@ -255,9 +224,7 @@ function Dashboard({ user }) {
       if (error?.responseData && typeof error.responseData === "object") {
         setEditBucketListErrors(error.responseData);
       } else {
-        setEditBucketListErrors({
-          non_field_errors: error.message || "Could not update bucket list.",
-        });
+        setEditBucketListErrors({ non_field_errors: error.message || "Could not update bucket list." });
       }
     } finally {
       setIsSavingBucketList(false);
@@ -276,7 +243,7 @@ function Dashboard({ user }) {
       setFocusPanelMessage(
         willFreeze
           ? "List frozen. Voting and new items are now locked."
-          : "List unfrozen. The squad can vote and add again.",
+          : "List unfrozen. The squad can vote and add again."
       );
     } catch (error) {
       setFocusPanelMessage(error.message || "Could not update freeze state.");
@@ -290,8 +257,7 @@ function Dashboard({ user }) {
       type: "delete-list",
       bucketList,
       title: "Are you sure?",
-      description:
-        "This list and everything inside it will vanish into the void. No dramatic comeback. No undo.",
+      description: "This list and everything inside it will vanish into the void. No dramatic comeback. No undo.",
       confirmLabel: "Delete list",
       tone: "danger",
     });
@@ -301,21 +267,15 @@ function Dashboard({ user }) {
   async function handleCopyBucketListLink(bucketList) {
     if (!bucketList) return;
     if (!bucketList.is_public) {
-      setFocusPanelMessage(
-        "This one's still under wraps. Only public lists can be shared with the world.",
-      );
+      setFocusPanelMessage("This one's still under wraps. Only public lists can be shared with the world.");
       return;
     }
     try {
       const shareUrl = `${window.location.origin}/bucketlists/${bucketList.id}`;
       await navigator.clipboard.writeText(shareUrl);
-      setFocusPanelMessage(
-        "Link copied. Time to spark a little bucket list envy.",
-      );
+      setFocusPanelMessage("Link copied. Time to spark a little bucket list envy.");
     } catch (error) {
-      setFocusPanelMessage(
-        "Copy failed. The link slipped through our fingers.",
-      );
+      setFocusPanelMessage("Copy failed. The link slipped through our fingers.");
     }
   }
 
@@ -324,12 +284,7 @@ function Dashboard({ user }) {
     if (!selectedListId || !token) return;
     try {
       setIsUpdatingMemberId(membershipId);
-      await updateMembershipRole(
-        selectedListId,
-        membershipId,
-        { role: newRole },
-        token,
-      );
+      await updateMembershipRole(selectedListId, membershipId, { role: newRole }, token);
       await loadBucketLists();
       setFocusPanelMessage("Member role updated.");
     } catch (error) {
@@ -344,8 +299,7 @@ function Dashboard({ user }) {
       type: "remove-member",
       membership,
       title: "Are you sure?",
-      description:
-        "This person will lose access to this bucket list unless they are invited again.",
+      description: "This person will lose access to this bucket list unless they are invited again.",
       confirmLabel: "Remove",
       tone: "danger",
     });
@@ -356,8 +310,7 @@ function Dashboard({ user }) {
       type: "leave-list",
       membership,
       title: "Are you sure?",
-      description:
-        "You will lose access to this bucket list unless someone invites you again.",
+      description: "You will lose access to this bucket list unless someone invites you again.",
       confirmLabel: "Leave",
       tone: "danger",
     });
@@ -404,10 +357,9 @@ function Dashboard({ user }) {
       setConfirmAction(null);
       setFocusPanelMessage("Member removed.");
     } catch (error) {
-      const fallbackMessage =
-        confirmAction?.type === "delete-list"
-          ? "Could not delete that bucket list."
-          : "Could not complete that action.";
+      const fallbackMessage = confirmAction?.type === "delete-list"
+        ? "Could not delete that bucket list."
+        : "Could not complete that action.";
       setFocusPanelMessage(error.message || fallbackMessage);
     } finally {
       setIsConfirmingAction(false);
@@ -417,13 +369,8 @@ function Dashboard({ user }) {
 
   // ── Effects ───────────────────────────────────────────────────────────────
   useEffect(() => {
-    if (!bucketLists.length) {
-      setSelectedListId(null);
-      return;
-    }
-    const selectedStillExists = bucketLists.some(
-      (bl) => bl.id === selectedListId,
-    );
+    if (!bucketLists.length) { setSelectedListId(null); return; }
+    const selectedStillExists = bucketLists.some((bl) => bl.id === selectedListId);
     if (selectedListId && !selectedStillExists) setSelectedListId(null);
   }, [bucketLists, selectedListId]);
 
@@ -433,16 +380,10 @@ function Dashboard({ user }) {
 
   useEffect(() => {
     if (!selectedList?.items?.length) return;
-    const validItemIds = new Set(
-      selectedList.items.map((item) => String(item.id)),
-    );
+    const validItemIds = new Set(selectedList.items.map((item) => String(item.id)));
     setVoteOverrides((prev) => {
-      const next = Object.fromEntries(
-        Object.entries(prev).filter(([id]) => validItemIds.has(String(id))),
-      );
-      return Object.keys(next).length !== Object.keys(prev).length
-        ? next
-        : prev;
+      const next = Object.fromEntries(Object.entries(prev).filter(([id]) => validItemIds.has(String(id))));
+      return Object.keys(next).length !== Object.keys(prev).length ? next : prev;
     });
   }, [selectedList]);
 
@@ -466,19 +407,13 @@ function Dashboard({ user }) {
     onDownvoteItem: (item) => handleVote(item, "downvote"),
     isVotingItemId,
     onAddItemClick: handleOpenAddItemModal,
-    onInviteMembersClick: isSelectedListOwner
-      ? handleOpenInviteModal
-      : undefined,
+    onInviteMembersClick: isSelectedListOwner ? handleOpenInviteModal : undefined,
     onViewMembersClick: handleOpenMembersModal,
     message: focusPanelMessage,
     onClose: () => setSelectedListId(null),
     onEditBucketList: isSelectedListOwner ? handleEditBucketList : undefined,
-    onFreezeBucketList: isSelectedListOwner
-      ? handleFreezeBucketList
-      : undefined,
-    onDeleteBucketList: isSelectedListOwner
-      ? handleDeleteBucketList
-      : undefined,
+    onFreezeBucketList: isSelectedListOwner ? handleFreezeBucketList : undefined,
+    onDeleteBucketList: isSelectedListOwner ? handleDeleteBucketList : undefined,
     onCopyBucketListLink: handleCopyBucketListLink,
   };
 
@@ -508,19 +443,16 @@ function Dashboard({ user }) {
                   className="min-w-0"
                   animate={{ width: panelOpen ? "46%" : "100%" }}
                   transition={{ duration: 0.4, ease: [0.4, 0, 0.2, 1] }}
-                  style={
-                    panelOpen
-                      ? {
-                          overflowY: "auto",
-                          scrollbarWidth: "thin",
-                          scrollbarColor: "rgba(107,78,170,0.22) transparent",
-                        }
-                      : {}
-                  }
+                  style={panelOpen ? {
+                    overflowY: "auto",
+                    scrollbarWidth: "thin",
+                    scrollbarColor: "rgba(107,78,170,0.22) transparent",
+                  } : {}}
                 >
                   <DashboardCardGrid
                     user={user}
                     bucketLists={filteredBucketLists}
+                    onSurpriseClick={() => setShowSurpriseModal(true)}
                     selectedListId={selectedListId}
                     onSelectList={setSelectedListId}
                     isLoading={isLoading}
@@ -563,6 +495,7 @@ function Dashboard({ user }) {
             <DashboardCardGrid
               user={user}
               bucketLists={filteredBucketLists}
+              onSurpriseClick={() => setShowSurpriseModal(true)}
               selectedListId={selectedListId}
               onSelectList={setSelectedListId}
               isLoading={isLoading}
@@ -607,29 +540,12 @@ function Dashboard({ user }) {
         )}
       </AnimatePresence>
 
-      <FormModal
-        isOpen={showCreateModal}
-        onClose={handleCloseCreateModal}
-        title="Create a new bucket list"
-        subtitle="Start a fresh collection of goals, plans, and big ideas."
-      >
-        <CreateBucketListForm
-          onClose={handleCloseCreateModal}
-          onSuccess={handleCreateSuccess}
-        />
+      <FormModal isOpen={showCreateModal} onClose={handleCloseCreateModal} title="Create a new bucket list" subtitle="Start a fresh collection of goals, plans, and big ideas.">
+        <CreateBucketListForm onClose={handleCloseCreateModal} onSuccess={handleCreateSuccess} />
       </FormModal>
 
-      <FormModal
-        isOpen={showAddItemModal}
-        onClose={handleCloseAddItemModal}
-        title="Drop in a fresh idea"
-        subtitle="Add something wild to this list."
-      >
-        <CreateItemForm
-          bucketListId={selectedListId}
-          onClose={handleCloseAddItemModal}
-          onSuccess={handleAddItemSuccess}
-        />
+      <FormModal isOpen={showAddItemModal} onClose={handleCloseAddItemModal} title="Drop in a fresh idea" subtitle="Add something wild to this list.">
+        <CreateItemForm bucketListId={selectedListId} onClose={handleCloseAddItemModal} onSuccess={handleAddItemSuccess} />
       </FormModal>
 
       <EditBucketListModal
@@ -641,11 +557,7 @@ function Dashboard({ user }) {
         errors={editBucketListErrors}
       />
 
-      <InviteMembersModal
-        isOpen={showInviteModal}
-        onClose={handleCloseInviteModal}
-        bucketListId={selectedListId}
-      />
+      <InviteMembersModal isOpen={showInviteModal} onClose={handleCloseInviteModal} bucketListId={selectedListId} />
 
       <ViewMembersModal
         isOpen={showMembersModal}
@@ -667,6 +579,12 @@ function Dashboard({ user }) {
         confirmLabel={confirmAction?.confirmLabel}
         tone={confirmAction?.tone}
         isLoading={isConfirmingAction}
+      />
+      <SurpriseMeModal
+        isOpen={showSurpriseModal}
+        onClose={() => setShowSurpriseModal(false)}
+        bucketLists={bucketLists}
+        onNavigate={handleSurpriseNavigate}
       />
     </>
   );

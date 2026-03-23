@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from "react";
-import { useParams, useNavigate } from "react-router-dom";
+import { useParams, useNavigate, useSearchParams } from "react-router-dom";
 import { AnimatePresence, motion } from "framer-motion";
 import { useBucketList } from "../hooks/useBucketList";
 import { useVotes } from "../hooks/useVotes";
@@ -36,6 +36,7 @@ function getNextVoteState(currentVote, currentScore, clickedVote) {
 export default function SingleListView() {
   const { id } = useParams();
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
   const { auth } = useAuth();
   const { bucketList, isLoading, bucketListError, loadBucketList } = useBucketList(Number(id));
   const { voteOnItem, clearVote } = useVotes();
@@ -143,6 +144,19 @@ export default function SingleListView() {
       };
     });
   }, [baseItems, voteOverrides]);
+
+  // Auto-open item from ?item= query param (e.g. from Surprise Me)
+  useEffect(() => {
+    const itemParam = searchParams.get("item");
+    if (itemParam && items.length > 0) {
+      const itemId = Number(itemParam);
+      const exists = items.some((i) => i.id === itemId);
+      if (exists) {
+        setSelectedItemId(itemId);
+        navigate(`/bucketlists/${id}`, { replace: true });
+      }
+    }
+  }, [searchParams, items]);
 
   useEffect(() => {
     if (!selectedItemId) return;

@@ -1,5 +1,6 @@
 import { motion } from "framer-motion";
-import { Plus } from "lucide-react";
+import { Plus, Shuffle } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 import DashboardBucketCard from "./DashboardBucketCard";
 import DashboardSearchBar from "./DashboardSearchBar";
 
@@ -12,6 +13,7 @@ function DashboardCardGrid({
   error,
   onRetry,
   onCreateClick,
+  onSurpriseClick,
   search,
   onSearchChange,
   filter,
@@ -19,6 +21,7 @@ function DashboardCardGrid({
   sort,
   onSortChange,
 }) {
+
   return (
     <section className="space-y-5">
       <motion.div
@@ -31,39 +34,52 @@ function DashboardCardGrid({
           <p className="text-sm font-medium uppercase tracking-[0.18em] text-[var(--muted-text)]">
             Your bucket lists
           </p>
-
           <h1 className="brand-font mt-2 text-3xl font-bold tracking-tight text-[var(--heading-text)] sm:text-4xl">
             {user?.first_name ? `Let's go, ${user.first_name}!` : "Let's go!"}
           </h1>
         </div>
 
+        {/* Quick actions pill */}
         <div className="flex justify-start">
-          <div className="inline-flex items-center gap-3 mt-4 rounded-[1.5rem] border border-white/60 bg-white/55 px-3 py-3 shadow-[0_10px_30px_rgba(49,42,70,0.08)] backdrop-blur-md">
-            <button
-              type="button"
-              onClick={onCreateClick}
-              aria-label="Create a new bucket list"
-              title="Create bucket list"
-              className="group inline-flex h-14 w-14 cursor-pointer items-center justify-center rounded-full bg-[linear-gradient(135deg,#15803d_0%,#4ade80_100%)] text-white shadow-[0_14px_36px_rgba(8,38,20,0.35)] transition hover:scale-105 hover:shadow-[0_18px_46px_rgba(8,38,20,0.45)] active:scale-95 focus:outline-none focus:ring-2 focus:ring-green-300/70"
-            >
-              <Plus
-                size={26}
-                strokeWidth={2.8}
-                className="transition group-hover:rotate-90"
-              />
-            </button>
+          <div className="inline-flex items-center gap-1 mt-4 rounded-[1.5rem] border border-white/60 bg-white/55 px-3 py-3 shadow-[0_10px_30px_rgba(49,42,70,0.08)] backdrop-blur-md">
 
-            <div className="pr-2">
-              <p className="text-[0.72rem] font-semibold uppercase tracking-[0.2em] text-[var(--muted-text)]">
-                Quick action
-              </p>
-              <p className="mt-1 text-sm font-semibold text-[var(--heading-text)]">
-                Create
-              </p>
+            {/* Create */}
+            <div className="flex items-center gap-3 pr-3 border-r border-black/8">
+              <button
+                type="button"
+                onClick={onCreateClick}
+                aria-label="Create a new bucket list"
+                className="group inline-flex h-12 w-12 cursor-pointer items-center justify-center rounded-full bg-[linear-gradient(135deg,#15803d_0%,#4ade80_100%)] text-white shadow-[0_14px_36px_rgba(8,38,20,0.35)] transition hover:scale-105 hover:shadow-[0_18px_46px_rgba(8,38,20,0.45)] active:scale-95 focus:outline-none"
+              >
+                <Plus size={22} strokeWidth={2.8} className="transition group-hover:rotate-90" />
+              </button>
+              <div className="pr-1">
+                <p className="text-[0.68rem] font-semibold uppercase tracking-[0.2em] text-[var(--muted-text)]">Quick action</p>
+                <p className="mt-0.5 text-sm font-semibold text-[var(--heading-text)]">Create</p>
+              </div>
             </div>
+
+            {/* Surprise Me */}
+            <div className="flex items-center gap-3 pl-3">
+              <button
+                type="button"
+                onClick={() => onSurpriseClick?.()}
+                aria-label="Surprise me — pick a random item"
+                className="group inline-flex h-12 w-12 cursor-pointer items-center justify-center rounded-full bg-[linear-gradient(135deg,#6B4EAA,#C76BBA)] text-white shadow-[0_14px_36px_rgba(107,78,170,0.35)] transition hover:scale-105 hover:shadow-[0_18px_46px_rgba(107,78,170,0.45)] active:scale-95 focus:outline-none"
+              >
+                <Shuffle size={20} strokeWidth={2.4} className="transition group-hover:rotate-180" />
+              </button>
+              <div className="pr-1">
+                <p className="text-[0.68rem] font-semibold uppercase tracking-[0.2em] text-[var(--muted-text)]">Quick action</p>
+                <p className="mt-0.5 text-sm font-semibold text-[var(--heading-text)]">Surprise me</p>
+              </div>
+            </div>
+
           </div>
         </div>
-        <div className="mt-12">
+
+        {/* Search bar */}
+        <div className="mt-4">
           <DashboardSearchBar
             search={search}
             onSearchChange={onSearchChange}
@@ -75,28 +91,19 @@ function DashboardCardGrid({
         </div>
       </motion.div>
 
+      {/* List content */}
       {isLoading ? (
         <div className="section-card flex min-h-[320px] items-center justify-center p-8 text-center">
           <div className="space-y-3">
             <div className="mx-auto h-12 w-12 animate-spin rounded-full border-4 border-[#d8d1ee] border-t-[#6b4eaa]" />
-            <p className="text-lg font-medium text-[var(--heading-text)]">
-              Loading your bucket lists...
-            </p>
+            <p className="text-lg font-medium text-[var(--heading-text)]">Loading your bucket lists...</p>
           </div>
         </div>
       ) : error ? (
         <div className="section-card flex min-h-[320px] flex-col items-center justify-center gap-4 p-8 text-center">
-          <h2 className="brand-font text-2xl font-semibold text-[var(--heading-text)]">
-            Something went wrong
-          </h2>
-
+          <h2 className="brand-font text-2xl font-semibold text-[var(--heading-text)]">Something went wrong</h2>
           <p className="max-w-md text-[var(--muted-text)]">{error}</p>
-
-          <button
-            type="button"
-            onClick={onRetry}
-            className="primary-gradient-button rounded-full px-6 py-3 font-semibold"
-          >
+          <button type="button" onClick={onRetry} className="primary-gradient-button rounded-full px-6 py-3 font-semibold">
             Try Again
           </button>
         </div>
@@ -105,27 +112,16 @@ function DashboardCardGrid({
           <h2 className="brand-font text-2xl font-semibold text-[var(--heading-text)]">
             Looks pretty empty here. Let's fix that.
           </h2>
-
-          <p className="max-w-md text-[var(--muted-text)]">
-            Is that.. Tumbleweed?
-          </p>
-
+          <p className="max-w-md text-[var(--muted-text)]">Is that.. Tumbleweed?</p>
           <div className="group flex flex-col items-center gap-2">
             <button
               type="button"
               onClick={onCreateClick}
-              aria-label="Create your first bucket list"
-              title="Create your first bucket list"
-              className="inline-flex cursor-pointer h-16 w-16 items-center justify-center rounded-full bg-[linear-gradient(135deg,#15803d_0%,#4ade80_100%)] text-white shadow-[0_14px_36px_rgba(8,38,20,0.35)] transition hover:scale-105 hover:shadow-[0_18px_46px_rgba(8,38,20,0.45)] active:scale-95 focus:outline-none focus:ring-2 focus:ring-green-300/70"
+              className="inline-flex cursor-pointer h-16 w-16 items-center justify-center rounded-full bg-[linear-gradient(135deg,#15803d_0%,#4ade80_100%)] text-white shadow-[0_14px_36px_rgba(8,38,20,0.35)] transition hover:scale-105 active:scale-95 focus:outline-none"
             >
-              <Plus
-                size={28}
-                strokeWidth={2.8}
-                className="transition group-hover:rotate-90"
-              />
+              <Plus size={28} strokeWidth={2.8} className="transition group-hover:rotate-90" />
             </button>
-
-            <span className="text-[0.72rem] font-semibold uppercase tracking-[0.2em] text-[var(--muted-text)] transition group-hover:text-[var(--heading-text)]">
+            <span className="text-[0.72rem] font-semibold uppercase tracking-[0.2em] text-[var(--muted-text)]">
               Create list
             </span>
           </div>
@@ -150,6 +146,7 @@ function DashboardCardGrid({
           ))}
         </div>
       )}
+
     </section>
   );
 }

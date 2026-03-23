@@ -225,12 +225,10 @@
 .item-detail-panel {
   min-width: 0;
   min-height: 0;
-  background: transparent;
 }
 
 .item-detail-panel-scroll {
   padding: 1rem;
-  /* No max-height, no overflow constraint */
 }
  
 .bucketlist-items-stack {
@@ -244,7 +242,7 @@
   padding: 5px 5px 5px 8px;
   cursor: pointer;
   transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
-  background: linear-gradient(135deg, rgba(107,78,170,0.06) 0%, rgba(255,94,98,0.03) 100%);
+  background: linear-gradient(135deg, rgba(46, 24, 55, 0.06) 0%, rgba(86, 15, 117, 0.5) 100%);
   border: 1px solid rgba(107,78,170,0.12);
   border-radius: 1.25rem;
   box-shadow: 0 2px 8px rgba(107,78,170,0.07);
@@ -280,7 +278,7 @@
     ellipse at 70% 20%,
     rgba(107,78,170,0.09) 0%,
     rgba(255,94,98,0.05) 50%,
-    transparent 75%
+    transparent 50%
   );
   transition: opacity 0.3s ease;
 }
@@ -314,7 +312,7 @@
  
 /* ── Frosted glass inner ── */
 .bucketlist-item-card-inner {
-  background: rgba(255,255,255,0.82);
+  background: rgba(255,255,255,0.9);
   backdrop-filter: blur(16px);
   -webkit-backdrop-filter: blur(16px);
   border-radius: 0.9rem;
