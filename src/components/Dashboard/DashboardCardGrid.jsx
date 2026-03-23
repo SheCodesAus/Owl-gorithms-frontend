@@ -1,6 +1,7 @@
 import { motion } from "framer-motion";
 import { Plus } from "lucide-react";
 import DashboardBucketCard from "./DashboardBucketCard";
+import DashboardSearchBar from "./DashboardSearchBar";
 
 function DashboardCardGrid({
   user,
@@ -11,6 +12,12 @@ function DashboardCardGrid({
   error,
   onRetry,
   onCreateClick,
+  search,
+  onSearchChange,
+  filter,
+  onFilterChange,
+  sort,
+  onSortChange,
 }) {
   return (
     <section className="space-y-5">
@@ -55,6 +62,16 @@ function DashboardCardGrid({
               </p>
             </div>
           </div>
+        </div>
+        <div className="mt-12">
+          <DashboardSearchBar
+            search={search}
+            onSearchChange={onSearchChange}
+            filter={filter}
+            onFilterChange={onFilterChange}
+            sort={sort}
+            onSortChange={onSortChange}
+          />
         </div>
       </motion.div>
 
@@ -114,7 +131,7 @@ function DashboardCardGrid({
           </div>
         </div>
       ) : (
-        <div className="mt-12 grid grid-cols-1 gap-4 md:gap-5">
+        <div className="mt-5 grid grid-cols-1 gap-4 md:gap-5">
           {bucketLists.map((bucketList, index) => (
             <motion.div
               key={bucketList.id}
