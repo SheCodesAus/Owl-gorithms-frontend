@@ -180,7 +180,7 @@ function VoteControls({
   const wrapperClasses = isCompact
     ? "flex flex-col items-center rounded-2xl gradient-border bg-white/80 px-1.5 py-1 shadow-sm"
     : isPanel
-      ? "flex flex-col items-center rounded-2xl gradient-border bg-white/75 px-2 py-1.5 shadow-sm backdrop-blur-[2px]"
+      ? "flex flex-col items-center rounded-2xl gradient-border bg-white/75 px-2 py-2 shadow-sm backdrop-blur-[2px]"
       : "flex flex-col items-center rounded-2xl gradient-border bg-[var(--surface-soft)] px-2 py-1.5";
 
   const iconSize = isCompact ? 16 : 18;
@@ -196,7 +196,7 @@ function VoteControls({
         onClick={onUpvote}
         disabled={isVoting}
         whileTap={{ scale: 0.85 }}
-        className={`rounded-full p-1 transition cursor-pointer disabled:cursor-not-allowed disabled:opacity-50 ${
+        className={`rounded-lg p-1 transition cursor-pointer disabled:cursor-not-allowed disabled:opacity-50 ${
           activeVote === "upvote"
             ? "coral-bg text-white shadow-[0_4px_12px_rgba(107,78,170,0.3)]"
             : "text-[var(--heading-text)] hover:bg-[#ff9966]/20 hover:text-[var(--primary-cta)]"
@@ -218,7 +218,7 @@ function VoteControls({
         onClick={onDownvote}
         disabled={isVoting}
         whileTap={{ scale: 0.85 }}
-        className={`rounded-full p-1 transition cursor-pointer disabled:cursor-not-allowed disabled:opacity-50 ${
+        className={`rounded-lg p-1 transition cursor-pointer disabled:cursor-not-allowed disabled:opacity-50 ${
           activeVote === "downvote"
             ? "bg-[linear-gradient(135deg,#FF5A5F,#FF8A5C)] text-white shadow-[0_4px_12px_rgba(255,90,95,0.25)]"
             : "text-[var(--heading-text)] hover:bg-[#FF5A5F]/10 hover:text-[#FF5A5F]"

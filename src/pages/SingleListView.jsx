@@ -42,6 +42,8 @@ export default function SingleListView() {
 
   const [selectedItemId, setSelectedItemId] = useState(null);
   const [filter, setFilter] = useState("all");
+  const [search, setSearch] = useState("");
+  const [sort, setSort] = useState("default");
   const [showAddItemModal, setShowAddItemModal] = useState(false);
   const [showInviteModal, setShowInviteModal] = useState(false);
   const [showMembersModal, setShowMembersModal] = useState(false);
@@ -155,10 +157,36 @@ export default function SingleListView() {
   }, [panelMessage]);
 
   const filteredItems = useMemo(() => {
-    if (filter === "complete") return items.filter((item) => item.status === "complete");
-    if (filter === "pending") return items.filter((item) => item.status !== "complete");
-    return items;
-  }, [items, filter]);
+    let result = [...items];
+
+    // ── Filter by status ──
+    if (filter === "complete")  result = result.filter((i) => i.status === "complete");
+    else if (filter === "locked_in") result = result.filter((i) => i.status === "locked_in");
+    else if (filter === "pending") result = result.filter((i) => i.status !== "complete");
+
+    // ── Search ──
+    if (search.trim()) {
+      const q = search.trim().toLowerCase();
+      result = result.filter(
+        (i) =>
+          i.title?.toLowerCase().includes(q) ||
+          i.description?.toLowerCase().includes(q)
+      );
+    }
+
+    // ── Sort ──
+    if (sort === "most_votes")  result.sort((a, b) => (b.vote_score ?? 0) - (a.vote_score ?? 0));
+    else if (sort === "least_votes") result.sort((a, b) => (a.vote_score ?? 0) - (b.vote_score ?? 0));
+    else if (sort === "newest") result.sort((a, b) => new Date(b.date_created) - new Date(a.date_created));
+    else if (sort === "oldest") result.sort((a, b) => new Date(a.date_created) - new Date(b.date_created));
+    else if (sort === "az")     result.sort((a, b) => a.title?.localeCompare(b.title));
+    else if (sort === "mine")   result = result.filter((i) =>
+      i.created_by?.id && currentUser?.id &&
+      Number(i.created_by.id) === Number(currentUser.id)
+    );
+
+    return result;
+  }, [items, filter, search, sort, currentUser]);
 
   const selectedItem = useMemo(
     () => items.find((item) => item.id === selectedItemId) ?? null,
@@ -207,8 +235,8 @@ export default function SingleListView() {
   const handleChangeMemberRole = async (membershipId, newRole) => {
     setIsUpdatingMemberId(membershipId);
     try {
-      const { default: updateMembership } = await import("../api/memberships/update-membership");
-      await updateMembership(membershipId, { role: newRole }, auth?.access);
+      const { default: updateMembershipRole } = await import("../api/memberships/update-membership");
+      await updateMembershipRole(bucketList.id, membershipId, { role: newRole }, auth?.access);
       await loadBucketList();
     } catch (err) {
       console.error("Role change failed:", err);
@@ -220,8 +248,8 @@ export default function SingleListView() {
   const handleRemoveMember = async (membership) => {
     setIsUpdatingMemberId(membership.id);
     try {
-      const { default: removeMembership } = await import("../api/memberships/delete-membership");
-      await removeMembership(membership.id, auth?.access);
+      const { default: deleteMembership } = await import("../api/memberships/delete-membership");
+      await deleteMembership(membership.id, auth?.access);
       await loadBucketList();
     } catch (err) {
       console.error("Remove member failed:", err);
@@ -233,8 +261,8 @@ export default function SingleListView() {
   const handleLeaveList = async (membership) => {
     setIsUpdatingMemberId(membership.id);
     try {
-      const { default: removeMembership } = await import("../api/memberships/delete-membership");
-      await removeMembership(membership.id, auth?.access);
+      const { default: deleteMembership } = await import("../api/memberships/delete-membership");
+      await deleteMembership(membership.id, auth?.access);
       navigate("/dashboard");
     } catch (err) {
       console.error("Leave list failed:", err);
@@ -390,12 +418,19 @@ export default function SingleListView() {
                   totalCount={items.length}
                   filter={filter}
                   onFilterChange={setFilter}
+                  sort={sort}
+                  onSortChange={setSort}
+                  search={search}
+                  onSearchChange={setSearch}
                 />
                 <BucketListItemsPanel
                   items={filteredItems}
                   selectedItemId={selectedItemId}
                   onSelectItem={setSelectedItemId}
                   onDoubleSelectItem={(itemId) => navigate(`/bucketlists/${id}/items/${itemId}`)}
+                  getItemVoteState={getEffectiveVoteState}
+                  isVotingItemId={isVotingItemId}
+                  onVote={canVote ? handleVote : undefined}
                 />
               </motion.div>
 
@@ -460,12 +495,19 @@ export default function SingleListView() {
                 totalCount={items.length}
                 filter={filter}
                 onFilterChange={setFilter}
+                sort={sort}
+                onSortChange={setSort}
+                search={search}
+                onSearchChange={setSearch}
               />
               <BucketListItemsPanel
                 items={filteredItems}
                 selectedItemId={selectedItemId}
                 onSelectItem={setSelectedItemId}
                 onDoubleSelectItem={(itemId) => navigate(`/bucketlists/${id}/items/${itemId}`)}
+                getItemVoteState={getEffectiveVoteState}
+                isVotingItemId={isVotingItemId}
+                onVote={canVote ? handleVote : undefined}
               />
             </div>
           )}

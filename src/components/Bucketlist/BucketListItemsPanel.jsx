@@ -9,6 +9,7 @@ export default function BucketListItemsPanel({
   getItemVoteState,
   isVotingItemId,
   onVote,
+  onReactionUpdate,
 }) {
   return (
     <section className="bucketlist-items-panel">
@@ -48,6 +49,7 @@ export default function BucketListItemsPanel({
                       isSelected={item.id === selectedItemId}
                       onSelect={() => onSelectItem(item.id)}
                       onDoubleSelect={() => onDoubleSelectItem?.(item.id)}
+                      onReactionUpdate={onReactionUpdate}
                       voteScore={voteState.voteScore}
                       userVote={voteState.userVote}
                       isVoting={isVotingItemId === item.id}

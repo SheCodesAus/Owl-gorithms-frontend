@@ -134,7 +134,7 @@ export default function BucketListItemCard({
               isVoting={isVoting}
               onUpvote={onUpvote}
               onDownvote={onDownvote}
-              variant="compact"
+              variant="panel"
             />
           </div>
         </div>
