@@ -1,364 +1,635 @@
-# Your Product Name
-> KICKIT
+# KICKIT — Frontend
+
+> A collaborative bucket list app. Build goals, share adventures, vote on what to do next — with friends, family, or the group chat.
+
+---
 
 ## Table of Contents
 
-- [Your Product Name](#your-product-name)
+- [KICKIT — Frontend](#kickit--frontend)
   - [Table of Contents](#table-of-contents)
   - [Mission Statement](#mission-statement)
-  - [Features](#features)
-  - [2. Core Features (MVP)](#2-core-features-mvp)
-    - [2.1 Authentication](#21-authentication)
-    - [2.2 Lists](#22-lists)
-      - [Role Permissions](#role-permissions)
-    - [2.3 Roles](#23-roles)
-    - [2.4 List Items](#24-list-items)
-    - [2.5 Voting System](#25-voting-system)
-    - [2.6 Tagging](#26-tagging)
-    - [2.8 Dashboard](#28-dashboard)
-    - [2.9 Security \& Privacy](#29-security--privacy)
-    - [Summary](#summary)
-  - [3. Accessibility Requirements](#3-accessibility-requirements)
-    - [Users](#users)
-    - [TODO Sticky Notes](#todo-sticky-notes)
-    - [Collections](#collections)
-    - [Pages/Endpoint Functionality](#pagesendpoint-functionality)
-    - [TODO Nice To Haves](#todo-nice-to-haves)
-  - [Technical Implementation](#technical-implementation)
-    - [Back-End](#back-end)
-    - [Front-End](#front-end)
-    - [Git \& Deployment](#git--deployment)
   - [Target Audience](#target-audience)
-  - [Back-end Implementation](#back-end-implementation)
-    - [API Specification](#api-specification)
-    - [TO DO Object Definitions](#to-do-object-definitions)
-      - [Users](#users-1)
-      - [Sticky Notes](#sticky-notes)
-    - [TODO Database Schema](#todo-database-schema)
-  - [Front-end Implementation](#front-end-implementation)
-    - [TODO Wireframes](#todo-wireframes)
-      - [TODO Home Page](#todo-home-page)
-      - [Collection List Page](#collection-list-page)
+  - [Overview](#overview)
+  - [Tech Stack](#tech-stack)
+  - [Architecture](#architecture)
+  - [Core Features](#core-features)
+    - [Authentication](#authentication)
+    - [Lists](#lists)
+    - [Roles \& Permissions](#roles--permissions)
+    - [List Items](#list-items)
+    - [Voting System](#voting-system)
+    - [Notifications](#notifications)
+    - [Dashboard](#dashboard)
+    - [Security \& Privacy](#security--privacy)
+    - [Accessibility](#accessibility)
+  - [Project Structure](#project-structure)
+  - [Getting Started](#getting-started)
+    - [Prerequisites](#prerequisites)
+    - [Installation](#installation)
+    - [Environment Variables](#environment-variables)
+    - [Running Locally](#running-locally)
+  - [Pages \& Routing](#pages--routing)
+  - [State Management \& Auth](#state-management--auth)
+    - [Auth Flow — Username / Password](#auth-flow--username--password)
+    - [Auth Flow — Google OAuth](#auth-flow--google-oauth)
+    - [Auth Context](#auth-context)
+    - [Notifications Context](#notifications-context)
+  - [API Integration](#api-integration)
+  - [Component Overview](#component-overview)
+  - [Styling](#styling)
+    - [CSS Architecture](#css-architecture)
     - [Logo](#logo)
     - [Colours](#colours)
       - [Primary](#primary)
       - [Secondary](#secondary)
     - [Font](#font)
+  - [Deployment](#deployment)
   - [Deliverable Tracker](#deliverable-tracker)
-    - [Frontend](#frontend)
+  - [Known Issues / Gaps](#known-issues--gaps)
 
+---
 
 ## Mission Statement
 
 KICKIT is a collaborative bucket list platform that helps friends, families, and teams decide what to do together and follow through — without relying on social media.
 
-> It transforms "we should do that sometime" into **"lock it in."**
-
-## Features
-## 2. Core Features (MVP)
-
-### 2.1 Authentication
-
-- Google login
-- Secure, non-sequential IDs
-- Auth required for all protected endpoints
-
-### 2.2 Lists
-
-Users can:
-
-- Create lists
-- Delete their lists
-- Leave lists
-- Manage list visibility (private/public)
-- Limit number of lists per user
-
-#### Role Permissions
-
-| Action        | Owner | Editor | Viewer |
-|---------------|:-----:|:------:|:------:|
-| Edit List     | ✅    | ❌     | ❌     |
-| Add Item      | ✅    | ✅     | ❌     |
-| Invite Person | ✅    | ❌     | ❌     |
-| Vote          | ✅    | ✅     | ✅     |
-| Delete List   | ✅    | ❌     | ❌     |
-
-### 2.3 Roles
-
-Three roles:
-
-- **Owner** — Full control over the list
-- **Editor** — Can add items and vote
-- **Viewer** — Can vote only
-
-Capabilities vary by role (see table above).
-
-### 2.4 List Items
-
-Each item contains:
-
-- Title
-- Description
-- Tags
-- Status
-- Vote count
-
-**Statuses:**
-
-| Status     | Description                        |
-|------------|------------------------------------|
-| Planned    | Default state when item is created |
-| Locked In  | Group has committed to this item   |
-| Completed  | Item has been done                 |
-| Cancelled  | Item is no longer happening        |
-
-### 2.5 Voting System
-
-- One vote per user per item
-- Public lists allow voting without login (optional decision)
-- Vote tracking per user
-
-### 2.6 Tagging
-
-Custom tags + suggested presets:
-
-- `Cheap`
-- `Weekend`
-- `Big Trip`
-- `Food`
-
-### 2.8 Dashboard
-
-- Lists user belongs to
-- Recent activity
-- Notification indicator
-
-### 2.9 Security & Privacy
-
-- Non-sequential IDs (UUID)
-- CSRF protection
-- HSTS
-- SameSite cookies
-- Title filtering
-- Access revoked immediately on role removal
-
-### Summary 
-Provide Guest users ability to vote on public lists. Once posted, users can invite others to private lists. Admin and editor access will also allow collaboration on lists.
+> It transforms *"we should do that sometime"* into **"lock it in."**
 
 ---
 
-## 3. Accessibility Requirements
-
-- Screen reader compatibility
-- WCAG contrast compliance
-- No blue/green-only visual indicators
-- Readable font sizes
-- Simple navigation
-
-### Users
-
-| Type               | Access                                                                                                                                                                                                                                                                                             | Role type assignment                                |
-| :----------------- | :------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | :-------------------------------------------------- |
-| Superuser or admin | <br> - All access   <br> - Can log in  <br> - Can log out  <br> - Create and manage lists  <br> - Create and manage lists  <br> - Create and manage other users  <br> - Approve, archive and edit lists |
-| Owner           | <br> - Can log in  <br> - Can log out  <br> - Approve, archive and edit own lists  <br> - Can See and edit their details via profile page  | Mentors, volunteers, shecodes11507 staff  |
-| User              | <br> - View public lists, View invited private lists  <br> - Vote on public & invited lists  |    | Public: Users who can vote on public lists without logging in |
-
-### TODO Sticky Notes
-
-| Feature                                        | Access                                                                                                                                                                                                           | Notes/Conditions                                                                                              |
-| :--------------------------------------------- | :--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | :------------------------------------------------------------------------------------------------------------ |
-| Create                                         | Can be created by anyone with URL                                                                                                                                                                                | <br> - Limit length of sticky note text  <br> - option to add hashtag (TBC: as main text or additional field) |
-| Post                                           | Post as Guest                                                                                                                                                                                                    | <br> - Submits Sticky note to Live event board                                                                |
-| View                                           | Guests, Approvers and Admin can view posts via Live event board Admin and Approvers can view once status updated from Live                                                                                       |                                                                                                               |
-| Edit                                           | Can be edited by Admin and Approvers                                                                                                                                                                             | <br> - Edit sticky note text, eg: for spelling errors before Status is set to approved                        |
-| Statuses: Live, Unapproved, Approved, Archived | <br> - Auto status of notes will be ‘live’ based on linked event  <br> - Auto status of notes will be unapproved based on closure of linked event  <br> - Update to Approved and Archived by Admin and Approvers |                                                                                                               |
-| Export                                         | <br> - Export as Admin only                                                                                                                                                                                      | <br> - CSV file  <br> - Format: collection, event, sticky note text                                           |
-| Flag- Is Exported                              | <br> - Auto flag based on whether Admin has exported the sticky note                                                                                                                                             | <br> - Boolean                                                                                                |
-| Link to Collection                             | <br> - Controlled by Admin                                                                                                                                                                                       | <br> - Based on type of event, eg: shecodes flash, plus, other event types.                                   |
-| Link to Event                                  | <br> - Auto link based on event URL  <br> - Link to event can be edited by Admin                                                                                                                                 |                                                                                                               |
-| Link to Approver                               | <br> - Controlled by Admin and Approver who creates the event                                                                                                                                                    | <br> - Approver is User who is managing or associated with admin of the event                                 |
-
-### Collections
-
-| Feature                           | Access                     | Notes/Conditions           |
-| :-------------------------------- | :------------------------- | :------------------------- |
-| Assign events to a collection     | <br> - Based on event type |                            |
-| Assign approver to a collection   | <br> - admin               |                            |
-| Default event board live duration | <br> - Admin               | <br> - Based on event type |
-| View event boards by collection   | <br> - Admin, Approver     |                            |
-| Export notes by Collection        | <br> - Admin               |                            |
-
-### Pages/Endpoint Functionality
-
-| Endpoint              | functionality                                                                                                                                                                     | comments                                                                                         |
-| :-------------------- | :-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | :----------------------------------------------------------------------------------------------- |
-| Create and post notes | <br> - Available to anyone with URL   <br> - Add sticky notes   <br> - Post sticky notes                                                                                          | <br> - Sticky note ‘feel’ is preferred  <br> - Easy to read and accessible  <br> - Good contrast |
-| Event board           | <br> - Once note is posted, redirect to live session  notes  <br> - Able to post more notes (redirect back or add directly?)  <br> - Live session ends at midnight – day of event | <br> - view live notes  <br> - search notes by text/hashtag                                      |
-| Admin page            | All admin functions  <br> - can also create another admin account                                                                                                                 | <br> - Requires auth  <br> - initial admin created by DB                                         |
-| Register as Approver  | <br> - users can register as approvers  <br> - once registered, approver can log in                                                                                               | Requires shecodes email address to be used                                                       |
-| Approver page         | Approver functions                                                                                                                                                                | Requires auth Easy to read, accessible, easy to use for new users                                |
-| Profile page          | <br> - All registered users  <br> - Can view their personal info  <br> - Can update their info                                                                                    | Requires auth                                                                                    |
-
-### TODO Nice To Haves
-
-- Register during or after event; Sign up for additional events: Email address, Name, Event
-- History of my own notes as Registered user
-- Events I have registered for as Registered user
-- Be able to edit my own notes – as Registered user but only until its been approved
-- Bulk update sticky note status
-- QR code generation 
-- Use QR codes to access event as guest
-
-## Technical Implementation
-
-### Back-End
-
-- Django / DRF API
-- Python
-
-### Front-End
-
-- React / JavaScript
-- HTML/CSS
-
-### Git & Deployment
-- Heroku
-- Netlify
-- GitHub
-
-This application's back-end will be deployed to Heroku. The front-end will be deployed separately to Netlify.
- 
-We will also use Insomnia to ensure API endpoints are working smoothly (we will utilise a local and deployed environment in Insomnia).
-
 ## Target Audience
 
-**Primary:**
+**Primary users:**
 
-- Adults mid-20s to late-30s
-- Friend groups
-- Families
-- Social media-light users
+- Adults in their mid-20s to late-30s
+- Friend groups planning shared experiences
+- Families coordinating activities together
+- Social media-light users who want a focused, private collaboration tool
 
-**TODO User Statements**
+KICKIT is built for groups who already know what they want to do, but need a simple, structured way to align on priorities, track progress, and actually follow through.
 
-## Back-end Implementation
-### API Specification
+---
 
-| HTTP Method | URL                                 | Purpose                                                                                                                                  | Request Body                                                                                                       | Successful Response Code | Authentication and Authorization                      |
-| :---------- | :---------------------------------- | :--------------------------------------------------------------------------------------------------------------------------------------- | :----------------------------------------------------------------------------------------------------------------- | :----------------------- | :---------------------------------------------------- |
-| POST        | /login                              | Allow users to log in                                                                                                                    | ““Username”:”string”, “password”:”string”                                                                          | 200                      | Token auth                                            |
-| POST        | /logout                             | Allow users to log out ( end active session)                                                                                             | ““Username”:”string”, “password”:”string”                                                                          | 200                      | Will clear user log in session \- remove stored token |
-| POST        | /Register                           | Create new student or approver user                                                                                                      | “Username”:”string”, “FullName”: “string” “Email”:”string”,”Password”:”string”, ”Password2”:”string”,              | 201                      | Admin                                                 |
-| PUT         | /Profile/ID                         | Edit user                                                                                                                                | “Username”:”string”, “FullName”: “string” “Email”:”string”, “Avatar”:”string”,  “Bio”:”string”, “Socials”:”string” | 200                      | Admin, approver or student with matching ID           |
-| GET         | /Profile/ID                         | View User profile                                                                                                                        | NA                                                                                                                 | 200                      | Any                                                   |
-| DELETE      | /User/ID                            | Delete user                                                                                                                              | NA                                                                                                                 | 204                      | Admin, approver or student with matching ID           |
-| POST        | /EventCollection                    | Create new Event Collection                                                                                                              | “Title”:”string”, “IsExported”:”boolean” “Approver”: integer                                                       | 201                      | Admin                                                 |
-| PUT         | /EventCollection/Id                 | Update Event collection                                                                                                                  | “Title”:”string”, “IsExported”:”boolean”                                                                           | 200                      | Admin, Approver linked to event?                      |
-| DELETE      | /EventCollection/Id                 | Delete Event collection                                                                                                                  | NA                                                                                                                 | 204                      | Admin                                                 |
-| POST        | /EventBoard/                        | Create new Event board                                                                                                                   | “Title”: “string”, “StartDate”:”datetime”, “EndDate:”datetime”                                                     | 201                      | Admin, approvers                                      |
-| PUT         | /EventBoard/ID                      | Update Event board                                                                                                                       | “Title”: “string”, “StartDate”:”datetime”, “EndDate:”datetime”                                                     | 200                      | Admin, approvers                                      |
-| DELETE      | /EventBoard/ID                      | Delete Event board                                                                                                                       | NA                                                                                                                 | 204                      | Admin or author of event                              |
-| GET         | /EventBoard/ID                      | Get Event board details                                                                                                                  | NA                                                                                                                 | 200                      | Open access                                           |
-| POST        | /stickyNote/                        | Create a new sticky note as Guest user                                                                                                   | “WinComment”:”string”                                                                                              | 201                      | Open access                                           |
-| GET         | /stickyNotes/?Status=Live\&Event.ID | Get Sticky notes for an event  Use query params to filter by event ID and Status                                                         | NA                                                                                                                 | 200                      | Open access                                           |
-| GET         | /stickyNotes/?Event.ID              | Get Sticky notes for an event                                                                                                            | NA                                                                                                                 | 200                      | Admin, approvers                                      |
-| GET         | /stickyNotes/                       | Export sticky notes as CSV (eg:response.setContentType("text/csv")) Can optionally filter by: event ID, Status, isexported, collectionId | NA                                                                                                                 | 200                      | Admin                                                 |
-| PUT         | /stickyNotes/ID                     | Edit sticky note, update status of sticky note to Approved or Archived                                                                   | “WinComment”:”string”                                                                                              | 200                      | Admin, approvers                                      |
-| POST        | /StickyStatus                       | Create available statuses for stickyNotes                                                                                                | “StatusName”:”string”                                                                                              | 201                      | Admin                                                 |
-| GET         | /StickyStatus                       | Get all statuses                                                                                                                         | NA                                                                                                                 | 200                      | Admin                                                 |
+## Overview
 
-### TO DO Object Definitions
+KICKIT is the React frontend for the collaborative bucket list platform. Users register, log in (via username/password or Google OAuth), create shared bucket lists, invite members, propose items, vote on them, and track progress toward completing experiences together.
 
-> [!NOTE]  
-> Define the actual objects that your API returns. The example GET method above says it returns “all projects”, so we need to define what a “project” looks like. Example below.
+The app communicates exclusively with the Django REST Framework backend via a RESTful JSON API using JWT Bearer tokens stored in `localStorage`.
 
-#### Users
-| Field              | Data type |
-| :----------------- | :-------- |
-| *User\_ID (PK)*    |           |
-| *Username*         | string    |
-| FullName           | string    |
-| *Email*            | string    |
-| *Password*         | string    |
-| Auth\_ID (FK)      | integer   |
-| BucketListId (FK)  | integer   |
-| Avatar             | string    |
-| Bio                | string    |
-| SocialLink         | string    |
+---
 
-#### Sticky Notes
-| Field                   | Data Type |
-| :---------------------- | :-------- |
-| Sticky\_ID (PK)         | integer   |
-| WinComment              | string    |
-| Guest                   | boolean   |
-| UserId (FK)             | integer   |
-| Event\_Id (FK)          | integrer  |
-| Collection\_Id (FK)     | integrer  |
-| Sticky\_Status\_ID (FK) | integrer  |
+## Tech Stack
 
-> [!NOTE]  
-> ... etc
+| Layer | Technology |
+|-------|-----------|
+| Framework | React 19 |
+| Build Tool | Vite 7 |
+| Routing | React Router DOM v7 |
+| Styling | Tailwind CSS v4 + custom CSS |
+| Animation | Framer Motion |
+| Icons | Lucide React |
+| Maps (in-progress) | Leaflet / React Leaflet, Google Maps JS API Loader |
+| Language | JavaScript (ES Modules) |
+| Linting | ESLint 9 |
 
-### TODO Database Schema
-> [!NOTE]  
-> Insert an image of your database schema (could be a photo of a hand-drawn schema or a screenshot of a schema created using a tool such as ​​https://drawsql.app/). Example below.
+---
 
-![Our database schema](./img/schema.png)
+## Architecture
 
-## Front-end Implementation
+The frontend is a Single Page Application (SPA) following a **Context + Custom Hooks** pattern — no Redux or external state library.
 
-### TODO Wireframes
+```
+Browser
+  └── React App (Vite SPA)
+        ├── Providers
+        │     ├── AuthProvider           ← JWT auth state
+        │     ├── BannerProvider         ← Global toast notifications
+        │     └── NotificationsProvider  ← Polled in-app notifications
+        │
+        └── React Router
+              └── Layout (NavBar + <Outlet /> + Footer)
+                    └── Pages
+                          └── Components
+                                └── Custom Hooks
+                                      └── API Layer (fetch)
+                                            └── Backend REST API
+```
 
-> [!NOTE]  
-> Insert image(s) of your wireframes (could be a photo of hand-drawn wireframes or a screenshot of wireframes created using a tool such as https://www.mockflow.com/).
+Key architectural decisions:
 
-See all wireframes and how Admins, Approvers and Students would see the Win Wall website: https://www.figma.com/file/cvP0Kc7lAX39Fvo12C5aLa/Win-Wall?node-id=22%3A1345 
+- Auth state lives in `AuthContext` (via `AuthProvider`) and persists to `localStorage` under the keys `access` and `refresh`.
+- All API calls are plain `fetch()` functions organised by resource in `src/api/`. Each accepts a JWT token and returns parsed JSON or throws a descriptive error.
+- Custom hooks (`useBucketLists`, `useBucketList`, `useVotes`, etc.) wrap the API layer and own their loading/error state.
+- Voting uses **optimistic UI updates** — scores update immediately in local state and roll back silently on API failure.
+- Notifications are polled every 30 seconds via `NotificationsProvider`.
 
-#### TODO Home Page
-![](./img/homepage.png)
+---
 
-#### Collection List Page
-![](./img/listpage.png)
+## Core Features
 
-> [!NOTE]  
-> etc...
+### Authentication
+
+- **Username/password login** — credentials posted to `POST /api/token/`; JWT access (1 h) and refresh (7 days) tokens returned and stored in `localStorage`
+- **Google OAuth 2.0** — single click via django-allauth redirect; tokens returned as query params to the frontend callback route
+- **Registration** — create an account with username, email, and password; JWT issued immediately on signup, no separate login step required
+- **Persistent sessions** — auth state is restored from `localStorage` on page load and validated against `GET /users/me/`
+- **Pending invite handling** — if a user follows an invite link before logging in, the invite token is saved in `sessionStorage` and automatically accepted after login/registration completes
+
+### Lists
+
+Users can:
+
+- Create bucket lists with a title, description, optional decision deadline, and scheduling dates/times
+- Set visibility to **private** (members only) or **public** (anyone can view)
+- Edit list metadata (owner only)
+- Delete lists they own
+- Leave lists they are a member of
+- **Freeze** a list to lock it down once decisions are finalised — prevents new items from being added (owner only; owner is still able to add items to a frozen list)
+- Export individual item dates to a calendar
+
+### Roles & Permissions
+
+Three roles control what each member can do within a list:
+
+- **Owner** — Full control: create, edit, delete the list; manage members; generate invite links; change item status; freeze/unfreeze
+- **Editor** — Can add items, edit and delete their own items (while the list is not frozen), and vote
+- **Viewer** — Read-only by default; can vote only if the owner enables viewer voting (`allow_viewer_voting`)
+
+| Action | Owner | Editor | Viewer |
+|--------|:-----:|:------:|:------:|
+| View list (private) | ✅ | ✅ | ✅ |
+| Edit list metadata | ✅ | ❌ | ❌ |
+| Delete list | ✅ | ❌ | ❌ |
+| Freeze / unfreeze | ✅ | ❌ | ❌ |
+| Add items | ✅ | ✅ | ❌ |
+| Edit own items | ✅ | ✅ *(not frozen)* | ❌ |
+| Delete own items | ✅ | ✅ *(not frozen)* | ❌ |
+| Change item status | ✅ | ❌ | ❌ |
+| Vote | ✅ | ✅ | ✅ *(if enabled)* |
+| React (emoji) | ✅ | ✅ | ✅ |
+| Invite members | ✅ | ❌ | ❌ |
+| Manage members | ✅ | ❌ | ❌ |
+| Leave list | ✅ *(n/a)* | ✅ | ✅ |
+
+### List Items
+
+Each item contains:
+
+| Field | Description |
+|-------|-------------|
+| Title | Short name for the activity |
+| Description | Optional longer details |
+| Status | Current lifecycle state |
+| Vote score | Computed as `upvotes − downvotes` |
+| Scheduling | Optional start/end date and start/end time |
+| Reactions | Per-user emoji reaction |
+| Creator | The member who proposed the item |
+
+**Item status lifecycle:**
+
+| Status | Description |
+|--------|-------------|
+| `proposed` | Default — item has been suggested |
+| `locked_in` | Group has committed to doing this item |
+| `complete` | Item has been done ✅ |
+
+Only the list owner can change item status. Setting status to `complete` automatically records a `completed_at` timestamp.
+
+**Emoji reactions** — Members can react to any item with one of six types: 🔥 fire, ❤️ love, 👀 sketchy, 😂 dead, 🚫 hardpass, 🙅 nope. One reaction per user per item; clicking the same reaction again removes it.
+
+### Voting System
+
+- One vote per user per item (`upvote` or `downvote`)
+- Vote score computed dynamically: `upvotes − downvotes`
+- Clicking the active vote **toggles it off** (removes the vote)
+- Votes use **optimistic UI** — the score updates instantly and reverts on API failure
+- Voting is blocked on **frozen** lists
+- On public lists, voting can be enabled for viewers via `allow_viewer_voting`
+
+### Notifications
+
+In-app notifications keep members informed of activity across their lists:
+
+| Notification | Trigger |
+|-------------|---------|
+| Item added | A member adds a new item to a list you belong to |
+| Item locked in | An item's status is changed to `locked_in` |
+| Item completed | An item's status is changed to `complete` |
+| List frozen | The owner freezes a list |
+| Freeze reminder | A list's decision deadline is approaching |
+
+The notification bell in the NavBar polls `GET /notifications/unread-count/` every **30 seconds**. Clicking it loads the full notification list. Notifications can be marked as read individually or all at once, and can be dismissed.
+
+### Dashboard
+
+The `/dashboard` page gives each user a personal overview:
+
+- All bucket lists they belong to (as owner, editor, or viewer)
+- Progress indicators per list (completed vs total items)
+- Member avatars for each list
+- Quick-access navigation to each list
+- Notification indicator in the NavBar
+
+### Security & Privacy
+
+- **JWT authentication** — stateless Bearer tokens; no server-side sessions required for API access
+- **CSRF protection** — Django's CSRF middleware is active; SameSite cookies configured
+- **CORS** — restricted to allowed frontend origins only
+- **Role-based access control** — enforced server-side on every request; access is revoked immediately when a member's role is changed or they are removed
+- **Private lists** — inaccessible to non-members; members-only check enforced on every read and write operation
+- **Invite token security** — tokens generated with `secrets.token_urlsafe(32)`; expire after 7 days; regenerating invalidates the previous token
+
+### Accessibility
+
+- Screen reader compatibility intended throughout
+- WCAG colour contrast compliance (see [Colours](#colours) below)
+- Visual indicators do not rely on colour alone
+- Readable font sizes at all breakpoints
+- Keyboard-navigable UI
+- Simple, consistent navigation structure
+
+---
+
+## Project Structure
+
+```
+Owl-gorithms-frontend/
+├── index.html                    # Vite entry point
+├── vite.config.js                # Vite + React + Tailwind config
+├── package.json
+├── .env                          # Local environment variables
+└── src/
+    ├── main.jsx                  # App root: router, providers, ReactDOM.createRoot
+    ├── main.css                  # Global CSS imports
+    ├── layout.jsx                # App shell: NavBar + <Outlet /> + Footer
+    │
+    ├── api/                      # Pure fetch() functions (one file per operation)
+    │   ├── post-login.js         # POST /api/token/  → { access, refresh }
+    │   ├── get-user.js           # GET  /users/me/
+    │   ├── bucketlists/          # create, read, update, delete bucket lists
+    │   ├── items/                # create, read, update, delete items
+    │   ├── invites/              # generate, preview, accept, regenerate invites
+    │   ├── memberships/          # update role, delete membership
+    │   └── votes/                # submit vote, remove vote
+    │
+    ├── components/
+    │   ├── AuthProvider.jsx      # AuthContext — auth state + setAuth
+    │   ├── NotificationsProvider.jsx  # Notification polling context
+    │   ├── GoogleLogin.jsx       # "Continue with Google" redirect button
+    │   ├── GoogleOAuthCallback.jsx    # Handles /oauth/google/callback tokens
+    │   ├── Footer.jsx
+    │   ├── Bucketlist/           # BucketListHeader, ActionBar, ItemsPanel, Progress
+    │   ├── Dashboard/            # Dashboard layout, DashboardBucketCard, CardGrid, FocusPanel
+    │   ├── NavBar/               # NavBar (notification bell, user menu)
+    │   ├── UI/                   # Avatar, AvatarGroup, FormModal, BannerProvider,
+    │   │                         # VoteControls, RelativeTime
+    │   ├── forms/                # CreateBucketListForm, CreateItemForm, RegisterForm
+    │   ├── items/                # ExtendedItemCard, ItemDetailCard, ItemDetailPanel
+    │   └── modals/               # CalendarExportModal, ConfirmActionModal,
+    │                             # DeleteItemModal, EditBucketListModal, EditItemModal,
+    │                             # InviteMembersModal, ItemDateModal,
+    │                             # StatusUpdateModal, ViewMembersModal
+    │
+    ├── context/
+    │   └── AuthContext.jsx       # ⚠ Legacy file — active auth context is AuthProvider.jsx
+    │
+    ├── hooks/
+    │   ├── use-auth.js           # useAuth() → consumes AuthContext from AuthProvider
+    │   ├── use-user.js           # Fetches GET /users/me/
+    │   ├── useBucketLists.js     # All user's bucket lists + addBucketList
+    │   ├── useBucketList.js      # Single bucket list detail + items
+    │   ├── useItems.js           # Items for a list
+    │   ├── useItem.js            # Single item detail
+    │   ├── useInvites.js         # Invite generation + regeneration
+    │   └── useVotes.js           # voteOnItem, clearVote
+    │
+    ├── pages/
+    │   ├── HomePage.jsx          # Marketing / landing page
+    │   ├── LoginPage.jsx         # Login form + Google OAuth button
+    │   ├── AccountPage.jsx       # Auth-gated dashboard (redirects to /login if unauthenticated)
+    │   ├── SingleListView.jsx    # Bucket list detail + animated split-panel item view
+    │   ├── BucketListItemPage.jsx # Full-page single item detail
+    │   ├── InviteAcceptPage.jsx  # Preview and accept/decline an invite by token
+    │   └── NotFoundPage.jsx
+    │
+    ├── styles/                   # Modular CSS files
+    │   ├── tokens.css            # CSS custom properties (design tokens)
+    │   ├── base.css
+    │   ├── layout.css
+    │   ├── app-shell.css
+    │   ├── bucketlist.css
+    │   ├── buttons.css
+    │   ├── forms.css
+    │   ├── homepage.css
+    │   ├── items.css
+    │   ├── modals.css
+    │   ├── responsive.css
+    │   └── surfaces.css
+    │
+    ├── assets/                   # SVGs (icons, hero images) and PNGs (logo)
+    │
+    └── utils/
+        ├── completeLogin.js      # Post-auth: fetch user → handle pending invite → navigate
+        ├── pendingInvite.js      # sessionStorage helper for invite token persistence
+        └── time.js               # Relative time formatting utilities
+```
+
+---
+
+## Getting Started
+
+### Prerequisites
+
+- **Node.js** ≥ 18
+- **npm** ≥ 9
+- The **backend API** running locally (default: `http://127.0.0.1:8000`)
+
+### Installation
+
+```bash
+git clone <repository-url>
+cd Owl-gorithms-frontend
+npm install
+```
+
+### Environment Variables
+
+Create a `.env` file in the project root:
+
+```env
+VITE_API_URL=http://127.0.0.1:8000
+```
+
+| Variable | Description | Example |
+|----------|-------------|---------|
+| `VITE_API_URL` | Base URL of the Django backend (no trailing slash) | `http://127.0.0.1:8000` |
+
+> All Vite env vars must be prefixed with `VITE_` to be exposed to the browser bundle.
+
+### Running Locally
+
+```bash
+npm run dev
+```
+
+App will be available at **http://localhost:5173**.
+
+Additional scripts:
+
+```bash
+npm run build      # Production build → dist/
+npm run preview    # Preview the production build locally
+npm run lint       # Run ESLint
+```
+
+---
+
+## Pages & Routing
+
+Routes are defined in `src/main.jsx` using React Router `createBrowserRouter`. All routes share a single `<Layout />` shell (NavBar + Outlet + Footer).
+
+| Path | Component | Notes |
+|------|-----------|-------|
+| `/` | `HomePage` | Public marketing page |
+| `/login` | `LoginPage` | Username/password form + Google OAuth button |
+| `/dashboard` | `AccountPage` → `Dashboard` | Redirects to `/login` if unauthenticated |
+| `/bucketlists/:id` | `SingleListView` | Animated split-panel list + item view |
+| `/bucketlists/:listId/items/:itemId` | `BucketListItemPage` | Full-page item detail |
+| `/invites/:token` | `InviteAcceptPage` | Invite preview (public) + accept (auth required) |
+| `/oauth/google/callback` | `GoogleOAuthCallback` | Extracts JWT from OAuth redirect query params |
+| `*` | `NotFoundPage` | 404 fallback |
+
+---
+
+## State Management & Auth
+
+### Auth Flow — Username / Password
+
+1. `LoginPage` submits credentials to `POST /api/token/`
+2. Access + refresh tokens written to `localStorage` (`access`, `refresh`)
+3. `completeLogin()` calls `GET /users/me/` and sets `AuthContext`
+4. If a pending invite token exists in `sessionStorage`, it is auto-accepted and the user is redirected to that list; otherwise redirected to `/dashboard`
+
+### Auth Flow — Google OAuth
+
+1. User clicks "Continue with Google" → browser redirects to `GET /auth/google/login/` on the backend (django-allauth)
+2. allauth completes OAuth and redirects to `/api/auth/google/callback/` on the backend
+3. Backend issues JWT and redirects to `/oauth/google/callback?access=...&refresh=...` on the frontend
+4. `GoogleOAuthCallback` stores tokens in `localStorage` and calls `completeLogin()`
+
+### Auth Context
+
+The active auth context is `components/AuthProvider.jsx`, consumed via `hooks/use-auth.js`:
+
+```js
+const { auth, setAuth } = useAuth();
+// auth.access  — JWT access token string (or null)
+// auth.user    — current user object (or null)
+// auth.refresh — JWT refresh token string (or null)
+```
+
+Logout clears both tokens from `localStorage` and resets context state.
+
+### Notifications Context
+
+`NotificationsProvider` polls `GET /notifications/unread-count/` every 30 seconds when authenticated. It exposes:
+
+```js
+const {
+  notifications, unreadCount, isLoading,
+  markAsRead, markAllAsRead, dismiss, dismissAll,
+  refresh
+} = useNotifications();
+```
+
+---
+
+## API Integration
+
+All API functions live in `src/api/` and are thin `fetch()` wrappers. They accept a `token` argument and attach it as `Authorization: Bearer <token>`.
+
+**Example — create a bucket list:**
+
+```js
+// src/api/bucketlists/create-bucketlist.js
+const response = await fetch(`${import.meta.env.VITE_API_URL}/bucketlists/`, {
+  method: "POST",
+  headers: {
+    "Content-Type": "application/json",
+    "Authorization": `Bearer ${token}`,
+  },
+  body: JSON.stringify(data),
+});
+```
+
+Custom hooks compose these API functions with `useState`/`useEffect`:
+
+```js
+// Fetch all user's lists and create new ones
+const { bucketLists, isLoading, addBucketList } = useBucketLists();
+
+// Fetch a single list (with items + members)
+const { bucketList, loadBucketList } = useBucketList(id);
+
+// Vote on an item
+const { voteOnItem, clearVote } = useVotes();
+```
+
+**Optimistic voting** — `SingleListView` maintains a `voteOverrides` map keyed by item ID. On click, the score/vote state is updated in local state immediately. If the API call fails, the override is reverted to the previous value.
+
+---
+
+## Component Overview
+
+| Component | Purpose |
+|-----------|---------|
+| `AuthProvider` | JWT auth state, token persistence, `setAuth` |
+| `NotificationsProvider` | Polling notification state + mark-read/dismiss actions |
+| `BannerProvider` | Global toast/banner notification context |
+| `NavBar` | Top navigation: logo, notification bell, user avatar |
+| `Dashboard` | Grid of `DashboardBucketCard` components; focus panel on selection |
+| `SingleListView` | Full list view: animated split panel (item list + item detail) |
+| `BucketListHeader` | List title, description, scheduling dates, member avatars, action buttons |
+| `BucketListActionBar` | Filter tabs (All / Pending / Complete) + completion count |
+| `BucketListItemsPanel` | Scrollable list of `BucketListItemCard` components |
+| `ItemDetailPanel` | Right-side panel: full item detail, votes, reactions, status, owner actions |
+| `VoteControls` | Upvote ↑ / Downvote ↓ buttons with animated score |
+| `InviteMembersModal` | Generate + copy editor/viewer invite links |
+| `ViewMembersModal` | View, promote/demote, remove members |
+| `CalendarExportModal` | Export item dates to calendar |
+| `FormModal` | Reusable modal dialog wrapper |
+| `GoogleLogin` | Single-click Google OAuth redirect button |
+| `GoogleOAuthCallback` | Extracts tokens from query string post-OAuth |
+
+---
+
+## Styling
+
+### CSS Architecture
+
+KICKIT uses **Tailwind CSS v4** for layout and utility classes combined with custom CSS files in `src/styles/`.
+
+- `tokens.css` — CSS custom properties: `--primary-cta`, `--heading-text`, `--muted-text`, `--dividers`, etc. These tokens drive the entire colour system and should be updated here to retheme the app globally.
+- Tailwind utility classes are used directly in JSX for spacing, flex, grid, and responsive breakpoints.
+- Component-specific overrides live in dedicated CSS files (`bucketlist.css`, `homepage.css`, `modals.css`, etc.)
+- All entry/exit animations use **Framer Motion** — page fades, panel slides, list item transitions.
 
 ### Logo
-![](./img/logo.png)
+
+![KICKIT Logo](./img/logo.png)
+
+> 📌 *Replace `./img/logo.png` with the final logo asset. The logo is also available as a PNG in `src/assets/kickit_logo_text.png`.*
 
 ### Colours
+
 #### Primary
 
-![](./img/primary.png)
+![Primary Colour Palette](./img/primary.png)
+
+> 📌 *Replace `./img/primary.png` with a swatch image showing the primary brand colour(s). Define these in `src/styles/tokens.css` under `--primary-cta` and related variables.*
 
 #### Secondary
 
-![](./img/secondary.png)
+![Secondary Colour Palette](./img/secondary.png)
+
+> 📌 *Replace `./img/secondary.png` with a swatch image showing the secondary/accent colour(s). Define in `src/styles/tokens.css`.*
 
 ### Font
 
-Google fonts:
+KICKIT uses a custom brand font for headings alongside a system-safe body font stack.
 
 ```css
+/* Add to tokens.css or base.css once the final font is confirmed */
 @import url('https://fonts.googleapis.com/css2?family=Raleway:wght@400;600;700&display=swap');
 font-family: 'Raleway', sans-serif;
 ```
 
-![](./img/fonts.png)
+![Font Preview](./img/fonts.png)
+
+> 📌 *Replace `./img/fonts.png` with a font preview image showing the typeface at key weights (Regular 400, SemiBold 600, Bold 700). Update the import above with the chosen Google Font slug.*
+
+---
+
+## Deployment
+
+The frontend is designed to deploy to **Netlify** or **Vercel**.
+
+```bash
+npm run build
+# Output: dist/
+```
+
+**Required configuration:**
+
+- Set `VITE_API_URL` to the production backend URL in the hosting platform's environment variables.
+- Configure SPA fallback routing (redirect all paths to `index.html`).
+
+For **Netlify**, add `public/_redirects`:
+
+```
+/*  /index.html  200
+```
+
+For **Vercel**, add `vercel.json`:
+
+```json
+{
+  "rewrites": [{ "source": "/(.*)", "destination": "/" }]
+}
+```
+
+**Additional steps before going live:**
+
+- Update backend `CORS_ALLOWED_ORIGINS` to include the production frontend URL.
+- Update backend `FRONTEND_URL` env var to the production frontend URL.
+- Add the production OAuth callback URL to the Google Cloud Console.
+- Replace the hardcoded `http://localhost:5173` redirect in `users/views.py → GoogleLoginCallback`.
+
+---
 
 ## Deliverable Tracker
-### Frontend
 
-| Deliverable              | Status | Comments |
-|--------------------------|--------|----------|
-| Login flow               |        |          |
-| Dashboard                |        |          |
-| List view                |        |          |
-| Item creation/edit       |        |          |
-| Voting interaction       |        |          |
-| Status updates           |        |          |
-| Delete list              |        |          |
-| Leave list               |        |          |
-| Mobile responsive layout |        |          |
-| Tag filtering            |        |          |
+| Deliverable | Status | Comments |
+|-------------|--------|----------|
+| Login flow (username/password) | | |
+| Google OAuth login | | |
+| Registration flow | | |
+| Dashboard | | |
+| List view (split-panel) | | |
+| Item creation / edit | | |
+| Voting interaction | | |
+| Emoji reactions | | |
+| Item status updates | | |
+| Item scheduling (dates/times) | | |
+| Calendar export | | |
+| Delete list | | |
+| Leave list | | |
+| Freeze / unfreeze list | | |
+| Invite members (generate link) | | |
+| Accept invite flow | | |
+| Member management (promote / remove) | | |
+| In-app notifications | | |
+| Mobile responsive layout | | |
+| Public list visibility | | |
+| 404 / error pages | | |
+
+---
+
+## Known Issues / Gaps
+
+- **Duplicate auth context files** — `src/context/AuthContext.jsx` is a legacy file that uses `Token` auth headers. The active implementation is `src/components/AuthProvider.jsx` which uses `Bearer` JWT. The legacy file should be removed to avoid confusion.
+
+- **`/register` route missing** — `LoginPage` links to `/register` but no route is defined in the router. `RegisterForm` exists in `src/components/forms/` but is not wired up to a page.
+
+- **Auth-conditional UI commented out** — Multiple blocks in `HomePage` are commented out (e.g. "View My Buckets" button, CTA visibility), meaning the page does not adapt to logged-in state.
+
+- **Public community feed commented out** — The "What people are kicking" community section in `HomePage` is fully commented out.
+
+- **No token refresh logic** — The frontend stores a refresh token but there is no interceptor or background logic to silently refresh an expired access token. Users will be logged out after 1 hour.
+
+- **Map libraries installed but unused** — `@googlemaps/js-api-loader`, `leaflet`, and `react-leaflet` are installed but no map component currently appears in the component tree. This appears to be in-progress work.
+
+- **Google OAuth hardcodes localhost** — `GoogleLoginCallback` in the backend hardcodes `http://localhost:5173` as the redirect destination. This must be environment-variable driven before deploying.
+
+- **No frontend test suite** — No unit, integration, or end-to-end tests exist.
