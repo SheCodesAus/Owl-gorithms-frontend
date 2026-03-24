@@ -41,11 +41,9 @@
     - [CSS Architecture](#css-architecture)
     - [Logo](#logo)
     - [Colours](#colours)
-      - [Primary](#primary)
-      - [Secondary](#secondary)
+      - [UI Colour Palette](#ui-colour-palette)
     - [Font](#font)
   - [Deployment](#deployment)
-  - [Deliverable Tracker](#deliverable-tracker)
   - [Known Issues / Gaps](#known-issues--gaps)
 
 ---
@@ -517,23 +515,13 @@ KICKIT uses **Tailwind CSS v4** for layout and utility classes combined with cus
 
 ### Logo
 
-![KICKIT Logo](./img/logo.png)
-
-> 📌 *Replace `./img/logo.png` with the final logo asset. The logo is also available as a PNG in `src/assets/kickit_logo_text.png`.*
+![KICKIT Logo](./public/text_logo_light.png)
 
 ### Colours
 
-#### Primary
+#### UI Colour Palette
 
-![Primary Colour Palette](./img/primary.png)
-
-> 📌 *Replace `./img/primary.png` with a swatch image showing the primary brand colour(s). Define these in `src/styles/tokens.css` under `--primary-cta` and related variables.*
-
-#### Secondary
-
-![Secondary Colour Palette](./img/secondary.png)
-
-> 📌 *Replace `./img/secondary.png` with a swatch image showing the secondary/accent colour(s). Define in `src/styles/tokens.css`.*
+![Colour Palette](./img/UI-colour.png)
 
 ### Font
 
@@ -544,10 +532,7 @@ KICKIT uses a custom brand font for headings alongside a system-safe body font s
 @import url('https://fonts.googleapis.com/css2?family=Raleway:wght@400;600;700&display=swap');
 font-family: 'Raleway', sans-serif;
 ```
-
-![Font Preview](./img/fonts.png)
-
-> 📌 *Replace `./img/fonts.png` with a font preview image showing the typeface at key weights (Regular 400, SemiBold 600, Bold 700). Update the import above with the chosen Google Font slug.*
+![Font & Buttons](./img/UI-font-buttons.png)
 
 ---
 
@@ -578,41 +563,6 @@ For **Vercel**, add `vercel.json`:
   "rewrites": [{ "source": "/(.*)", "destination": "/" }]
 }
 ```
-
-**Additional steps before going live:**
-
-- Update backend `CORS_ALLOWED_ORIGINS` to include the production frontend URL.
-- Update backend `FRONTEND_URL` env var to the production frontend URL.
-- Add the production OAuth callback URL to the Google Cloud Console.
-- Replace the hardcoded `http://localhost:5173` redirect in `users/views.py → GoogleLoginCallback`.
-
----
-
-## Deliverable Tracker
-
-| Deliverable | Status | Comments |
-|-------------|--------|----------|
-| Login flow (username/password) | | |
-| Google OAuth login | | |
-| Registration flow | | |
-| Dashboard | | |
-| List view (split-panel) | | |
-| Item creation / edit | | |
-| Voting interaction | | |
-| Emoji reactions | | |
-| Item status updates | | |
-| Item scheduling (dates/times) | | |
-| Calendar export | | |
-| Delete list | | |
-| Leave list | | |
-| Freeze / unfreeze list | | |
-| Invite members (generate link) | | |
-| Accept invite flow | | |
-| Member management (promote / remove) | | |
-| In-app notifications | | |
-| Mobile responsive layout | | |
-| Public list visibility | | |
-| 404 / error pages | | |
 
 ---
 
