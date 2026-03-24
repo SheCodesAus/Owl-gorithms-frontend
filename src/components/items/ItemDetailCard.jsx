@@ -96,6 +96,8 @@ function ItemDetailCard({
   const [showOptionsMenu, setShowOptionsMenu] = useState(false);
   const optionsMenuRef = useRef(null);
 
+  const isComplete = item.status === "complete";
+
   useEffect(() => {
     function handleClickOutside(event) {
       if (
@@ -230,7 +232,19 @@ function ItemDetailCard({
           </p>
         </section>
 
-        {canVote && (
+        {isComplete ? (
+          <div
+            className={`item-detail-votes item-detail-votes-prominent ${
+              isMobileOverlay ? "mb-2 mt-0.5" : ""
+            }`}
+          >
+            <div className="flex justify-center">
+              <span className="item-status-badge item-status-badge-complete px-4 py-2 text-sm font-semibold sm:px-5">
+                Complete
+              </span>
+            </div>
+          </div>
+        ) : canVote ? (
           <div
             className={`item-detail-votes item-detail-votes-prominent ${
               isMobileOverlay ? "mb-2 mt-0.5" : ""
@@ -246,7 +260,7 @@ function ItemDetailCard({
               variant="focus"
             />
           </div>
-        )}
+        ) : null}
 
         {isMobileOverlay && (
           <div className="relative mt-1" ref={optionsMenuRef}>
@@ -316,21 +330,17 @@ function ItemDetailCard({
             </span>
           )}
 
-          <span
-            className={`item-status-badge shrink-0 ${getStatusClass(item.status)} ${
-              isMobileOverlay ? "px-2.5 py-1 text-xs" : ""
-            }`}
-          >
-            {getStatusLabel(item.status)}
-          </span>
+          {!isComplete && (
+            <span
+              className={`item-status-badge shrink-0 ${getStatusClass(item.status)} ${
+                isMobileOverlay ? "px-2.5 py-1 text-xs" : ""
+              }`}
+            >
+              {getStatusLabel(item.status)}
+            </span>
+          )}
         </div>
-
-        <span className="block text-[11px] flex justify-center items-center text-[var(--muted-text)]">
-          <RelativeTime timestamp={item.updated_at} />
-        </span>
       </div>
-
-      <div className="item-detail-divider" />
 
       <section className="item-detail-section">
         <p className="item-detail-label">Date</p>
@@ -339,7 +349,7 @@ function ItemDetailCard({
           <p
             className={`item-date-empty ${
               isMobileOverlay
-                ? "text-[0.92rem] leading-relaxed"
+                ? "text-[0.88rem] leading-snug"
                 : "leading-relaxed"
             }`}
           >
@@ -365,7 +375,7 @@ function ItemDetailCard({
           <button
             type="button"
             className={`item-action-pill ${
-              isMobileOverlay ? "w-full justify-center py-2.5 text-sm" : ""
+              isMobileOverlay ? "w-full justify-center py-2 text-[0.92rem]" : ""
             }`}
             onClick={onAddToCalendar}
           >
