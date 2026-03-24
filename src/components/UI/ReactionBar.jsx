@@ -8,7 +8,7 @@ const REACTIONS = [
   { key: "fire",     label: "This is heating up",   emoji: "🔥", lottie: "/reactions/fire.json",     freezeFrame: null },
   { key: "love",     label: "Obsessed",              emoji: "😍", lottie: "/reactions/love.json",     freezeFrame: null },
   { key: "sketchy",  label: "I have questions",      emoji: "😰", lottie: "/reactions/sketchy.json",  freezeFrame: null },
-  { key: "dead",     label: "This will kill us",     emoji: "😭", lottie: "/reactions/dead.json",     freezeFrame: null },
+  { key: "dead",     label: "This will kill us",     emoji: "😭", lottie: "/reactions/dead.json",     freezeFrame: 40 },
   { key: "hardpass", label: "Not a chance",          emoji: "😤", lottie: "/reactions/hardpass.json", freezeFrame: null },
   { key: "nope",     label: "Nah, I'm good",         emoji: "🙅", lottie: "/reactions/nope.json",     freezeFrame: null },
 ];
@@ -117,7 +117,7 @@ function ReactionPicker({ onReact, userReaction, onClose, openedByClick }) {
 }
 
 // ── Tweak this to change which frame the animation rests on when not hovered
-const FREEZE_FRAME = 0;
+const FREEZE_FRAME = 40;
 
 function ReactionCount({ reactionKey, count, isActive }) {
   const reaction = REACTIONS.find((r) => r.key === reactionKey);
