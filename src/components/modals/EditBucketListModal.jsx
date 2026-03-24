@@ -18,6 +18,7 @@ export default function EditBucketListModal({
     start_time: "",
     end_time: "",
     is_public: false,
+    allow_viewer_voting: false,
   });
 
   const [hasDeadline, setHasDeadline] = useState(false);
@@ -43,6 +44,7 @@ export default function EditBucketListModal({
       start_time: nextStartTime,
       end_time: nextEndTime,
       is_public: Boolean(bucketList?.is_public),
+      allow_viewer_voting: Boolean(bucketList?.allow_viewer_voting),
     });
 
     setHasDeadline(Boolean(nextDeadline));
@@ -125,6 +127,7 @@ export default function EditBucketListModal({
       title: formData.title,
       description: formData.description,
       is_public: formData.is_public,
+      allow_viewer_voting: formData.allow_viewer_voting,
       decision_deadline_input: hasDeadline
         ? formData.decision_deadline || null
         : null,
@@ -191,12 +194,33 @@ export default function EditBucketListModal({
                 Make list public
               </p>
               <p className="text-sm text-[var(--muted-text)]">
-                Public lists can be viewed and shared. Private ones stay in the
-                inner circle.
+                Let the world in, or keep it for your inner circle only.
               </p>
             </div>
           </label>
           {renderFieldError("is_public")}
+        </div>
+
+        <div className="rounded-[1.4rem] border border-black/10 bg-[var(--surface-soft)]/70 p-4">
+          <label className="flex cursor-pointer items-start gap-3">
+            <input
+              id="edit-allow-viewer-voting"
+              name="allow_viewer_voting"
+              type="checkbox"
+              checked={formData.allow_viewer_voting}
+              onChange={handleChange}
+              className="mt-1 h-4 w-4 rounded border-black/20 text-[var(--primary-cta)] focus:ring-[var(--primary-cta)]"
+            />
+            <div>
+              <p className="text-sm font-semibold text-[var(--heading-text)]">
+                Let viewers vote
+              </p>
+              <p className="text-sm text-[var(--muted-text)]">
+                Don’t just let them watch the chaos. Let them influence it.
+              </p>
+            </div>
+          </label>
+          {renderFieldError("allow_viewer_voting")}
         </div>
 
         <div className="space-y-3">
@@ -210,10 +234,11 @@ export default function EditBucketListModal({
               />
               <div>
                 <p className="text-sm font-semibold text-[var(--heading-text)]">
-                  Add deadline
+                  Add decision deadline
                 </p>
                 <p className="text-sm text-[var(--muted-text)]">
-                  Set a decision deadline for the list.
+                  This is the cutoff for adding new ideas and casting votes. After
+                  the deadline hits, both freeze. No last-minute plot twists.
                 </p>
               </div>
             </label>
@@ -251,10 +276,11 @@ export default function EditBucketListModal({
               />
               <div>
                 <p className="text-sm font-semibold text-[var(--heading-text)]">
-                  Add date
+                  Add event date
                 </p>
                 <p className="text-sm text-[var(--muted-text)]">
-                  Include a start date and optional end date for this list.
+                  Use this when the whole list revolves around a real planned
+                  event, trip, weekend, or occasion.
                 </p>
               </div>
             </label>
@@ -262,7 +288,10 @@ export default function EditBucketListModal({
             {hasDate ? (
               <div className="mt-4 grid gap-4 md:grid-cols-2">
                 <div className="form-field">
-                  <label className="form-label" htmlFor="edit-bucketlist-start-date">
+                  <label
+                    className="form-label"
+                    htmlFor="edit-bucketlist-start-date"
+                  >
                     FROM
                   </label>
                   <input
@@ -277,7 +306,10 @@ export default function EditBucketListModal({
                 </div>
 
                 <div className="form-field">
-                  <label className="form-label" htmlFor="edit-bucketlist-end-date">
+                  <label
+                    className="form-label"
+                    htmlFor="edit-bucketlist-end-date"
+                  >
                     TO
                   </label>
                   <input
@@ -305,10 +337,11 @@ export default function EditBucketListModal({
               />
               <div>
                 <p className="text-sm font-semibold text-[var(--heading-text)]">
-                  Add time
+                  Add event time
                 </p>
                 <p className="text-sm text-[var(--muted-text)]">
-                  Include a start time and optional end time for this list.
+                  Perfect for lists built around a booking, meetup, dinner,
+                  concert, or anything with a clock attached.
                 </p>
               </div>
             </label>
@@ -316,7 +349,10 @@ export default function EditBucketListModal({
             {hasTime ? (
               <div className="mt-4 grid gap-4 md:grid-cols-2">
                 <div className="form-field">
-                  <label className="form-label" htmlFor="edit-bucketlist-start-time">
+                  <label
+                    className="form-label"
+                    htmlFor="edit-bucketlist-start-time"
+                  >
                     START TIME
                   </label>
                   <input
@@ -331,7 +367,10 @@ export default function EditBucketListModal({
                 </div>
 
                 <div className="form-field">
-                  <label className="form-label" htmlFor="edit-bucketlist-end-time">
+                  <label
+                    className="form-label"
+                    htmlFor="edit-bucketlist-end-time"
+                  >
                     END TIME
                   </label>
                   <input
