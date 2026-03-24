@@ -92,7 +92,7 @@ function ViewMembersModal({
 
                       <div className="min-w-0">
                         <div className="flex flex-wrap items-center gap-2">
-                          <p className="truncate text-base font-semibold text-[var(--heading-text)]">
+                          <p className="truncate text-sm sm:text-base font-semibold text-[var(--heading-text)]">
                             {displayName}
                           </p>
 
@@ -137,7 +137,7 @@ function ViewMembersModal({
                             type="button"
                             onClick={() => onRemoveMember?.(membership)}
                             disabled={isUpdating}
-                            className="rounded-2xl cursor-pointer border border-red-300 bg-red-50 px-5 py-3 text-sm font-semibold text-red-600 transition hover:bg-red-100"
+                            className="rounded-2xl cursor-pointer border border-red-300 bg-red-50 px-3 py-2 sm:px-5 sm:py-3 text-sm font-semibold text-red-600 transition hover:bg-red-100"
                           >
                             Remove
                           </button>
@@ -146,23 +146,27 @@ function ViewMembersModal({
 
                       {canManageThisMember && isEditing ? (
                         <div className="flex w-full flex-col gap-3 rounded-[1.25rem] border border-black/8 bg-black/[0.03] p-3 sm:w-auto sm:min-w-[420px]">
-                          <label
-                            htmlFor={`role-${membership.id}`}
-                            className="text-xs font-semibold uppercase tracking-[0.14em] text-[var(--muted-text)]"
-                          >
+                          <p className="text-xs font-semibold uppercase tracking-[0.14em] text-[var(--muted-text)]">
                             Member role
-                          </label>
+                          </p>
 
-                          <select
-                            id={`role-${membership.id}`}
-                            value={pendingRole}
-                            onChange={(event) => setPendingRole(event.target.value)}
-                            disabled={isUpdating}
-                            className="w-full rounded-2xl border border-black/12 bg-white px-4 py-3 text-sm font-semibold text-[var(--heading-text)] outline-none transition focus:border-[var(--primary)] disabled:cursor-not-allowed disabled:opacity-60"
-                          >
-                            <option value="viewer">Viewer</option>
-                            <option value="editor">Editor</option>
-                          </select>
+                          <div className="flex gap-2">
+                            {["viewer", "editor"].map((role) => (
+                              <button
+                                key={role}
+                                type="button"
+                                disabled={isUpdating}
+                                onClick={() => setPendingRole(role)}
+                                className={`flex-1 rounded-xl border py-2 text-sm font-semibold capitalize transition disabled:cursor-not-allowed disabled:opacity-60 ${
+                                  pendingRole === role
+                                    ? "border-[var(--primary)] bg-[var(--primary)] text-white"
+                                    : "border-black/12 bg-white text-[var(--heading-text)] hover:bg-black/4"
+                                }`}
+                              >
+                                {role.charAt(0).toUpperCase() + role.slice(1)}
+                              </button>
+                            ))}
+                          </div>
 
                           <div className="form-actions">
                             <button
@@ -180,7 +184,7 @@ function ViewMembersModal({
                               disabled={
                                 isUpdating || !pendingRole || pendingRole === membership.role
                               }
-                              className="primary-gradient-button rounded-2xl px-5 py-3 text-sm font-semibold"
+                              className="primary-gradient-button rounded-2xl px-3 py-2 sm:px-5 sm:py-3 text-sm font-semibold"
                             >
                               {isUpdating ? "Updating..." : "Update"}
                             </button>

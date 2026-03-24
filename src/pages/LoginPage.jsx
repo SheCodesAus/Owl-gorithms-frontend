@@ -130,7 +130,7 @@ function LoginPage() {
             <button
               type="submit"
               disabled={isLoading}
-              className="primary-gradient-button mt-2 w-full rounded-full py-3.5 text-base font-bold disabled:cursor-not-allowed disabled:opacity-60"
+              className="primary-gradient-button mt-2 w-full rounded-full py-2.5 sm:py-3.5 text-sm sm:text-base font-bold disabled:cursor-not-allowed disabled:opacity-60"
             >
               {isLoading ? "Logging in..." : "Log in"}
             </button>

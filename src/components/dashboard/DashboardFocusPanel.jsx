@@ -280,13 +280,13 @@ function DashboardFocusPanel({
               <div className="mt-2 flex flex-wrap items-center gap-3">
                 <AvatarGroup users={memberUsers} size="sm" max={4} />
                 {onViewMembersClick && (
-                  <button type="button" onClick={onViewMembersClick} className="inline-flex gradient-border cursor-pointer items-center gap-2 rounded-full px-4 py-2 text-sm font-semibold text-black backdrop-blur-sm transition hover:bg-[#ff9966]/12 focus:outline-none">
-                    <Eye size={16} /> View
+                  <button type="button" onClick={onViewMembersClick} className="inline-flex gradient-border cursor-pointer items-center gap-1.5 rounded-full px-3 py-1.5 text-xs sm:gap-2 sm:px-4 sm:py-2 sm:text-sm font-semibold text-black backdrop-blur-sm transition hover:bg-[#ff9966]/12 focus:outline-none">
+                    <Eye size={14} /> View
                   </button>
                 )}
                 {onInviteMembersClick && (
-                  <button type="button" onClick={onInviteMembersClick} className="inline-flex gradient-border cursor-pointer items-center gap-2 rounded-full px-4 py-2 text-sm font-semibold text-black backdrop-blur-sm transition hover:bg-[#ff9966]/12 focus:outline-none">
-                    <UserPlus size={16} /> Invite
+                  <button type="button" onClick={onInviteMembersClick} className="inline-flex gradient-border cursor-pointer items-center gap-1.5 rounded-full px-3 py-1.5 text-xs sm:gap-2 sm:px-4 sm:py-2 sm:text-sm font-semibold text-black backdrop-blur-sm transition hover:bg-[#ff9966]/12 focus:outline-none">
+                    <UserPlus size={14} /> Invite
                   </button>
                 )}
                 <p className="text-sm text-black/60">
@@ -300,9 +300,9 @@ function DashboardFocusPanel({
                 type="button"
                 onClick={onAddItemClick}
                 aria-label={`Add item to ${bucketList.title}`}
-                className="group inline-flex h-14 w-14 cursor-pointer items-center justify-center rounded-full bg-[linear-gradient(135deg,#15803d_0%,#4ade80_100%)] text-white shadow-[0_14px_36px_rgba(8,38,20,0.35)] transition hover:scale-105 active:scale-95 focus:outline-none"
+                className="group inline-flex h-11 w-11 sm:h-14 sm:w-14 cursor-pointer items-center justify-center rounded-full bg-[linear-gradient(135deg,#15803d_0%,#4ade80_100%)] text-white shadow-[0_14px_36px_rgba(8,38,20,0.35)] transition hover:scale-105 active:scale-95 focus:outline-none"
               >
-                <Plus size={24} strokeWidth={2.8} className="transition group-hover:rotate-90" />
+                <Plus size={22} strokeWidth={2.8} className="transition group-hover:rotate-90" />
               </button>
             )}
           </div>
@@ -432,7 +432,7 @@ function DashboardFocusPanel({
             <button
               type="button"
               onClick={() => navigate(`/bucketlists/${bucketList.id}`)}
-              className="primary-gradient-button inline-flex w-full items-center justify-center gap-2 rounded-full px-6 py-3 text-base font-semibold transition sm:text-lg"
+              className="primary-gradient-button inline-flex w-full items-center justify-center gap-2 rounded-full px-4 py-2.5 sm:px-6 sm:py-3 text-sm sm:text-lg font-semibold transition"
             >
               Open
               <ArrowRight size={18} />

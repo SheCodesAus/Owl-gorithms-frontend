@@ -105,7 +105,7 @@ export default function DashboardSearchBar({
         <div className="item-control-divider" />
 
         {/* Sort dropdown */}
-        <div className="relative shrink-0" ref={sortRef}>
+        <div className="relative shrink-0 item-control-sort-wrap" ref={sortRef}>
           <button
             type="button"
             onClick={() => setSortOpen((p) => !p)}

@@ -25,6 +25,7 @@ export default function BucketListHeader({
   isOwner = false,
   currentUser,
   onAddItemClick,
+  onViewMembersClick,
   onInviteMembersClick,
   onEditBucketList,
   onFreezeBucketList,
@@ -187,25 +188,22 @@ export default function BucketListHeader({
                 <AvatarGroup users={memberUsers} size="sm" max={4} />
                 <button
                   type="button"
-                  onClick={() => setShowMembersModal(true)}
-                  className="inline-flex gradient-border cursor-pointer items-center gap-2 rounded-full bg-[#ff9966]/8 px-4 py-2 text-sm font-semibold text-black backdrop-blur-sm transition hover:bg-[#ff9966]/12 focus:outline-none"
+                  onClick={() => onViewMembersClick ? onViewMembersClick() : setShowMembersModal(true)}
+                  className="inline-flex gradient-border cursor-pointer items-center gap-1.5 rounded-full bg-[#ff9966]/8 px-3 py-1.5 text-xs font-semibold text-black backdrop-blur-sm transition hover:bg-[#ff9966]/12 focus:outline-none sm:gap-2 sm:px-4 sm:py-2 sm:text-sm"
                 >
-                  <Eye size={15} aria-hidden="true" />
+                  <Eye size={14} aria-hidden="true" />
                   View
                 </button>
                 {onInviteMembersClick && (
                   <button
                     type="button"
-                    className="inline-flex gradient-border cursor-pointer items-center gap-2 rounded-full bg-[#ff9966]/8 px-4 py-2 text-sm font-semibold text-black backdrop-blur-sm transition hover:bg-[#ff9966]/12 focus:outline-none"
+                    className="inline-flex gradient-border cursor-pointer items-center gap-1.5 rounded-full bg-[#ff9966]/8 px-3 py-1.5 text-xs font-semibold text-black backdrop-blur-sm transition hover:bg-[#ff9966]/12 focus:outline-none sm:gap-2 sm:px-4 sm:py-2 sm:text-sm"
                     onClick={onInviteMembersClick}
                   >
-                    <UserPlus size={15} aria-hidden="true" />
+                    <UserPlus size={14} aria-hidden="true" />
                     Invite
                   </button>
                 )}
-                <p className="text-sm text-black/60">
-                  {memberCount} connected member{memberCount === 1 ? "" : "s"}
-                </p>
               </div>
             </div>
 
@@ -215,7 +213,7 @@ export default function BucketListHeader({
                 type="button"
                 onClick={onAddItemClick}
                 aria-label="Add item to this list"
-                className="group inline-flex h-14 w-14 cursor-pointer items-center justify-center rounded-full bg-[linear-gradient(135deg,#15803d_0%,#4ade80_100%)] text-white shadow-[0_14px_36px_rgba(8,38,20,0.35)] transition hover:scale-105 hover:shadow-[0_18px_46px_rgba(8,38,20,0.45)] active:scale-95 focus:outline-none focus:ring-2 focus:ring-white/80"
+                className="group inline-flex h-11 w-11 sm:h-14 sm:w-14 cursor-pointer items-center justify-center rounded-full bg-[linear-gradient(135deg,#15803d_0%,#4ade80_100%)] text-white shadow-[0_14px_36px_rgba(8,38,20,0.35)] transition hover:scale-105 hover:shadow-[0_18px_46px_rgba(8,38,20,0.45)] active:scale-95 focus:outline-none focus:ring-2 focus:ring-white/80"
               >
                 <Plus size={24} strokeWidth={2.8} className="transition group-hover:rotate-90" />
               </button>

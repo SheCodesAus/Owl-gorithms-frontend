@@ -179,7 +179,7 @@ function NavBar() {
               <AnimatePresence>
                 {isNotificationsOpen && (
                   <motion.div
-                    className="absolute right-0 top-[calc(100%+0.75rem)] z-40 w-[320px] sm:w-[380px]"
+                    className="absolute right-0 top-[calc(100%+0.75rem)] z-40 w-[min(320px,calc(100vw-5rem))] sm:w-[380px]"
                     initial={{ opacity: 0, y: -8, scale: 0.98 }}
                     animate={{ opacity: 1, y: 0, scale: 1 }}
                     exit={{ opacity: 0, y: -8, scale: 0.98 }}
