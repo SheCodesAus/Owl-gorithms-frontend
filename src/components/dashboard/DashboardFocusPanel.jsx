@@ -280,12 +280,12 @@ function DashboardFocusPanel({
               <div className="mt-2 flex flex-wrap items-center gap-3">
                 <AvatarGroup users={memberUsers} size="sm" max={4} />
                 {onViewMembersClick && (
-                  <button type="button" onClick={onViewMembersClick} className="inline-flex gradient-border cursor-pointer items-center gap-2 rounded-full bg-[#ff9966]/8 px-4 py-2 text-sm font-semibold text-black backdrop-blur-sm transition hover:bg-[#ff9966]/12 focus:outline-none">
+                  <button type="button" onClick={onViewMembersClick} className="inline-flex gradient-border cursor-pointer items-center gap-2 rounded-full px-4 py-2 text-sm font-semibold text-black backdrop-blur-sm transition hover:bg-[#ff9966]/12 focus:outline-none">
                     <Eye size={16} /> View
                   </button>
                 )}
                 {onInviteMembersClick && (
-                  <button type="button" onClick={onInviteMembersClick} className="inline-flex gradient-border cursor-pointer items-center gap-2 rounded-full bg-[#ff9966]/8 px-4 py-2 text-sm font-semibold text-black backdrop-blur-sm transition hover:bg-[#ff9966]/12 focus:outline-none">
+                  <button type="button" onClick={onInviteMembersClick} className="inline-flex gradient-border cursor-pointer items-center gap-2 rounded-full px-4 py-2 text-sm font-semibold text-black backdrop-blur-sm transition hover:bg-[#ff9966]/12 focus:outline-none">
                     <UserPlus size={16} /> Invite
                   </button>
                 )}
