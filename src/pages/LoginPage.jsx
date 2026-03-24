@@ -1,151 +1,57 @@
-import { useState } from "react";
-import { useNavigate, Link } from "react-router-dom";
 import { motion } from "framer-motion";
-import { Eye, EyeOff } from "lucide-react";
 import GoogleLogin from "../components/GoogleLogin";
-import postLogin from "../api/post-login";
-import { useAuth } from "../hooks/use-auth";
-import { completeLogin } from "../utils/completeLogin";
+import mascot from "../assets/mascot.png";
 
 function LoginPage() {
-  const navigate = useNavigate();
-  const { setAuth } = useAuth();
-
-  const [credentials, setCredentials] = useState({ username: "", password: "" });
-  const [errors, setErrors] = useState({});
-  const [isLoading, setIsLoading] = useState(false);
-  const [showPassword, setShowPassword] = useState(false);
-
-  function handleChange(event) {
-    const { id, value } = event.target;
-    setCredentials((prev) => ({ ...prev, [id]: value }));
-  }
-
-  async function handleSubmit(event) {
-    event.preventDefault();
-    setErrors({});
-    setIsLoading(true);
-
-    try {
-      const response = await postLogin(credentials.username, credentials.password);
-      const { access, refresh } = response;
-
-      window.localStorage.setItem("access", access);
-      if (refresh) window.localStorage.setItem("refresh", refresh);
-
-      await completeLogin({ access, refresh, setAuth, navigate });
-    } catch (error) {
-      setErrors({ non_field_errors: [error.message] });
-    } finally {
-      setIsLoading(false);
-    }
-  }
-
   return (
-    <div className="flex min-h-[80vh] items-center justify-center px-4 py-12">
+    <div className="flex min-h-[100svh] items-center justify-center px-4 py-8 sm:px-6 sm:py-10">
       <motion.div
-        className="w-full max-w-md"
-        initial={{ opacity: 0, y: 20 }}
+        className="grid w-full max-w-6xl items-center gap-8 lg:grid-cols-[1.05fr_0.95fr] lg:gap-12"
+        initial={{ opacity: 0, y: 18 }}
         animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.4, ease: "easeOut" }}
+        transition={{ duration: 0.45, ease: "easeOut" }}
       >
-        {/* Header */}
-        <div className="mb-8 text-center">
-          <p className="text-[0.72rem] font-semibold uppercase tracking-[0.2em] text-[var(--muted-text)]">
-            Welcome back
-          </p>
-          <h1 className="brand-font mt-2 text-4xl font-bold text-[var(--heading-text)]">
-            Log in
-          </h1>
-          <p className="mt-2 text-sm text-[var(--muted-text)]">
-            Don't have an account?{" "}
-            <Link
-              to="/register"
-              className="font-semibold text-[var(--primary-cta)] hover:underline"
-            >
-              Sign up
-            </Link>
-          </p>
-        </div>
+        <section className="order-2 flex justify-center lg:order-1 lg:justify-start">
+          <div className="relative flex w-full max-w-[420px] items-center justify-center rounded-[2rem] bg-white/55 px-6 py-8 shadow-[0_20px_60px_rgba(76,47,110,0.12)] ring-1 ring-white/70 backdrop-blur-xl sm:max-w-[500px] sm:px-8 sm:py-10 lg:min-h-[520px]">
+            <div className="absolute inset-x-6 bottom-6 h-24 rounded-full bg-[radial-gradient(circle,rgba(255,153,102,0.16)_0%,rgba(255,94,98,0.08)_38%,transparent_72%)] blur-2xl sm:inset-x-10 sm:bottom-8" />
 
-        {/* Card */}
-        <div className="section-card p-7 sm:p-8">
-          <form onSubmit={handleSubmit} className="form-stack">
-            {/* Username */}
-            <div className="form-field">
-              <label htmlFor="username" className="form-label">
-                Username
-              </label>
-              <input
-                id="username"
-                type="text"
-                value={credentials.username}
-                onChange={handleChange}
-                required
-                autoComplete="username"
-                placeholder="your_username"
-                className="form-input"
-                disabled={isLoading}
-              />
-            </div>
-
-            {/* Password */}
-            <div className="form-field">
-              <label htmlFor="password" className="form-label">
-                Password
-              </label>
-              <div className="relative">
-                <input
-                  id="password"
-                  type={showPassword ? "text" : "password"}
-                  value={credentials.password}
-                  onChange={handleChange}
-                  required
-                  autoComplete="current-password"
-                  placeholder="••••••••"
-                  className="form-input pr-12"
-                  disabled={isLoading}
-                />
-                <button
-                  type="button"
-                  onClick={() => setShowPassword((p) => !p)}
-                  className="absolute right-3 top-1/2 -translate-y-1/2 rounded-full p-1.5 text-[var(--muted-text)] transition hover:text-[var(--heading-text)]"
-                  aria-label={showPassword ? "Hide password" : "Show password"}
-                >
-                  {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
-                </button>
-              </div>
-            </div>
-
-            {errors.non_field_errors && (
-              <motion.p
-                className="form-error-text text-center"
-                initial={{ opacity: 0, y: -4 }}
-                animate={{ opacity: 1, y: 0 }}
-              >
-                {errors.non_field_errors.join(" ")}
-              </motion.p>
-            )}
-
-            <button
-              type="submit"
-              disabled={isLoading}
-              className="primary-gradient-button mt-2 w-full rounded-full py-2.5 sm:py-3.5 text-sm sm:text-base font-bold disabled:cursor-not-allowed disabled:opacity-60"
-            >
-              {isLoading ? "Logging in..." : "Log in"}
-            </button>
-          </form>
-
-          <div className="relative my-6 flex items-center gap-3">
-            <div className="h-px flex-1 bg-[var(--dividers)]" />
-            <span className="text-xs font-semibold uppercase tracking-widest text-[var(--muted-text)]">
-              or
-            </span>
-            <div className="h-px flex-1 bg-[var(--dividers)]" />
+            <motion.img
+              src={mascot}
+              alt="Kickit mascot"
+              className="relative z-10 h-auto w-full max-w-[220px] sm:max-w-[280px] md:max-w-[320px] lg:max-w-[360px]"
+              animate={{ y: [0, -8, 0], rotate: [0, 1.2, 0] }}
+              transition={{
+                duration: 2.4,
+                repeat: Infinity,
+                ease: "easeInOut",
+              }}
+            />
           </div>
+        </section>
 
-          <GoogleLogin />
-        </div>
+        <section className="order-1 lg:order-2">
+          <div className="mx-auto w-full max-w-md">
+            <div className="mb-6 text-center lg:text-left">
+              <p className="text-[0.72rem] font-semibold uppercase tracking-[0.2em] text-[var(--muted-text)]">
+                Welcome to Kickit
+              </p>
+
+              <h1 className="brand-font mt-2 text-4xl font-bold leading-tight text-[var(--heading-text)] sm:text-5xl">
+                Kick goals
+                <br className="hidden sm:block" /> together
+              </h1>
+
+              <p className="mt-3 text-sm leading-6 text-[var(--muted-text)] sm:text-base">
+                Jump straight and start building bucket lists
+                with your people.
+              </p>
+            </div>
+
+            <div className="section-card p-6 sm:p-8">
+              <GoogleLogin />
+            </div>
+          </div>
+        </section>
       </motion.div>
     </div>
   );
