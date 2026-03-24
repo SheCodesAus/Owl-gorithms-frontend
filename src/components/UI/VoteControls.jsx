@@ -121,7 +121,7 @@ function VoteControls({
   // ── Focus variant — large horizontal pill ──
   if (isFocus) {
     return (
-      <div className={`inline-flex items-center gap-2 rounded-[1.4rem] gradient-border px-2.5 py-2 shadow-[0_16px_34px_rgba(39,16,76,0.12)] backdrop-blur-md ${className}`}>
+      <div className={`inline-flex w-full sm:w-auto sm:max-w-[320px] justify-between items-center gap-2 rounded-[1.4rem] gradient-border px-2.5 py-2 shadow-[0_16px_34px_rgba(39,16,76,0.12)] backdrop-blur-md ${className}`}>
         <motion.button
           type="button"
           onClick={onUpvote}

@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { NavLink, Link, useNavigate } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import {
@@ -65,6 +65,18 @@ function NavBar() {
 
   const isLoggedIn = !!auth?.access;
 
+  useEffect(() => {
+  if (isNotificationsOpen) {
+    document.body.style.overflow = "hidden";
+  } else {
+    document.body.style.overflow = "";
+  }
+
+  return () => {
+    document.body.style.overflow = "";
+  };
+}, [isNotificationsOpen]);
+
   const handleLogout = () => {
     window.localStorage.removeItem("access");
     setAuth({ access: null });
@@ -98,7 +110,7 @@ function NavBar() {
 
     if (notification.item_id && notification.bucket_list_id) {
       navigate(
-        `/bucketlists/${notification.bucket_list_id}/items/${notification.item_id}`
+        `/bucketlists/${notification.bucket_list_id}/items/${notification.item_id}`,
       );
     } else if (notification.bucket_list_id) {
       navigate(`/bucketlists/${notification.bucket_list_id}`);
@@ -151,12 +163,11 @@ function NavBar() {
         </div>
 
         <div className="flex items-center gap-3">
-          {/* Notifications bell - logged in only */}
           {isLoggedIn ? (
             <div className="relative">
               <motion.button
                 type="button"
-                className="glass-chip flex items-center gap-3 rounded-full px-3 py-2 text-white md:px-4 cursor-pointer"
+                className="glass-chip flex items-center gap-2 rounded-full px-2.5 py-2 text-white md:px-4 cursor-pointer"
                 whileHover={{ y: -1 }}
                 whileTap={{ scale: 0.98 }}
                 onClick={toggleNotifications}
@@ -179,18 +190,19 @@ function NavBar() {
               <AnimatePresence>
                 {isNotificationsOpen && (
                   <motion.div
-                    className="absolute right-0 top-[calc(100%+0.75rem)] z-40 w-[min(320px,calc(100vw-5rem))] sm:w-[380px]"
-                    initial={{ opacity: 0, y: -8, scale: 0.98 }}
+                    className="fixed left-1/2 top-[5.25rem] z-40 w-[min(90vw,22rem)] -translate-x-1/2 sm:absolute sm:left-auto sm:right-0 sm:top-[calc(100%+0.75rem)] sm:w-[380px] sm:translate-x-0"
+                    initial={{ opacity: 0, y: -12, scale: 0.96 }}
                     animate={{ opacity: 1, y: 0, scale: 1 }}
                     exit={{ opacity: 0, y: -8, scale: 0.98 }}
                     transition={{ duration: 0.2, ease: "easeOut" }}
                   >
                     <div className="section-card-dark rounded-[1.5rem] p-3">
-                      <div className="mb-2 flex items-center justify-between px-2 pt-1">
+                      <div className="mb-2 flex flex-col gap-2 px-2 pt-1 sm:flex-row sm:items-center sm:justify-between">
                         <h3 className="text-sm font-semibold text-white/90">
                           Notifications
                         </h3>
-                        <div className="flex items-center gap-2">
+
+                        <div className="flex flex-wrap items-center gap-2">
                           {unreadCount > 0 && (
                             <button
                               type="button"
@@ -209,7 +221,7 @@ function NavBar() {
                         </div>
                       </div>
 
-                      <div className="max-h-[400px] overflow-y-auto space-y-1.5">
+                      <div className="max-h-[400px] space-y-1.5 overflow-y-auto sm:max-h-[400px]">
                         {isLoading ? (
                           <div className="px-4 py-6 text-center text-sm text-white/60">
                             Loading...
@@ -226,7 +238,7 @@ function NavBar() {
                               onClick={() =>
                                 handleNotificationClick(notification)
                               }
-                              className={`w-full cursor-pointer rounded-2xl px-4 py-3 text-left text-sm transition hover:bg-white ${
+                              className={`w-full cursor-pointer rounded-xl px-3 py-2.5 text-left text-sm transition hover:bg-white ${
                                 notification.is_read
                                   ? "bg-white/60 text-[#312a46]"
                                   : "bg-white text-[#312a46]"
@@ -238,7 +250,7 @@ function NavBar() {
                                 duration: 0.18,
                               }}
                             >
-                              <div className="flex items-start gap-2.5">
+                              <div className="flex items-start gap-2">
                                 <div className="mt-0.5 shrink-0">
                                   <NotificationIcon
                                     type={notification.notification_type}
@@ -247,7 +259,7 @@ function NavBar() {
 
                                 <div className="min-w-0 flex-1">
                                   <p
-                                    className={`leading-snug ${
+                                    className={`leading-snug text-[0.92rem] ${
                                       notification.is_read
                                         ? "font-normal"
                                         : "font-semibold"
@@ -255,7 +267,7 @@ function NavBar() {
                                   >
                                     {notification.message}
                                   </p>
-                                  <p className="mt-1 text-xs text-[#6b6880]">
+                                  <p className="mt-0.5 text-[11px] text-[#6b6880]">
                                     <RelativeTime
                                       timestamp={notification.created_at}
                                     />
@@ -297,7 +309,6 @@ function NavBar() {
             </div>
           ) : null}
 
-          {/* Auth button */}
           {isLoggedIn ? (
             <Link
               to="/"
@@ -316,7 +327,6 @@ function NavBar() {
             </NavLink>
           )}
 
-          {/* Mobile hamburger */}
           <button
             type="button"
             className="flex h-11 w-11 items-center justify-center rounded-full border border-white/15 bg-white/10 backdrop-blur-sm transition duration-200 hover:bg-white/16 md:hidden cursor-pointer"
@@ -345,7 +355,6 @@ function NavBar() {
         </div>
       </nav>
 
-      {/* Mobile menu */}
       <AnimatePresence>
         {isMenuOpen && (
           <motion.div

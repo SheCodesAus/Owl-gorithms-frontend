@@ -232,7 +232,7 @@
   background: rgba(255, 255, 255, 0.74);
   color: var(--muted-text);
   font-weight: 600;
-  border: 1px solid rgba(255, 255, 255, 0.55);
+  border: 0.5px solid rgba(255, 255, 255, 0.55);
 }
 
 .item-meta-subtle {

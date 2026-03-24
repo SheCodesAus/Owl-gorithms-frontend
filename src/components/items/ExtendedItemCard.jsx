@@ -2,15 +2,23 @@ import { useState, useEffect, useRef } from "react";
 import { createPortal } from "react-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import {
-  Globe, Search, Loader2, ExternalLink, MapPin, Tag,
-  BookOpen, ChevronDown, X, Landmark, Utensils, Sparkles,
-  Star,
+  Globe,
+  Search,
+  Loader2,
+  ExternalLink,
+  MapPin,
+  BookOpen,
+  ChevronDown,
+  X,
+  Landmark,
+  Utensils,
+  Sparkles,
 } from "lucide-react";
 
-// ── API helpers ───────────────────────────────────────────────────────────────
-
 async function fetchWikiData(query, signal) {
-  const searchUrl = `https://en.wikipedia.org/w/api.php?action=query&list=search&srsearch=${encodeURIComponent(query)}&srlimit=1&format=json&origin=*`;
+  const searchUrl = `https://en.wikipedia.org/w/api.php?action=query&list=search&srsearch=${encodeURIComponent(
+    query
+  )}&srlimit=1&format=json&origin=*`;
   const searchRes = await fetch(searchUrl, { signal });
   const searchData = await searchRes.json();
   const topResult = searchData.query?.search?.[0];
@@ -40,13 +48,14 @@ async function fetchWikiData(query, signal) {
 
 async function fetchPlaces(query, coords, tab, signal) {
   if (tab === "food") {
-    // Overpass for restaurants/cafes near the coordinates
     const lat = coords?.lat ?? 0;
     const lon = coords?.lon ?? 0;
     const radius = 3000;
     const overpassQuery = `[out:json];node["amenity"~"restaurant|cafe"](around:${radius},${lat},${lon});out 8;`;
     const res = await fetch(
-      `https://overpass-api.de/api/interpreter?data=${encodeURIComponent(overpassQuery)}`,
+      `https://overpass-api.de/api/interpreter?data=${encodeURIComponent(
+        overpassQuery
+      )}`,
       { signal }
     );
     const data = await res.json();
@@ -59,10 +68,11 @@ async function fetchPlaces(query, coords, tab, signal) {
           : "Restaurant",
         lat: el.lat,
         lon: el.lon,
-        externalUrl: `https://www.google.com/search?q=${encodeURIComponent(el.tags.name + " " + query)}`,
+        externalUrl: `https://www.google.com/search?q=${encodeURIComponent(
+          el.tags.name + " " + query
+        )}`,
       }));
   } else {
-    // Wikipedia geosearch for attractions near coords
     if (!coords) return [];
     const wikiGeoUrl = `https://en.wikipedia.org/w/api.php?action=query&list=geosearch&gscoord=${coords.lat}|${coords.lon}&gsradius=10000&gslimit=8&format=json&origin=*`;
     const res = await fetch(wikiGeoUrl, { signal });
@@ -90,21 +100,19 @@ async function fetchPlaces(query, coords, tab, signal) {
   }
 }
 
-// ── OSM Embed URL ─────────────────────────────────────────────────────────────
-
 function buildOsmEmbedUrl(lat, lon, zoom = 14) {
   const delta = 0.01 * Math.pow(2, 14 - zoom);
   const bbox = `${lon - delta},${lat - delta},${lon + delta},${lat + delta}`;
   return `https://www.openstreetmap.org/export/embed.html?bbox=${bbox}&layer=mapnik&marker=${lat},${lon}`;
 }
 
-// ── MapOverlay ────────────────────────────────────────────────────────────────
-
-// ── MapOverlay ────────────────────────────────────────────────────────────────
-
-function MapHeader({ place, onClose }) {
+function MapHeader({ place, onClose, isMobile }) {
   return (
-    <div className="flex items-center justify-between gap-3 border-b border-[var(--dividers)] bg-white/95 px-4 py-3 backdrop-blur-sm">
+    <div
+      className={`flex items-center justify-between gap-3 border-b border-[var(--dividers)] bg-white/95 backdrop-blur-sm ${
+        isMobile ? "px-3 py-3" : "px-4 py-3"
+      }`}
+    >
       <div className="flex min-w-0 items-center gap-2">
         <MapPin size={15} className="shrink-0 text-[var(--primary-cta)]" />
         <p className="truncate text-sm font-semibold text-[var(--heading-text)]">
@@ -116,16 +124,20 @@ function MapHeader({ place, onClose }) {
           </span>
         )}
       </div>
+
       <div className="flex shrink-0 items-center gap-2">
         <a
           href={place.externalUrl}
           target="_blank"
           rel="noopener noreferrer"
-          className="inline-flex cursor-pointer items-center gap-1.5 rounded-xl border border-[var(--dividers)] bg-[var(--surface-soft)] px-3 py-1.5 text-xs font-semibold text-[var(--primary-cta)] transition hover:bg-white"
+          className={`inline-flex cursor-pointer items-center gap-1.5 border border-[var(--dividers)] bg-[var(--surface-soft)] text-xs font-semibold text-[var(--primary-cta)] transition hover:bg-white ${
+            isMobile ? "rounded-lg px-2.5 py-1.5" : "rounded-xl px-3 py-1.5"
+          }`}
         >
           <ExternalLink size={11} />
           More info
         </a>
+
         <button
           type="button"
           onClick={onClose}
@@ -144,32 +156,33 @@ function MapOverlay({ place, onClose, isMobile }) {
 
   return createPortal(
     <motion.div
-      className="fixed inset-0 z-[9999] flex items-center justify-center p-4"
+      className="fixed inset-0 z-[9999] flex items-center justify-center p-3 sm:p-4"
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}
       transition={{ duration: 0.2 }}
     >
-      {/* Blurred backdrop — tap to close */}
       <div
         className="absolute inset-0 bg-black/40 backdrop-blur-md"
         onClick={onClose}
       />
 
-      {/* Map card — always centred in viewport, never larger than screen */}
       <motion.div
         className="relative z-10 flex flex-col overflow-hidden rounded-2xl bg-white shadow-[0_24px_64px_rgba(39,16,76,0.28)]"
         style={{
           width: isMobile ? "100%" : "min(560px, calc(100vw - 2rem))",
-          maxHeight: "calc(100vh - 4rem)",
+          maxHeight: "calc(100vh - 2rem)",
         }}
         initial={{ opacity: 0, scale: 0.96, y: 16 }}
         animate={{ opacity: 1, scale: 1, y: 0 }}
         exit={{ opacity: 0, scale: 0.96, y: 16 }}
         transition={{ duration: 0.25, ease: [0.4, 0, 0.2, 1] }}
       >
-        <MapHeader place={place} onClose={onClose} />
-        <div className="overflow-hidden" style={{ height: isMobile ? "60vh" : "420px" }}>
+        <MapHeader place={place} onClose={onClose} isMobile={isMobile} />
+        <div
+          className="overflow-hidden"
+          style={{ height: isMobile ? "58vh" : "420px" }}
+        >
           <iframe
             key={embedUrl}
             title={`Map of ${place.name}`}
@@ -187,9 +200,7 @@ function MapOverlay({ place, onClose, isMobile }) {
   );
 }
 
-// ── PlaceCard ─────────────────────────────────────────────────────────────────
-
-function PlaceCard({ place, onOpenMap }) {
+function PlaceCard({ place, onOpenMap, isMobileOverlay = false }) {
   return (
     <motion.div
       layout
@@ -197,13 +208,15 @@ function PlaceCard({ place, onOpenMap }) {
       onClick={() => onOpenMap(place)}
       whileTap={{ scale: 0.98 }}
     >
-      <div className="flex items-start justify-between gap-3">
+      <div className={`flex items-start justify-between ${isMobileOverlay ? "gap-2" : "gap-3"}`}>
         <div className="min-w-0 flex-1">
           <p className="extended-item-placeholder-card-title line-clamp-1 text-sm">
             {place.name}
           </p>
           {place.type && (
-            <p className="mt-0.5 text-xs text-[var(--muted-text)]">{place.type}</p>
+            <p className="mt-0.5 text-xs text-[var(--muted-text)]">
+              {place.type}
+            </p>
           )}
           {place.desc && (
             <p className="mt-1 line-clamp-2 text-xs leading-relaxed text-[var(--muted-text)]">
@@ -211,10 +224,18 @@ function PlaceCard({ place, onOpenMap }) {
             </p>
           )}
         </div>
+
         <button
           type="button"
-          onClick={(e) => { e.stopPropagation(); onOpenMap(place); }}
-          className="inline-flex shrink-0 items-center gap-1 rounded-xl border border-[var(--dividers)] bg-[var(--surface-soft)] px-2.5 py-1.5 text-xs font-semibold text-[var(--primary-cta)] opacity-0 transition group-hover:opacity-100 hover:bg-white"
+          onClick={(e) => {
+            e.stopPropagation();
+            onOpenMap(place);
+          }}
+          className={`inline-flex shrink-0 items-center gap-1 border border-[var(--dividers)] bg-[var(--surface-soft)] text-xs font-semibold text-[var(--primary-cta)] transition hover:bg-white ${
+            isMobileOverlay
+              ? "rounded-lg px-2.5 py-1.5 opacity-100"
+              : "rounded-xl px-2.5 py-1.5 opacity-0 group-hover:opacity-100"
+          }`}
         >
           <MapPin size={10} />
           Map
@@ -224,17 +245,18 @@ function PlaceCard({ place, onOpenMap }) {
   );
 }
 
-// ── Main component ────────────────────────────────────────────────────────────
-
-export default function ExtendedItemCard({ itemTitle, isMobileOverlay = false }) {
-  const [searchQuery, setSearchQuery]   = useState(itemTitle ?? "");
-  const [isLoading, setIsLoading]       = useState(false);
-  const [hasSearched, setHasSearched]   = useState(false);
-  const [wikiData, setWikiData]         = useState(null);
-  const [places, setPlaces]             = useState([]);
-  const [activeTab, setActiveTab]       = useState("attractions");
+export default function ExtendedItemCard({
+  itemTitle,
+  isMobileOverlay = false,
+}) {
+  const [searchQuery, setSearchQuery] = useState(itemTitle ?? "");
+  const [isLoading, setIsLoading] = useState(false);
+  const [hasSearched, setHasSearched] = useState(false);
+  const [wikiData, setWikiData] = useState(null);
+  const [places, setPlaces] = useState([]);
+  const [activeTab, setActiveTab] = useState("attractions");
   const [aboutExpanded, setAboutExpanded] = useState(true);
-  const [mapPlace, setMapPlace]         = useState(null);
+  const [mapPlace, setMapPlace] = useState(null);
   const [isLoadingPlaces, setIsLoadingPlaces] = useState(false);
 
   const abortRef = useRef(null);
@@ -242,6 +264,7 @@ export default function ExtendedItemCard({ itemTitle, isMobileOverlay = false })
 
   const runSearch = async (query) => {
     if (!query?.trim()) return;
+
     abortRef.current?.abort();
     abortRef.current = new AbortController();
     const signal = abortRef.current.signal;
@@ -256,7 +279,6 @@ export default function ExtendedItemCard({ itemTitle, isMobileOverlay = false })
       const wiki = await fetchWikiData(query, signal);
       if (!signal.aborted) {
         setWikiData(wiki);
-        // Auto-fetch attractions once we have coords
         if (wiki?.coords) {
           loadPlaces(query, wiki.coords, "attractions", signal);
         }
@@ -286,7 +308,6 @@ export default function ExtendedItemCard({ itemTitle, isMobileOverlay = false })
     }
   };
 
-  // Auto-search on mount
   useEffect(() => {
     if (itemTitle) {
       setSearchQuery(itemTitle);
@@ -298,7 +319,6 @@ export default function ExtendedItemCard({ itemTitle, isMobileOverlay = false })
     };
   }, [itemTitle]);
 
-  // Reload places when tab changes
   useEffect(() => {
     if (wikiData?.coords && hasSearched) {
       loadPlaces(searchQuery, wikiData.coords, activeTab);
@@ -319,11 +339,14 @@ export default function ExtendedItemCard({ itemTitle, isMobileOverlay = false })
         )}
       </AnimatePresence>
 
-      {/* ── Header ─────────────────────────────────────────────────────────── */}
       <div className="extended-item-card-header">
-        <div className="extended-item-card-title-wrap">
+        <div className="extended-item-card-title-wrap min-w-0">
           <p className="extended-item-card-eyebrow">Explore Idea</p>
-          <h3 className="extended-item-card-title">
+          <h3
+            className={`extended-item-card-title ${
+              isMobileOverlay ? "text-[1.1rem] leading-[1.2]" : ""
+            }`}
+          >
             {wikiData?.title ?? itemTitle}
           </h3>
           {wikiData && (
@@ -332,7 +355,12 @@ export default function ExtendedItemCard({ itemTitle, isMobileOverlay = false })
             </p>
           )}
         </div>
-        <div className="extended-item-card-icon-shell">
+
+        <div
+          className={`extended-item-card-icon-shell ${
+            isMobileOverlay ? "h-10 w-10 shrink-0" : ""
+          }`}
+        >
           <Globe size={18} />
         </div>
       </div>
@@ -340,9 +368,11 @@ export default function ExtendedItemCard({ itemTitle, isMobileOverlay = false })
       <div className="item-detail-divider" />
 
       <div className="extended-item-card-body">
-
-        {/* ── Search bar ───────────────────────────────────────────────────── */}
-        <div className="extended-item-search-row">
+        <div
+          className={`extended-item-search-row ${
+            isMobileOverlay ? "flex-col items-stretch gap-2.5" : ""
+          }`}
+        >
           <div className="extended-item-search-input-shell">
             <Search size={15} className="extended-item-search-icon" />
             <input
@@ -355,33 +385,44 @@ export default function ExtendedItemCard({ itemTitle, isMobileOverlay = false })
               placeholder="Search a place or activity…"
             />
           </div>
+
           <button
             type="button"
-            className="primary-gradient-button inline-flex items-center gap-2 rounded-2xl px-5 py-2.5 text-sm font-semibold extended-item-search-button"
+            className={`primary-gradient-button inline-flex items-center justify-center gap-2 rounded-2xl px-5 py-2.5 text-sm font-semibold extended-item-search-button ${
+              isMobileOverlay ? "w-full" : ""
+            }`}
             onClick={() => runSearch(searchQuery)}
             disabled={isLoading}
           >
-            {isLoading
-              ? <Loader2 size={15} className="animate-spin" />
-              : <Search size={15} />}
+            {isLoading ? (
+              <Loader2 size={15} className="animate-spin" />
+            ) : (
+              <Search size={15} />
+            )}
             {isLoading ? "Searching…" : "Search"}
           </button>
         </div>
 
-        {/* ── Loading ──────────────────────────────────────────────────────── */}
         {isLoading && (
-          <div className="flex items-center justify-center gap-3 py-10 text-sm text-[var(--muted-text)]">
-            <Loader2 size={18} className="animate-spin text-[var(--primary-cta)]" />
+          <div className="flex items-center justify-center gap-3 py-8 text-sm text-[var(--muted-text)]">
+            <Loader2
+              size={18}
+              className="animate-spin text-[var(--primary-cta)]"
+            />
             Exploring this idea…
           </div>
         )}
 
-        {/* ── Empty state ──────────────────────────────────────────────────── */}
         {!isLoading && !hasResults && (
           <div className="extended-item-map-placeholder">
-            <Globe size={28} className="mb-3 text-[var(--primary-cta)] opacity-40" />
+            <Globe
+              size={28}
+              className="mb-3 text-[var(--primary-cta)] opacity-40"
+            />
             <p className="extended-item-map-placeholder-title text-sm">
-              {hasSearched ? `No results for "${searchQuery}"` : "Explore this idea"}
+              {hasSearched
+                ? `No results for "${searchQuery}"`
+                : "Explore this idea"}
             </p>
             <p className="extended-item-map-placeholder-copy">
               {hasSearched
@@ -391,11 +432,8 @@ export default function ExtendedItemCard({ itemTitle, isMobileOverlay = false })
           </div>
         )}
 
-        {/* ── Results ──────────────────────────────────────────────────────── */}
         {!isLoading && hasResults && (
-          <div className="flex flex-col gap-5">
-
-            {/* About — collapsible */}
+          <div className={`flex flex-col ${isMobileOverlay ? "gap-4" : "gap-5"}`}>
             {wikiData?.summary && (
               <div className="extended-item-placeholder-panel">
                 <button
@@ -404,9 +442,15 @@ export default function ExtendedItemCard({ itemTitle, isMobileOverlay = false })
                   onClick={() => setAboutExpanded((p) => !p)}
                 >
                   <div className="flex items-center gap-2">
-                    <BookOpen size={14} className="text-[var(--primary-cta)]" />
-                    <p className="extended-item-placeholder-heading mb-0">About</p>
+                    <BookOpen
+                      size={14}
+                      className="text-[var(--primary-cta)]"
+                    />
+                    <p className="extended-item-placeholder-heading mb-0">
+                      About
+                    </p>
                   </div>
+
                   <motion.span
                     animate={{ rotate: aboutExpanded ? 180 : 0 }}
                     transition={{ duration: 0.2 }}
@@ -444,13 +488,16 @@ export default function ExtendedItemCard({ itemTitle, isMobileOverlay = false })
               </div>
             )}
 
-            {/* Tabs */}
             <div>
-              <div className="mb-3 flex gap-2">
+              <div
+                className={`mb-3 flex ${
+                  isMobileOverlay ? "gap-2" : "gap-2"
+                }`}
+              >
                 <button
                   type="button"
                   onClick={() => setActiveTab("attractions")}
-                  className={`inline-flex cursor-pointer items-center gap-2 rounded-2xl px-4 py-2 text-sm font-semibold transition ${
+                  className={`inline-flex flex-1 cursor-pointer items-center justify-center gap-2 rounded-2xl px-4 py-2 text-sm font-semibold transition ${
                     activeTab === "attractions"
                       ? "primary-gradient-button"
                       : "secondary-modal-button"
@@ -459,10 +506,11 @@ export default function ExtendedItemCard({ itemTitle, isMobileOverlay = false })
                   <Landmark size={14} />
                   Attractions
                 </button>
+
                 <button
                   type="button"
                   onClick={() => setActiveTab("food")}
-                  className={`inline-flex cursor-pointer items-center gap-2 rounded-2xl px-4 py-2 text-sm font-semibold transition ${
+                  className={`inline-flex flex-1 cursor-pointer items-center justify-center gap-2 rounded-2xl px-4 py-2 text-sm font-semibold transition ${
                     activeTab === "food"
                       ? "primary-gradient-button"
                       : "secondary-modal-button"
@@ -473,17 +521,20 @@ export default function ExtendedItemCard({ itemTitle, isMobileOverlay = false })
                 </button>
               </div>
 
-              {/* Place results */}
               {isLoadingPlaces && (
                 <div className="flex items-center gap-2 py-6 text-sm text-[var(--muted-text)]">
-                  <Loader2 size={15} className="animate-spin text-[var(--primary-cta)]" />
+                  <Loader2
+                    size={15}
+                    className="animate-spin text-[var(--primary-cta)]"
+                  />
                   Finding places…
                 </div>
               )}
 
               {!isLoadingPlaces && places.length === 0 && hasSearched && (
                 <p className="py-4 text-sm italic text-[var(--muted-text)]">
-                  No {activeTab === "food" ? "restaurants" : "attractions"} found nearby.
+                  No {activeTab === "food" ? "restaurants" : "attractions"} found
+                  nearby.
                 </p>
               )}
 
@@ -502,27 +553,30 @@ export default function ExtendedItemCard({ itemTitle, isMobileOverlay = false })
                       key={i}
                       place={place}
                       onOpenMap={setMapPlace}
+                      isMobileOverlay={isMobileOverlay}
                     />
                   ))}
                 </div>
               )}
             </div>
 
-            {/* Related topics */}
             {wikiData?.related?.length > 0 && (
               <div>
                 <div className="extended-item-placeholder-heading">
                   <Sparkles size={13} />
                   <span>Related topics</span>
                 </div>
+
                 <div className="flex flex-wrap gap-2">
                   {wikiData.related.map((topic) => (
                     <a
                       key={topic}
-                      href={`https://en.wikipedia.org/wiki/${encodeURIComponent(topic)}`}
+                      href={`https://en.wikipedia.org/wiki/${encodeURIComponent(
+                        topic
+                      )}`}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="inline-flex items-center gap-1 rounded-full border border-[var(--dividers)] bg-white/70 px-3 py-1.5 text-xs font-medium text-[var(--heading-text)] transition hover:border-[var(--primary-cta)] hover:text-[var(--primary-cta)] hover:bg-white"
+                      className="inline-flex items-center gap-1 rounded-full border border-[var(--dividers)] bg-white/70 px-3 py-1.5 text-xs font-medium text-[var(--heading-text)] transition hover:border-[var(--primary-cta)] hover:bg-white hover:text-[var(--primary-cta)]"
                     >
                       {topic}
                     </a>
@@ -530,7 +584,6 @@ export default function ExtendedItemCard({ itemTitle, isMobileOverlay = false })
                 </div>
               </div>
             )}
-
           </div>
         )}
       </div>

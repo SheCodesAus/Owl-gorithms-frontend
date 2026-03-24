@@ -28,7 +28,7 @@ export default function ItemDetailPanel({
   if (!item) return null;
 
   const shellClass = isMobileOverlay
-    ? "relative flex flex-col h-full overflow-hidden"
+    ? "relative flex h-full flex-col overflow-hidden"
     : "focus-panel-shell relative";
 
   return (
@@ -47,43 +47,52 @@ export default function ItemDetailPanel({
         exit={{ opacity: 0 }}
         transition={{ duration: 0.2 }}
       >
-        {/* Close button — inside the band so it's always positioned correctly */}
-        <button
-          type="button"
-          onClick={onClose}
-          className="absolute right-4 top-4 z-20 inline-flex h-9 w-9 cursor-pointer items-center justify-center rounded-full border border-black/10 bg-white/70 text-black shadow-sm backdrop-blur-sm transition hover:bg-white"
-          aria-label="Close focus panel"
-        >
-          <X size={16} />
-        </button>
-        {message && (
-          <div className="item-panel-message-banner">{message}</div>
-        )}
+        {message && <div className="item-panel-message-banner">{message}</div>}
 
         <div className="px-3 pb-3 pt-3">
-          <div className="flex flex-col gap-5">
-            <ItemDetailCard
-              bucketList={bucketList}
-              item={item}
-              canEdit={canEdit}
-              isOwner={isOwner}
-              canVote={canVote}
-              voteScore={voteScore}
-              userVote={userVote}
-              isVoting={isVoting}
-              onBack={() => {}}
-              onUpvote={onUpvote}
-              onDownvote={onDownvote}
-              onAddToCalendar={onAddToCalendar}
-              onAddDate={onAddDate}
-              onEditDate={onEditDate}
-              onEdit={onEdit}
-              onDelete={onDelete}
-              onUpdateStatus={onUpdateStatus}
-              onOptionsClick={onOptionsClick}
-              showBreadcrumb={false}
+          <div className={`flex flex-col ${isMobileOverlay ? "gap-3" : "gap-5"}`}>
+            <div className="relative">
+              <button
+                type="button"
+                onClick={onClose}
+                className={`absolute z-20 inline-flex cursor-pointer items-center justify-center rounded-full border border-black/10 bg-white/78 text-black shadow-sm backdrop-blur-sm transition hover:bg-white ${
+                  isMobileOverlay
+                    ? "right-3 top-3 h-9 w-9"
+                    : "right-4 top-4 h-9 w-9"
+                }`}
+                aria-label="Close focus panel"
+              >
+                <X size={16} />
+              </button>
+
+              <ItemDetailCard
+                bucketList={bucketList}
+                item={item}
+                canEdit={canEdit}
+                isOwner={isOwner}
+                canVote={canVote}
+                voteScore={voteScore}
+                userVote={userVote}
+                isVoting={isVoting}
+                onBack={() => {}}
+                onUpvote={onUpvote}
+                onDownvote={onDownvote}
+                onAddToCalendar={onAddToCalendar}
+                onAddDate={onAddDate}
+                onEditDate={onEditDate}
+                onEdit={onEdit}
+                onDelete={onDelete}
+                onUpdateStatus={onUpdateStatus}
+                onOptionsClick={onOptionsClick}
+                showBreadcrumb={false}
+                isMobileOverlay={isMobileOverlay}
+              />
+            </div>
+
+            <ExtendedItemCard
+              itemTitle={item.title}
+              isMobileOverlay={isMobileOverlay}
             />
-            <ExtendedItemCard itemTitle={item.title} isMobileOverlay={isMobileOverlay} />
           </div>
         </div>
       </motion.div>
