@@ -41,8 +41,9 @@
     - [CSS Architecture](#css-architecture)
     - [Logo](#logo)
     - [Colours](#colours)
-      - [UI Colour Palette](#ui-colour-palette)
+      - [UI ColourPalette](#ui-colourpalette)
     - [Font](#font)
+    - [Example](#example)
   - [Deployment](#deployment)
   - [Known Issues / Gaps](#known-issues--gaps)
 
@@ -519,7 +520,7 @@ KICKIT uses **Tailwind CSS v4** for layout and utility classes combined with cus
 
 ### Colours
 
-#### UI Colour Palette
+#### UI ColourPalette
 
 ![Colour Palette](./img/UI-colour.png)
 
@@ -533,6 +534,12 @@ KICKIT uses a custom brand font for headings alongside a system-safe body font s
 font-family: 'Raleway', sans-serif;
 ```
 ![Font & Buttons](./img/UI-font-buttons.png)
+
+---
+
+### Example
+
+![login and create user screen](UI-login-create.png)
 
 ---
 
