@@ -90,7 +90,7 @@ function DashboardFocusPanel({
 
   // ── Shell classes ─────────────────────────────────────────────────────────
   const shellClass = isMobileOverlay
-    ? "relative flex flex-col h-full overflow-hidden"
+    ? "relative flex flex-col min-h-full"
     : "focus-panel-shell";
 
   // ── Loading state ─────────────────────────────────────────────────────────

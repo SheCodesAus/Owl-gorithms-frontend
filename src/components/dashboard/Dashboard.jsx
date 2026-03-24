@@ -528,7 +528,7 @@ function Dashboard({ user }) {
             />
             <motion.div
               key="dashboard-focus-panel-mobile"
-              className="fixed inset-y-0 right-0 z-50 w-full overflow-y-auto"
+              className="fixed inset-0 z-50 w-full overflow-y-auto"
               initial={{ x: "100%" }}
               animate={{ x: 0 }}
               exit={{ x: "100%" }}
