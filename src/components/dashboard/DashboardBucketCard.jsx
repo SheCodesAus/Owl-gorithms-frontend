@@ -3,8 +3,8 @@ import { Lock } from "lucide-react";
 import RelativeTime from "../UI/RelativeTime";
 
 function DashboardBucketCard({ bucketList, isSelected, onSelect, index }) {
-  const completedCount =
-    bucketList.items?.filter((item) => item.is_completed).length ?? 0;
+const completedCount =
+    bucketList.items?.filter((item) => item.status === "complete" || item.is_completed).length ?? 0;
   const totalCount = bucketList.items?.length ?? 0;
   const memberCount = bucketList.memberships?.length ?? 1;
   const memberUsers =
