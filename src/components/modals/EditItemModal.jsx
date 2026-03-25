@@ -7,8 +7,9 @@ export default function EditItemModal({
   onSave,
   onClose,
   isSaving,
-  errors,
+  errors = {},
 }) {
+  // Form state
   const [formData, setFormData] = useState({
     title: "",
     description: "",
@@ -18,9 +19,14 @@ export default function EditItemModal({
     end_time: "",
   });
 
+  // Toggles for date/time fields
   const [hasDate, setHasDate] = useState(false);
   const [hasTime, setHasTime] = useState(false);
 
+  // Local client-side validation errors
+  const [localErrors, setLocalErrors] = useState({});
+
+  // Populate form when item or modal opens
   useEffect(() => {
     const nextStartDate = item?.start_date ?? "";
     const nextEndDate = item?.end_date ?? "";
@@ -38,29 +44,22 @@ export default function EditItemModal({
 
     setHasDate(Boolean(nextStartDate || nextEndDate));
     setHasTime(Boolean(nextStartTime || nextEndTime));
+    setLocalErrors({});
   }, [item, isOpen]);
 
-  const handleChange = (event) => {
-    const { name, value } = event.target;
-
-    setFormData((prev) => ({
-      ...prev,
-      [name]: value,
-    }));
+  // Handle input changes
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
+  // Toggle date/time fields
   const handleToggleDate = () => {
     setHasDate((prev) => {
       const next = !prev;
-
       if (!next) {
-        setFormData((current) => ({
-          ...current,
-          start_date: "",
-          end_date: "",
-        }));
+        setFormData((curr) => ({ ...curr, start_date: "", end_date: "" }));
       }
-
       return next;
     });
   };
@@ -68,43 +67,68 @@ export default function EditItemModal({
   const handleToggleTime = () => {
     setHasTime((prev) => {
       const next = !prev;
-
       if (!next) {
-        setFormData((current) => ({
-          ...current,
-          start_time: "",
-          end_time: "",
-        }));
+        setFormData((curr) => ({ ...curr, start_time: "", end_time: "" }));
       }
-
       return next;
     });
   };
 
+  // Merge server and local errors for rendering
   const renderFieldError = (field) => {
-    if (!errors?.[field]) return null;
-
-    if (Array.isArray(errors[field])) {
-      return (
-        <p className="mt-1 text-sm text-red-500">{errors[field].join(" ")}</p>
-      );
-    }
-
-    return <p className="mt-1 text-sm text-red-500">{errors[field]}</p>;
+    const fieldErrors = [
+      ...(errors?.[field] || []),
+      ...(localErrors?.[field] ? [localErrors[field]] : []),
+    ];
+    if (!fieldErrors.length) return null;
+    return <p className="mt-1 text-sm text-red-500">{fieldErrors.join(" ")}</p>;
   };
 
-  const handleSubmit = (event) => {
-    event.preventDefault();
+ const handleSubmit = (event) => {
+  event.preventDefault();
 
-    onSave({
-      title: formData.title,
-      description: formData.description,
-      start_date: hasDate ? formData.start_date || null : null,
-      end_date: hasDate ? formData.end_date || null : null,
-      start_time: hasTime ? formData.start_time || null : null,
-      end_time: hasTime ? formData.end_time || null : null,
-    });
+  const validationErrors = {};
+
+  // Auto-fill end date if missing (dates can be same)
+  if (hasDate && formData.start_date && !formData.end_date) {
+    formData.end_date = formData.start_date;
+  }
+
+  // Auto-fill end time if missing
+  if (hasTime && formData.start_time && !formData.end_time) {
+    formData.end_time = formData.start_time;
+  }
+
+  // Validate that end_time is AFTER start_time (cannot be equal)
+  if (
+    hasTime &&
+    formData.start_time &&
+    formData.end_time &&
+    formData.start_time >= formData.end_time
+  ) {
+    validationErrors.end_time =
+      "End time cannot be the same as start time.";
+  }
+
+  // Stop submission if there are validation errors
+  if (Object.keys(validationErrors).length > 0) {
+    setLocalErrors(validationErrors);
+    return;
+  }
+
+  setLocalErrors({}); // clear previous errors
+
+  const payload = {
+    title: formData.title,
+    description: formData.description,
+    start_date: hasDate ? formData.start_date : null,
+    end_date: hasDate ? formData.end_date : null,
+    start_time: hasTime ? formData.start_time : null,
+    end_time: hasTime ? formData.end_time : null,
   };
+
+  onSave(payload);
+};
 
   return (
     <FormModal
@@ -115,6 +139,7 @@ export default function EditItemModal({
       maxWidth="max-w-xl"
     >
       <form className="form-stack" onSubmit={handleSubmit}>
+        {/* TITLE */}
         <div className="form-field">
           <label className="form-label" htmlFor="edit-item-title">
             TITLE
@@ -132,6 +157,7 @@ export default function EditItemModal({
           {renderFieldError("title")}
         </div>
 
+        {/* DESCRIPTION */}
         <div className="form-field">
           <label className="form-label" htmlFor="edit-item-description">
             DESCRIPTION
@@ -148,6 +174,7 @@ export default function EditItemModal({
           {renderFieldError("description")}
         </div>
 
+        {/* DATE SECTION */}
         <div className="space-y-3">
           <div className="rounded-[1.4rem] border border-black/10 bg-[var(--surface-soft)]/70 p-4">
             <label className="flex cursor-pointer items-start gap-3">
@@ -167,7 +194,7 @@ export default function EditItemModal({
               </div>
             </label>
 
-            {hasDate ? (
+            {hasDate && (
               <div className="mt-4 grid gap-4 md:grid-cols-2">
                 <div className="form-field">
                   <label className="form-label" htmlFor="edit-start-date">
@@ -200,9 +227,10 @@ export default function EditItemModal({
                   {renderFieldError("end_date")}
                 </div>
               </div>
-            ) : null}
+            )}
           </div>
 
+          {/* TIME SECTION */}
           <div className="rounded-[1.4rem] border border-black/10 bg-[var(--surface-soft)]/70 p-4">
             <label className="flex cursor-pointer items-start gap-3">
               <input
@@ -216,12 +244,12 @@ export default function EditItemModal({
                   Add time
                 </p>
                 <p className="text-sm text-[var(--muted-text)]">
-                  Include a start time and optional end time for this item.
+                  Include a start time and end time for this item.
                 </p>
               </div>
             </label>
 
-            {hasTime ? (
+            {hasTime && (
               <div className="mt-4 grid gap-4 md:grid-cols-2">
                 <div className="form-field">
                   <label className="form-label" htmlFor="edit-start-time">
@@ -253,18 +281,20 @@ export default function EditItemModal({
                   {renderFieldError("end_time")}
                 </div>
               </div>
-            ) : null}
+            )}
           </div>
         </div>
 
-        {errors?.non_field_errors ? (
+        {/* Non-field errors */}
+        {errors?.non_field_errors && (
           <p className="text-center text-sm text-red-500">
             {Array.isArray(errors.non_field_errors)
               ? errors.non_field_errors.join(" ")
               : errors.non_field_errors}
           </p>
-        ) : null}
+        )}
 
+        {/* Actions */}
         <div className="form-actions">
           <button
             type="button"
