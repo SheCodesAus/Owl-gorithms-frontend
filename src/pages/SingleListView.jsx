@@ -482,6 +482,7 @@ export default function SingleListView() {
                 onFreezeBucketList={handleFreezeList}
                 onDeleteBucketList={() => setShowDeleteListModal(true)}
                 onCopyLink={handleCopyLink}
+                isFrozen={isFrozen}
               />
               <BucketListActionBar
                 completedCount={completedCount}
@@ -570,6 +571,7 @@ export default function SingleListView() {
               onFreezeBucketList={handleFreezeList}
               onDeleteBucketList={() => setShowDeleteListModal(true)}
               onCopyLink={handleCopyLink}
+              isFrozen={isFrozen}
             />
             <BucketListActionBar
               completedCount={completedCount}
