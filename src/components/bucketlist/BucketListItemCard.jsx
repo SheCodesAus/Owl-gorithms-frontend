@@ -150,7 +150,7 @@ export default function BucketListItemCard({
               reactionsSummary={item.reactions_summary ?? {}}
               userReaction={item.user_reaction ?? null}
               onReactionUpdate={onReactionUpdate}
-              disabled={status === "complete"}
+              disabled={false}
             />
             <div className="flex items-start justify-between gap-2">
           <span className={statusConfig.pill}>{statusConfig.label}</span>
