@@ -14,8 +14,6 @@ const SORT_OPTIONS = [
 ];
 
 export default function BucketListActionBar({
-  completedCount,
-  totalCount,
   filter,
   onFilterChange,
   sort,
