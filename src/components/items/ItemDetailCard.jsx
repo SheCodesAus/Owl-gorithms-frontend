@@ -122,7 +122,7 @@ function ItemDetailCard({
   }, []);
 
   const handleOpen = () => {
-    navigate(`/bucketlists/${bucketList.id}`);
+    navigate(`/bucketlists/${bucketList.id}/items/${item.id}`);
     setShowOptionsMenu(false);
   };
 
@@ -138,17 +138,17 @@ function ItemDetailCard({
 
   return (
     <article className="item-detail-card">
-      <div className={`item-detail-hero ${isMobileOverlay ? "pt-12" : ""}`}>
+      <div className={`item-detail-hero ${isMobileOverlay ? "pt-12" : ""}`}> 
         {showBreadcrumb && (
           <div className="item-breadcrumb item-breadcrumb-light">
             <button
               type="button"
-              className="item-breadcrumb-button item-breadcrumb-button-light"
+              className="item-breadcrumb-button cursor-pointer item-breadcrumb-button-light"
               onClick={onBack}
             >
               {bucketList?.title}
             </button>
-            <span className="item-breadcrumb-separator">›</span>
+            <span className="item-breadcrumb-separator"> › </span>
             <span>{item.title}</span>
           </div>
         )}
