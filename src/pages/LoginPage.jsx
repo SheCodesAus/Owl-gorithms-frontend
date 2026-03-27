@@ -78,9 +78,8 @@ function LoginPage() {
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.2, duration: 0.55 }}
             >
-              Jump straight in and start building bucket lists with your
-              people. Big plans, little wins, chaotic group votes — all in
-              one place.
+              Jump straight in and start building bucket lists with your people.
+              Big plans, little wins, chaotic group votes — all in one place.
             </motion.p>
 
             <motion.div
@@ -111,20 +110,20 @@ function LoginPage() {
               <div className="login-page__visual-glow" />
 
               <div className="login-page__visual-frame">
-                <video
-                  ref={videoRef}
-                  className="login-page__video"
-                  autoPlay
-                  muted
-                  defaultMuted
-                  loop
-                  playsInline
-                  preload="auto"
-                  poster="/hello-still.png"
-                  aria-label="Animated Kickit mascot video"
-                >
-                  <source src="/hello.mp4" type="video/mp4" />
-                </video>
+                <div className="login-page__video-safe">
+                  <video
+                    className="login-page__video"
+                    autoPlay
+                    muted
+                    loop
+                    playsInline
+                    preload="auto"
+                    poster="/hello-still.png"
+                    aria-label="Animated Kickit mascot video"
+                  >
+                    <source src="/hello.mp4" type="video/mp4" />
+                  </video>
+                </div>
               </div>
             </div>
           </section>
