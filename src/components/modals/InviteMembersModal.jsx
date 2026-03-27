@@ -145,7 +145,7 @@ function InviteRoleCard({
             htmlFor={`${role}-invite-link`}
             className="mb-2 block text-xs font-semibold uppercase tracking-[0.14em] text-[var(--muted-text)]"
           >
-            Share link
+            Share
           </label>
 
           <div className="flex flex-col gap-3 lg:flex-row">
@@ -174,7 +174,7 @@ function InviteRoleCard({
               >
                 <span className="inline-flex items-center gap-2">
                   <Copy size={16} />
-                  {copiedRole === role ? "Copied!" : "Copy link"}
+                  {copiedRole === role ? "Copied!" : "Copy"}
                 </span>
               </button>
             ) : (
@@ -219,7 +219,7 @@ function InviteRoleCard({
             >
               <span className="inline-flex items-center gap-2">
                 <RefreshCw size={16} className={isBusy ? "animate-spin" : ""} />
-                {isBusy ? "Regenerating..." : "Regenerate link"}
+                {isBusy ? "Regenerating..." : "Regenerate"}
               </span>
             </button>
           </div>

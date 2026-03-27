@@ -26,7 +26,6 @@ import AvatarGroup from "../UI/AvatarGroup";
 import RelativeTime from "../UI/RelativeTime";
 import VoteControls from "../UI/VoteControls";
 
-// ── Helpers ───────────────────────────────────────────────────────────────────
 function formatDisplayDate(dateString) {
   if (!dateString) return "";
   const date = new Date(`${dateString}T00:00:00`);
@@ -56,20 +55,23 @@ function getItemScheduleText(item) {
   const endDate = formatDisplayDate(item.end_date);
   const startTime = formatDisplayTime(item.start_time);
   const endTime = formatDisplayTime(item.end_time);
+
   if (!startDate && !endDate && !startTime && !endTime) return "";
-  let dateText =
+
+  const dateText =
     startDate && endDate && startDate !== endDate
       ? `${startDate} → ${endDate}`
       : startDate || endDate || "";
-  let timeText =
+
+  const timeText =
     startTime && endTime && startTime !== endTime
       ? `${startTime} → ${endTime}`
       : startTime || endTime || "";
+
   if (dateText && timeText) return `${dateText} • ${timeText}`;
   return dateText || timeText;
 }
 
-// ── Component ─────────────────────────────────────────────────────────────────
 function DashboardFocusPanel({
   bucketList,
   isLoading,
@@ -103,27 +105,28 @@ function DashboardFocusPanel({
         setShowOptionsMenu(false);
       }
     }
+
     function handleEscape(e) {
       if (e.key === "Escape") setShowOptionsMenu(false);
     }
+
     document.addEventListener("mousedown", handleClickOutside);
     document.addEventListener("keydown", handleEscape);
+
     return () => {
       document.removeEventListener("mousedown", handleClickOutside);
       document.removeEventListener("keydown", handleEscape);
     };
   }, []);
 
-  // ── Shell classes ─────────────────────────────────────────────────────────
   const shellClass = isMobileOverlay
-    ? "relative flex flex-col min-h-full"
-    : "focus-panel-shell";
+    ? "relative flex min-h-full flex-col overflow-visible"
+    : "focus-panel-shell overflow-visible";
 
-  // ── Loading state ─────────────────────────────────────────────────────────
   if (isLoading) {
     return (
       <aside className={shellClass}>
-        <div className="dashboard-focus-band flex flex-col flex-1 items-center justify-center">
+        <div className="dashboard-focus-band flex flex-1 flex-col items-center justify-center overflow-visible">
           <div className="dashboard-focus-band-inner space-y-3 text-center">
             <div className="mx-auto h-12 w-12 animate-spin rounded-full border-4 border-[#d8d1ee] border-t-[#6b4eaa]" />
             <p className="text-base font-medium text-[var(--heading-text)] sm:text-lg">
@@ -135,10 +138,8 @@ function DashboardFocusPanel({
     );
   }
 
-  // ── Empty state ───────────────────────────────────────────────────────────
   if (!bucketList) return null;
 
-  // ── All derived values — safe to compute after null guard ─────────────────
   const isOwner =
     bucketList.owner?.id && user?.id
       ? Number(bucketList.owner.id) === Number(user.id)
@@ -148,6 +149,7 @@ function DashboardFocusPanel({
     bucketList.memberships?.find(
       (m) => Number(m.user?.id) === Number(user?.id),
     ) ?? null;
+
   const memberRole = currentUserMembership?.role ?? null;
 
   const canVoteInPanel = (() => {
@@ -164,6 +166,7 @@ function DashboardFocusPanel({
   const completionPercent = totalCount
     ? Math.round((completedCount / totalCount) * 100)
     : 0;
+
   const memberCount = bucketList.memberships?.length ?? 1;
   const memberUsers = bucketList.memberships?.map((m) => m.user) ?? [];
   const ownerName = bucketList.owner?.display_name || "Unknown";
@@ -184,7 +187,16 @@ function DashboardFocusPanel({
       })
     : null;
 
-  // ── Handlers ──────────────────────────────────────────────────────────────
+  const getDestination = (notificationLike) => {
+    if (notificationLike?.item_id && notificationLike?.bucket_list_id) {
+      return `/bucketlists/${notificationLike.bucket_list_id}/items/${notificationLike.item_id}`;
+    }
+    if (notificationLike?.bucket_list_id) {
+      return `/bucketlists/${notificationLike.bucket_list_id}`;
+    }
+    return null;
+  };
+
   const handleCopyLink = async () => {
     try {
       if (onCopyBucketListLink) {
@@ -205,28 +217,29 @@ function DashboardFocusPanel({
     navigate(`/bucketlists/${bucketList.id}`);
     setShowOptionsMenu(false);
   };
+
   const handleEdit = () => {
     onEditBucketList?.(bucketList);
     setShowOptionsMenu(false);
   };
+
   const handleFreeze = () => {
     onFreezeBucketList?.(bucketList);
     setShowOptionsMenu(false);
   };
+
   const handleDelete = () => {
     onDeleteBucketList?.(bucketList);
     setShowOptionsMenu(false);
   };
 
-  // ── Render ────────────────────────────────────────────────────────────────
   return (
     <aside className={shellClass}>
-      {/* Close button */}
       {onClose && (
         <button
           type="button"
           onClick={onClose}
-          className="absolute right-4 top-4 z-20 inline-flex h-9 w-9 cursor-pointer items-center justify-center rounded-full border border-black/10 bg-white/70 text-black shadow-sm backdrop-blur-sm transition hover:bg-white"
+          className="absolute right-4 top-4 z-[70] inline-flex h-9 w-9 cursor-pointer items-center justify-center rounded-full border border-black/10 bg-white/70 text-black shadow-sm backdrop-blur-sm transition hover:bg-white"
           aria-label="Close focus panel"
         >
           <X size={16} />
@@ -235,19 +248,13 @@ function DashboardFocusPanel({
 
       <motion.div
         key={bucketList.id}
-        className="dashboard-focus-band"
+        className="dashboard-focus-band relative overflow-visible p-3"
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         exit={{ opacity: 0 }}
         transition={{ duration: 0.2 }}
       >
-        {/* ── Sticky header ──────────────────────────────────────────────── */}
-        <div
-          className={`dashboard-focus-band-inner mx-3 shrink-0 flex flex-col gap-3 ${
-            isMobileOverlay ? "mt-3 pt-12" : "mt-3"
-          }`}
-        >
-          {/* Frozen banner */}
+        <div className="dashboard-focus-band-inner relative z-20 flex flex-col gap-3">
           {bucketList.is_frozen && (
             <div className="flex items-center gap-2 rounded-2xl border border-sky-200 bg-sky-50 px-4 py-2.5 text-sm font-semibold text-sky-700">
               <Snowflake size={15} aria-hidden="true" />
@@ -255,13 +262,17 @@ function DashboardFocusPanel({
             </div>
           )}
 
-          {/* Overview row + options menu */}
-          <div className="flex flex-col gap-2.5 sm:flex-row sm:items-start sm:justify-between sm:gap-4">
+          <div
+            className={`relative z-30 flex flex-col gap-2.5 sm:flex-row sm:items-start sm:justify-between sm:gap-4 ${
+              isMobileOverlay ? "pt-12" : ""
+            }`}
+          >
             <div className="flex flex-wrap items-center gap-x-2.5 gap-y-2">
               <p className="mr-1 text-[0.68rem] font-semibold uppercase tracking-[0.18em] text-black/50">
                 Overview
               </p>
-              <span className="inline-flex items-center gap-1.5 rounded-full bg-black/8 px-2.5 py-1.5 text-xs sm:px-3 sm:text-sm text-black/80 backdrop-blur-sm">
+
+              <span className="inline-flex items-center gap-1.5 rounded-full bg-black/8 px-2.5 py-1.5 text-xs text-black/80 backdrop-blur-sm sm:px-3 sm:text-sm">
                 {bucketList.is_public ? (
                   <Globe size={14} />
                 ) : (
@@ -269,13 +280,14 @@ function DashboardFocusPanel({
                 )}
                 {bucketList.is_public ? "Public" : "Private"}
               </span>
-              <span className="rounded-full bg-black/8 px-2.5 py-1.5 text-xs sm:px-3 sm:text-sm text-black/80 backdrop-blur-sm">
+
+              <span className="rounded-full bg-black/8 px-2.5 py-1.5 text-xs text-black/80 backdrop-blur-sm sm:px-3 sm:text-sm">
                 By {ownerName}
               </span>
             </div>
 
             {!isMobileOverlay && (
-              <div className="relative shrink-0" ref={optionsMenuRef}>
+              <div className="relative z-[80] shrink-0" ref={optionsMenuRef}>
                 <button
                   type="button"
                   className="item-options-button"
@@ -288,7 +300,7 @@ function DashboardFocusPanel({
                 </button>
 
                 {showOptionsMenu && (
-                  <div className="absolute right-0 top-12 z-30 w-56 overflow-hidden rounded-2xl border border-black/10 bg-white/95 shadow-[0_18px_50px_rgba(0,0,0,0.16)] backdrop-blur-xl">
+                  <div className="absolute right-0 top-12 z-[100] w-56 overflow-hidden rounded-2xl border border-black/10 bg-white/95 shadow-[0_18px_50px_rgba(0,0,0,0.16)] backdrop-blur-xl">
                     <button
                       type="button"
                       onClick={handleOpenFullPage}
@@ -296,6 +308,7 @@ function DashboardFocusPanel({
                     >
                       <ExternalLink size={16} /> Open
                     </button>
+
                     <button
                       type="button"
                       onClick={handleCopyLink}
@@ -303,6 +316,7 @@ function DashboardFocusPanel({
                     >
                       <Copy size={16} /> Copy link
                     </button>
+
                     {isOwner && (
                       <>
                         <button
@@ -312,6 +326,7 @@ function DashboardFocusPanel({
                         >
                           <Pencil size={16} /> Edit
                         </button>
+
                         <button
                           type="button"
                           onClick={handleFreeze}
@@ -322,11 +337,11 @@ function DashboardFocusPanel({
                           ) : (
                             <Snowflake size={16} />
                           )}
-                          {bucketList.is_frozen
-                            ? "Unfreeze list"
-                            : "Freeze list"}
+                          {bucketList.is_frozen ? "Unfreeze list" : "Freeze list"}
                         </button>
+
                         <div className="mx-3 h-px bg-black/8" />
+
                         <button
                           type="button"
                           onClick={handleDelete}
@@ -342,10 +357,8 @@ function DashboardFocusPanel({
             )}
           </div>
 
-          {/* Title + description */}
           <div className="space-y-1">
             <h2 className="brand-font max-w-3xl text-[1.45rem] font-semibold leading-[1.15] text-black sm:text-[2rem]">
-              {" "}
               {bucketList.title}
             </h2>
             <p className="max-w-2xl text-[0.95rem] leading-relaxed text-black/70 sm:text-base">
@@ -355,10 +368,10 @@ function DashboardFocusPanel({
           </div>
 
           {isMobileOverlay && (
-            <div className="relative" ref={optionsMenuRef}>
+            <div className="relative z-[80]" ref={optionsMenuRef}>
               <button
                 type="button"
-                className="inline-flex h-10 w-full items-center justify-center gap-2 rounded-2xl border border-black/10 bg-white/65 px-4 text-sm font-semibold text-[var(--heading-text)] shadow-sm backdrop-blur-sm transition hover:bg-white"
+                className="inline-flex cursor-pointer h-10 w-full items-center justify-center gap-2 rounded-2xl border border-black/10 bg-white/65 px-4 text-sm font-semibold text-[var(--heading-text)] shadow-sm backdrop-blur-sm transition hover:bg-white"
                 onClick={() => setShowOptionsMenu((p) => !p)}
                 aria-label="Bucket list options"
                 aria-haspopup="menu"
@@ -368,7 +381,7 @@ function DashboardFocusPanel({
               </button>
 
               {showOptionsMenu && (
-                <div className="absolute left-0 right-0 top-[calc(100%+0.5rem)] z-50 overflow-hidden rounded-2xl border border-black/10 bg-white/95 shadow-[0_18px_50px_rgba(0,0,0,0.16)] backdrop-blur-xl">
+                <div className="absolute left-0 right-0 top-[calc(100%+0.5rem)] z-[100] overflow-hidden rounded-2xl border border-black/10 bg-white/95 shadow-[0_18px_50px_rgba(0,0,0,0.16)] backdrop-blur-xl">
                   <button
                     type="button"
                     onClick={handleOpenFullPage}
@@ -376,6 +389,7 @@ function DashboardFocusPanel({
                   >
                     <ExternalLink size={16} /> Open
                   </button>
+
                   <button
                     type="button"
                     onClick={handleCopyLink}
@@ -383,6 +397,7 @@ function DashboardFocusPanel({
                   >
                     <Copy size={16} /> Copy link
                   </button>
+
                   {isOwner && (
                     <>
                       <button
@@ -392,6 +407,7 @@ function DashboardFocusPanel({
                       >
                         <Pencil size={16} /> Edit
                       </button>
+
                       <button
                         type="button"
                         onClick={handleFreeze}
@@ -404,7 +420,9 @@ function DashboardFocusPanel({
                         )}
                         {bucketList.is_frozen ? "Unfreeze list" : "Freeze list"}
                       </button>
+
                       <div className="mx-3 h-px bg-black/8" />
+
                       <button
                         type="button"
                         onClick={handleDelete}
@@ -419,32 +437,35 @@ function DashboardFocusPanel({
             </div>
           )}
 
-          {/* Members row + add button */}
           <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
             <div className="min-w-0">
               <p className="text-xs font-medium uppercase tracking-[0.16em] text-black/50">
                 Members
               </p>
+
               <div className="mt-2 flex flex-wrap items-center gap-3">
                 <AvatarGroup users={memberUsers} size="sm" max={4} />
+
                 {onViewMembersClick && (
                   <button
                     type="button"
                     onClick={onViewMembersClick}
-                    className="inline-flex gradient-border cursor-pointer items-center gap-1.5 rounded-full px-2.5 py-1.5 text-[11px] sm:gap-2 sm:px-4 sm:py-2 sm:text-sm font-semibold text-black backdrop-blur-sm transition hover:bg-[#ff9966]/12 focus:outline-none"
+                    className="inline-flex gradient-border cursor-pointer items-center gap-1.5 rounded-full px-2.5 py-1.5 text-[11px] font-semibold text-black backdrop-blur-sm transition hover:bg-[#ff9966]/12 focus:outline-none sm:gap-2 sm:px-4 sm:py-2 sm:text-sm"
                   >
                     <Eye size={14} /> View
                   </button>
                 )}
+
                 {onInviteMembersClick && (
                   <button
                     type="button"
                     onClick={onInviteMembersClick}
-                    className="inline-flex gradient-border cursor-pointer items-center gap-1.5 rounded-full px-2.5 py-1.5 text-[11px] sm:gap-2 sm:px-4 sm:py-2 sm:text-sm font-semibold text-black backdrop-blur-sm transition hover:bg-[#ff9966]/12 focus:outline-none"
+                    className="inline-flex gradient-border cursor-pointer items-center gap-1.5 rounded-full px-2.5 py-1.5 text-[11px] font-semibold text-black backdrop-blur-sm transition hover:bg-[#ff9966]/12 focus:outline-none sm:gap-2 sm:px-4 sm:py-2 sm:text-sm"
                   >
                     <UserPlus size={14} /> Invite
                   </button>
                 )}
+
                 <p className="text-sm text-black/60">
                   {memberCount} connected member{memberCount === 1 ? "" : "s"}
                 </p>
@@ -456,7 +477,7 @@ function DashboardFocusPanel({
                 type="button"
                 onClick={onAddItemClick}
                 aria-label={`Add item to ${bucketList.title}`}
-                className="group inline-flex h-10 w-10 sm:h-14 sm:w-14 cursor-pointer items-center justify-center rounded-full bg-[linear-gradient(135deg,#15803d_0%,#4ade80_100%)] text-white shadow-[0_14px_36px_rgba(8,38,20,0.35)] transition hover:scale-105 active:scale-95 focus:outline-none"
+                className="group inline-flex h-10 w-10 cursor-pointer items-center justify-center rounded-full bg-[linear-gradient(135deg,#15803d_0%,#4ade80_100%)] text-white shadow-[0_14px_36px_rgba(8,38,20,0.35)] transition hover:scale-105 active:scale-95 focus:outline-none sm:h-14 sm:w-14"
               >
                 <Plus
                   size={22}
@@ -468,27 +489,26 @@ function DashboardFocusPanel({
           </div>
         </div>
 
-        {/* ── Body ───────────────────────────────────────────────────────── */}
-        <div className="px-3 pb-3 pt-3">
+        <div className="relative z-10 pt-3">
           <div className="dashboard-focus-band-inner flex flex-col gap-5">
-            {/* Message banner */}
             {message && (
               <div className="rounded-2xl border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm font-medium text-emerald-800">
                 {message}
               </div>
             )}
 
-            {/* Progress */}
             <section className="space-y-3 border-b border-black/8 pb-5">
               <div className="flex flex-wrap items-center justify-between gap-3">
                 <h3 className="text-base font-semibold text-[var(--heading-text)] sm:text-lg">
                   Progress
                 </h3>
+
                 <span className="inline-flex items-center gap-1.5 rounded-full bg-black/6 px-3 py-1 text-sm font-medium text-[var(--heading-text)]">
                   <CheckCircle2 size={14} />
                   {completedCount} of {totalCount} completed
                 </span>
               </div>
+
               <div className="space-y-1.5">
                 <div className="h-2.5 overflow-hidden rounded-full bg-black/10">
                   <motion.div
@@ -498,6 +518,7 @@ function DashboardFocusPanel({
                     transition={{ delay: 0.18, duration: 0.7, ease: "easeOut" }}
                   />
                 </div>
+
                 <div className="flex flex-wrap items-center justify-between gap-2 text-xs text-[var(--muted-text)]">
                   <p>{completionPercent}% complete</p>
                   <p className="inline-flex items-center gap-1.5">
@@ -510,12 +531,12 @@ function DashboardFocusPanel({
               </div>
             </section>
 
-            {/* Recent activity */}
             <section>
               <div className="mb-3 flex items-center justify-between gap-3">
                 <h3 className="text-base font-semibold text-[var(--heading-text)] sm:text-lg">
                   Recent activity
                 </h3>
+
                 {items.length > 0 && (
                   <span className="text-sm text-[var(--muted-text)]">
                     {items.length} item{items.length === 1 ? "" : "s"}
@@ -528,6 +549,7 @@ function DashboardFocusPanel({
                   {recentItems.map((item, index) => {
                     const isVoting = isVotingItemId === item.id;
                     const scheduleText = getItemScheduleText(item);
+
                     return (
                       <motion.div
                         key={item.id ?? `${item.title}-${index}`}
@@ -542,25 +564,30 @@ function DashboardFocusPanel({
                             size="md"
                             className="shrink-0"
                           />
+
                           <div className="min-w-0 flex-1">
                             <div className="flex items-start justify-between gap-3">
                               <div className="min-w-0 flex-1">
-                              <p className="line-clamp-2 text-[0.95rem] font-semibold leading-snug text-[var(--body-text)] sm:text-base">
+                                <p className="line-clamp-2 text-[0.95rem] font-semibold leading-snug text-[var(--body-text)] sm:text-base">
                                   {item.title}
                                 </p>
+
                                 {item.description && (
                                   <p className="mt-0.5 text-[13px] leading-snug text-[var(--muted-text)]">
                                     {item.description}
                                   </p>
                                 )}
+
                                 <div className="mt-1.5 flex flex-wrap items-center gap-x-3 gap-y-1">
                                   <p className="text-xs font-medium text-[var(--heading-text)]">
                                     {item.creator?.display_name ||
                                       "Unknown member"}
                                   </p>
+
                                   <p className="text-xs text-black/40">
                                     <RelativeTime timestamp={item.updated_at} />
                                   </p>
+
                                   {scheduleText && (
                                     <div className="inline-flex max-w-full items-center gap-2 rounded-full border border-black/8 bg-black/[0.04] px-3 py-1.5 text-xs font-medium text-[var(--heading-text)]">
                                       {item.start_time || item.end_time ? (
@@ -603,11 +630,10 @@ function DashboardFocusPanel({
               )}
             </section>
 
-            {/* Open button */}
             <button
               type="button"
               onClick={() => navigate(`/bucketlists/${bucketList.id}`)}
-              className="primary-gradient-button inline-flex w-full items-center justify-center gap-2 rounded-full px-4 py-2.5 sm:px-6 sm:py-3 text-sm sm:text-lg font-semibold transition"
+              className="primary-gradient-button inline-flex w-full items-center justify-center gap-2 rounded-full px-4 py-2.5 text-sm font-semibold transition sm:px-6 sm:py-3 sm:text-lg"
             >
               Open
               <ArrowRight size={18} />

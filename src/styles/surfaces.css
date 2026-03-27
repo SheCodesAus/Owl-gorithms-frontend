@@ -154,3 +154,8 @@
   border-radius: 18px;
   padding: 20px;
 }
+
+.focus-panel-shell,
+.dashboard-focus-band {
+  overflow: visible;
+}
