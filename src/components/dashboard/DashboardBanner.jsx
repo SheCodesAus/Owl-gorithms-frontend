@@ -84,7 +84,7 @@ function DashboardBanner({ message }) {
   return (
     <>
       <motion.section
-        className="dashboard-gradient-banner overflow-hidden"
+        className="dashboard-banner-glass overflow-hidden"
         initial={{ opacity: 0, y: 14 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.05, duration: 0.35 }}
@@ -98,10 +98,7 @@ function DashboardBanner({ message }) {
             <div className="min-w-0 flex-1">
               {latest ? (
                 <div className="flex items-center gap-2">
-                  <NotificationIcon
-                    type={latest.notification_type}
-                    size={13}
-                  />
+                  <NotificationIcon type={latest.notification_type} size={13} />
                   <p className="truncate text-sm font-semibold text-white sm:text-base">
                     {latest.message}
                   </p>
@@ -126,7 +123,7 @@ function DashboardBanner({ message }) {
             {latest && getDestination(latest) && (
               <motion.button
                 type="button"
-                className="inline-flex flex-1 items-center justify-center gap-1.5 rounded-2xl bg-white/65 px-3 py-2 text-sm font-semibold text-[#4c2f6e] backdrop-blur-sm transition hover:bg-white/90 sm:flex-none"
+                className="inline-flex flex-1 items-center justify-center gap-1.5 rounded-2xl border border-white/20 bg-white/20 px-3 py-2 text-sm font-semibold text-white backdrop-blur-md transition hover:bg-white/30 sm:flex-none"
                 whileTap={{ scale: 0.97 }}
                 onClick={() => handleView(latest)}
               >
@@ -142,9 +139,7 @@ function DashboardBanner({ message }) {
                 whileTap={{ scale: 0.98 }}
                 onClick={() => setIsExpanded((prev) => !prev)}
                 aria-label={
-                  isExpanded
-                    ? "Collapse notifications"
-                    : "Expand notifications"
+                  isExpanded ? "Collapse notifications" : "Expand notifications"
                 }
               >
                 {isExpanded ? (
