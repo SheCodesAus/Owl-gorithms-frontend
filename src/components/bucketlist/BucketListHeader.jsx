@@ -49,7 +49,6 @@ export default function BucketListHeader({
   onRemoveMember,
   onLeaveList,
   isUpdatingMemberId = null,
-  isFrozen,
 }) {
   const [showOptionsMenu, setShowOptionsMenu] = useState(false);
   const [showMembersModal, setShowMembersModal] = useState(false);
@@ -64,14 +63,11 @@ export default function BucketListHeader({
         setShowOptionsMenu(false);
       }
     }
-
     function handleEscape(e) {
       if (e.key === "Escape") setShowOptionsMenu(false);
     }
-
     document.addEventListener("mousedown", handleClickOutside);
     document.addEventListener("keydown", handleEscape);
-
     return () => {
       document.removeEventListener("mousedown", handleClickOutside);
       document.removeEventListener("keydown", handleEscape);
@@ -97,17 +93,14 @@ export default function BucketListHeader({
     onEditBucketList?.(bucketList);
     setShowOptionsMenu(false);
   };
-
   const handleFreeze = () => {
     onFreezeBucketList?.(bucketList);
     setShowOptionsMenu(false);
   };
-
   const handleDelete = () => {
     onDeleteBucketList?.(bucketList);
     setShowOptionsMenu(false);
   };
-
   const handleCopy = () => {
     onCopyLink?.(bucketList);
     setShowOptionsMenu(false);
@@ -116,157 +109,214 @@ export default function BucketListHeader({
   return (
     <>
       <motion.header
-        className={`relative overflow-hidden rounded-[1.75rem] border border-white/18 ${
-          isFrozen ? "shadow-[inset_0_0_18px_rgba(190,230,255,0.28)]" : ""
-        }`}
+        className="relative isolate overflow-hidden rounded-[1.75rem] border border-white/18"
         initial={{ opacity: 0, y: 12 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.35, ease: "easeOut" }}
       >
-        {/* ❄️ Cold tint */}
-        {isFrozen && (
-          <div className="pointer-events-none absolute inset-0 z-[1] bg-gradient-to-b from-[#d9f1ff]/28 via-[#eef9ff]/10 to-transparent" />
-        )}
+        <div
+          className={`relative px-5 py-5 sm:px-6 sm:py-6 ${
+            bucketList.is_frozen ? "frozen-focus-band" : "dashboard-focus-band"
+          }`}>
+          {/* <div className="dashboard-focus-band relative px-5 py-5 sm:px-6 sm:py-6"> */}
+          <div className="dashboard-focus-band-inner z-[10] flex flex-col gap-5">
+            {bucketList.is_frozen && (
+              <div className="flex items-center gap-2 rounded-2xl border border-sky-200 bg-sky-50 px-4 py-2.5 text-sm font-semibold text-sky-700">
+                <Snowflake size={15} aria-hidden="true" />
+                This list is frozen — voting and new items are locked.
+              </div>
+            )}
 
-        <div className="dashboard-focus-band relative z-[2] overflow-hidden px-5 py-5 sm:px-6 sm:py-6">
-          {/* ❄️ Bottom icicles (outer container) */}
-          {isFrozen && (
-            <>
-              {/* top ice on outer band */}
-              {/* <img
-                src="/frozenlist.png"
-                alt=""
-                aria-hidden="true"
-                className="pointer-events-none absolute inset-x-0 top-0 z-[1] h-[50%] w-full object-cover object-top opacity-80"
-              /> */}
-
-              {/* bottom ice on outer band, flipped */}
-              <img
-                src="/frozenlist.png"
-                alt=""
-                aria-hidden="true"
-                className="pointer-events-none absolute inset-x-0 bottom-0 z-[1] h-full w-full rotate-180 object-cover object-top opacity-80"
-              />
-            </>
-          )}
-
-          {/* ── INNER CARD ── */}
-          <div className="dashboard-focus-band-inner relative overflow-hidden flex flex-col gap-5">
-            {/* 🔥 CONTENT */}
-            <div className="relative z-[2] flex flex-col gap-5">
-              {isFrozen && (
-                <div className="flex items-center gap-2 rounded-2xl border border-sky-200 bg-sky-50 px-4 py-2.5 text-sm font-semibold text-sky-700">
-                  <Snowflake size={15} />
-                  This list is frozen — voting and new items are locked.
-                </div>
-              )}
-
-              <div className="flex items-start justify-between gap-4">
-                <div className="flex flex-col gap-3">
-                  <nav className="flex items-center gap-1.5 text-xs font-semibold text-black/60">
-                    <Link to="/dashboard">Dashboard</Link>
-                    <ChevronRight size={13} />
-                    <span className="text-black/90">Bucket List</span>
-                  </nav>
-
-                  <div className="flex flex-wrap items-center gap-2">
-                    <span className="inline-flex items-center gap-1.5 rounded-full bg-black/8 px-3 py-1.5 text-xs font-semibold text-black/80">
-                      {bucketList.is_public ? (
-                        <Globe size={13} />
-                      ) : (
-                        <Lock size={13} />
-                      )}
-                      {bucketList.is_public ? "Public" : "Private"}
-                    </span>
-
-                    <span className="rounded-full bg-black/8 px-3 py-1.5 text-xs font-semibold text-black/80">
-                      By {ownerName}
-                    </span>
-
-                    {isFrozen && (
-                      <span className="inline-flex items-center gap-1.5 rounded-full border border-sky-200 bg-sky-50 px-3 py-1.5 text-xs font-semibold text-sky-700">
-                        <Snowflake size={12} />
-                        Frozen
-                      </span>
-                    )}
-                  </div>
-                </div>
-
-                <div className="relative shrink-0" ref={optionsMenuRef}>
-                  <button
-                    type="button"
-                    className="item-options-button"
-                    onClick={() => setShowOptionsMenu((p) => !p)}
+            <div className="flex items-start justify-between gap-4">
+              <div className="flex flex-col gap-3">
+                <nav className="flex items-center gap-1.5 text-xs font-semibold text-black/60">
+                  <Link
+                    to="/dashboard"
+                    className="transition hover:text-black/90"
                   >
-                    <Ellipsis size={18} />
-                  </button>
+                    Dashboard
+                  </Link>
+                  <ChevronRight size={13} aria-hidden="true" />
+                  <span className="text-black/90">Bucket List</span>
+                </nav>
 
-                  {showOptionsMenu && (
-                    <div className="absolute right-0 top-12 z-30 w-56 overflow-hidden rounded-2xl border border-black/10 bg-white/95 shadow-[0_18px_50px_rgba(0,0,0,0.16)] backdrop-blur-xl">
-                      <button
-                        type="button"
-                        onClick={handleCopy}
-                        className="flex w-full cursor-pointer items-center gap-3 px-4 py-3 text-left text-sm font-medium text-[var(--body-text)] transition hover:bg-black/5"
-                      >
-                        <Copy size={16} aria-hidden="true" />
-                        Copy link
-                      </button>
-
-                      {isOwner && (
-                        <>
-                          <button
-                            type="button"
-                            onClick={handleEdit}
-                            className="flex w-full cursor-pointer items-center gap-3 px-4 py-3 text-left text-sm font-medium text-[var(--body-text)] transition hover:bg-black/5"
-                          >
-                            <Pencil size={16} aria-hidden="true" />
-                            Edit
-                          </button>
-
-                          <button
-                            type="button"
-                            onClick={handleFreeze}
-                            className="flex w-full cursor-pointer items-center gap-3 px-4 py-3 text-left text-sm font-medium text-[var(--body-text)] transition hover:bg-black/5"
-                          >
-                            {isFrozen ? (
-                              <Flame size={16} aria-hidden="true" />
-                            ) : (
-                              <Snowflake size={16} aria-hidden="true" />
-                            )}
-                            {isFrozen ? "Unfreeze list" : "Freeze list"}
-                          </button>
-
-                          <div className="mx-3 h-px bg-black/8" />
-
-                          <button
-                            type="button"
-                            onClick={handleDelete}
-                            className="flex w-full cursor-pointer items-center gap-3 px-4 py-3 text-left text-sm font-medium text-rose-600 transition hover:bg-rose-50"
-                          >
-                            <Trash2 size={16} aria-hidden="true" />
-                            Delete
-                          </button>
-                        </>
-                      )}
-                    </div>
+                <div className="flex flex-wrap items-center gap-2">
+                  <span className="inline-flex items-center gap-1.5 rounded-full bg-black/8 px-3 py-1.5 text-xs font-semibold text-black/80 backdrop-blur-sm">
+                    {bucketList.is_public ? (
+                      <Globe size={13} aria-hidden="true" />
+                    ) : (
+                      <Lock size={13} aria-hidden="true" />
+                    )}
+                    {bucketList.is_public ? "Public" : "Private"}
+                  </span>
+                  <span className="rounded-full bg-black/8 px-3 py-1.5 text-xs font-semibold text-black/80 backdrop-blur-sm">
+                    By {ownerName}
+                  </span>
+                  {bucketList.is_frozen && (
+                    <span className="inline-flex items-center gap-1.5 rounded-full border border-sky-200 bg-sky-50 px-3 py-1.5 text-xs font-semibold text-sky-700">
+                      <Snowflake size={12} aria-hidden="true" />
+                      Frozen
+                    </span>
                   )}
                 </div>
               </div>
 
-              <h1 className="text-3xl font-bold">{bucketList.title}</h1>
-              <p className="text-sm text-black/70">{bucketList.description}</p>
+              <div className="relative shrink-0" ref={optionsMenuRef}>
+                <button
+                  type="button"
+                  className="item-options-button"
+                  onClick={() => setShowOptionsMenu((p) => !p)}
+                  aria-label="Bucket list options"
+                  aria-haspopup="menu"
+                  aria-expanded={showOptionsMenu}
+                >
+                  <Ellipsis size={18} aria-hidden="true" />
+                </button>
 
-              <div className="flex items-center gap-3">
-                <AvatarGroup users={memberUsers} size="sm" max={4} />
-                <button onClick={onViewMembersClick}>View</button>
-                {onInviteMembersClick && (
-                  <button onClick={onInviteMembersClick}>Invite</button>
+                {showOptionsMenu && (
+                  <div className="absolute right-0 top-12 z-30 w-56 overflow-hidden rounded-2xl border border-black/10 bg-white/95 shadow-[0_18px_50px_rgba(0,0,0,0.16)] backdrop-blur-xl">
+                    <button
+                      type="button"
+                      onClick={handleCopy}
+                      className="flex w-full cursor-pointer items-center gap-3 px-4 py-3 text-left text-sm font-medium text-[var(--body-text)] transition hover:bg-black/5"
+                    >
+                      <Copy size={16} aria-hidden="true" /> Copy link
+                    </button>
+                    {isOwner && (
+                      <>
+                        <button
+                          type="button"
+                          onClick={handleEdit}
+                          className="flex w-full cursor-pointer items-center gap-3 px-4 py-3 text-left text-sm font-medium text-[var(--body-text)] transition hover:bg-black/5"
+                        >
+                          <Pencil size={16} aria-hidden="true" /> Edit
+                        </button>
+                        <button
+                          type="button"
+                          onClick={handleFreeze}
+                          className="flex w-full cursor-pointer items-center gap-3 px-4 py-3 text-left text-sm font-medium text-[var(--body-text)] transition hover:bg-black/5"
+                        >
+                          {bucketList.is_frozen ? (
+                            <Flame size={16} aria-hidden="true" />
+                          ) : (
+                            <Snowflake size={16} aria-hidden="true" />
+                          )}
+                          {bucketList.is_frozen
+                            ? "Unfreeze list"
+                            : "Freeze list"}
+                        </button>
+                        <div className="mx-3 h-px bg-black/8" />
+                        <button
+                          type="button"
+                          onClick={handleDelete}
+                          className="flex w-full cursor-pointer items-center gap-3 px-4 py-3 text-left text-sm font-medium text-rose-600 transition hover:bg-rose-50"
+                        >
+                          <Trash2 size={16} aria-hidden="true" /> Delete
+                        </button>
+                      </>
+                    )}
+                  </div>
                 )}
               </div>
+            </div>
 
-              <div>
-                <p>Progress</p>
-                <p>{completionPercent}% complete</p>
+            <div className="space-y-2">
+              <h1 className="brand-font text-[clamp(1.8rem,4vw,2.5rem)] font-bold leading-tight tracking-tight text-black">
+                {bucketList.title}
+              </h1>
+              {bucketList.description && (
+                <p className="max-w-2xl text-sm leading-relaxed text-black/70 sm:text-base">
+                  {bucketList.description}
+                </p>
+              )}
+            </div>
+
+            <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
+              <div className="min-w-0">
+                <p className="text-xs font-medium uppercase tracking-[0.16em] text-black/50">
+                  Members
+                </p>
+                <div className="mt-2 flex flex-wrap items-center gap-3">
+                  <AvatarGroup users={memberUsers} size="sm" max={4} />
+                  <button
+                    type="button"
+                    onClick={() =>
+                      onViewMembersClick
+                        ? onViewMembersClick()
+                        : setShowMembersModal(true)
+                    }
+                    className="inline-flex gradient-border cursor-pointer items-center gap-1.5 rounded-full bg-[#ff9966]/8 px-3 py-1.5 text-xs font-semibold text-black backdrop-blur-sm transition hover:bg-[#ff9966]/12 focus:outline-none sm:gap-2 sm:px-4 sm:py-2 sm:text-sm"
+                  >
+                    <Eye size={14} aria-hidden="true" />
+                    View
+                  </button>
+                  {onInviteMembersClick && (
+                    <button
+                      type="button"
+                      className="inline-flex gradient-border cursor-pointer items-center gap-1.5 rounded-full bg-[#ff9966]/8 px-3 py-1.5 text-xs font-semibold text-black backdrop-blur-sm transition hover:bg-[#ff9966]/12 focus:outline-none sm:gap-2 sm:px-4 sm:py-2 sm:text-sm"
+                      onClick={onInviteMembersClick}
+                    >
+                      <UserPlus size={14} aria-hidden="true" />
+                      Invite
+                    </button>
+                  )}
+                </div>
+              </div>
+
+              {!bucketList.is_frozen && (
+                <button
+                  type="button"
+                  onClick={onAddItemClick}
+                  aria-label="Add item to this list"
+                  className="group inline-flex h-11 w-11 sm:h-14 sm:w-14 cursor-pointer items-center justify-center rounded-full bg-[linear-gradient(135deg,#15803d_0%,#4ade80_100%)] text-white shadow-[0_14px_36px_rgba(8,38,20,0.35)] transition hover:scale-105 hover:shadow-[0_18px_46px_rgba(8,38,20,0.45)] active:scale-95 focus:outline-none focus:ring-2 focus:ring-white/80"
+                >
+                  <Plus
+                    size={24}
+                    strokeWidth={2.8}
+                    className="transition group-hover:rotate-90"
+                  />
+                </button>
+              )}
+            </div>
+
+            <div className="space-y-3 border-t border-black/8 pt-4">
+              <div className="flex flex-wrap items-center justify-between gap-3">
+                <h3 className="text-sm font-semibold text-[var(--heading-text)]">
+                  Progress
+                </h3>
+                <span className="inline-flex items-center gap-1.5 rounded-full bg-black/6 px-3 py-1 text-xs font-medium text-[var(--heading-text)]">
+                  <CheckCircle2 size={13} aria-hidden="true" />
+                  {completedCount} of {items.length} completed
+                </span>
+              </div>
+              <div className="space-y-1.5">
+                <div className="h-2 overflow-hidden rounded-full bg-black/10">
+                  <motion.div
+                    className="h-full rounded-full bg-[linear-gradient(90deg,#6326c9_0%,#8d42d0_55%,#f48c93_100%)]"
+                    initial={{ width: 0 }}
+                    animate={{ width: `${completionPercent}%` }}
+                    transition={{
+                      delay: 0.2,
+                      duration: 0.7,
+                      ease: "easeOut",
+                    }}
+                  />
+                </div>
+                <div className="flex items-center justify-between text-xs text-[var(--muted-text)]">
+                  <p>{completionPercent}% complete</p>
+                  <p className="inline-flex items-center gap-1.5">
+                    <CalendarDays size={12} aria-hidden="true" />
+                    {formattedDeadline
+                      ? daysLeft !== null && daysLeft > 0
+                        ? `${daysLeft} day${
+                            daysLeft === 1 ? "" : "s"
+                          } until deadline`
+                        : daysLeft === 0
+                          ? "Deadline is today"
+                          : "Deadline passed"
+                      : "No deadline set"}
+                  </p>
+                </div>
               </div>
             </div>
           </div>

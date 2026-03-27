@@ -131,6 +131,7 @@ export default function BucketListItemCard({
               onClick={(e) => e.stopPropagation()}
               onDoubleClick={(e) => e.stopPropagation()}
             >
+              {!isFrozen && (
               <VoteControls
                 itemTitle={item.title}
                 score={voteScore ?? 0}
@@ -141,6 +142,7 @@ export default function BucketListItemCard({
                 variant="panel"
                 frozen={isFrozen}
               />
+              )}
             </div>
           ) : null}
         </div>
