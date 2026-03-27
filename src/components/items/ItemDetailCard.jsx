@@ -76,6 +76,7 @@ function ItemDetailCard({
   bucketList,
   item,
   canEdit,
+  canManageDates,
   isOwner,
   canVote,
   voteScore,
@@ -138,7 +139,7 @@ function ItemDetailCard({
 
   return (
     <article className="item-detail-card">
-      <div className={`item-detail-hero ${isMobileOverlay ? "pt-12" : ""}`}> 
+      <div className={`item-detail-hero ${isMobileOverlay ? "pt-12" : ""}`}>
         {showBreadcrumb && (
           <div className="item-breadcrumb item-breadcrumb-light">
             <button
@@ -365,24 +366,43 @@ function ItemDetailCard({
           </p>
         ) : (
           <p
-            className={`item-date-empty ${isMobileOverlay ? "text-[0.92rem]" : ""}`}
+            className={`item-date-empty ${
+              isMobileOverlay ? "text-[0.92rem]" : ""
+            }`}
           >
             Make it happen. Book it in.
           </p>
         )}
 
         {item.start_date ? (
-          <button
-            type="button"
-            className={`item-action-pill ${
-              isMobileOverlay ? "w-full justify-center py-2 text-[0.92rem]" : ""
-            }`}
-            onClick={onAddToCalendar}
-          >
-            <CalendarDays size={14} />
-            <span style={{ marginLeft: "4px" }}>Add to calendar</span>
-          </button>
-        ) : (
+          <div className="flex flex-col gap-2">
+            <button
+              type="button"
+              className={`item-action-pill ${
+                isMobileOverlay ? "w-full justify-center py-2 text-[0.92rem]" : ""
+              }`}
+              onClick={onAddToCalendar}
+            >
+              <CalendarDays size={14} />
+              <span style={{ marginLeft: "4px" }}>Add to calendar</span>
+            </button>
+
+            {canManageDates ? (
+              <button
+                type="button"
+                className={`item-action-pill ${
+                  isMobileOverlay
+                    ? "w-full justify-center py-2 text-[0.92rem]"
+                    : ""
+                }`}
+                onClick={onAddDate}
+              >
+                <Pencil size={14} />
+                <span style={{ marginLeft: "4px" }}>Edit date</span>
+              </button>
+            ) : null}
+          </div>
+        ) : canManageDates ? (
           <button
             type="button"
             className={`item-action-pill ${
@@ -393,7 +413,7 @@ function ItemDetailCard({
             <CalendarDays size={14} />
             <span style={{ marginLeft: "4px" }}>Add date</span>
           </button>
-        )}
+        ) : null}
       </section>
 
       <div className="item-detail-divider" />

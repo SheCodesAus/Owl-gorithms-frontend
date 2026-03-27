@@ -247,11 +247,14 @@ export default function SingleListView() {
   const isCreator =
     selectedItem?.created_by?.id && currentUser?.id
       ? Number(selectedItem.created_by.id) === Number(currentUser.id)
-      : false;
+      : selectedItem?.creator?.id && currentUser?.id
+        ? Number(selectedItem.creator.id) === Number(currentUser.id)
+        : false;
 
-  // Owner can always edit. Editors can edit their own items on unfrozen lists.
   const canEdit =
-    isOwner || (!bucketList?.is_frozen && memberRole === "editor" && isCreator);
+    isOwner || (!isFrozen && memberRole === "editor" && isCreator);
+
+  const canManageDates = isOwner || isCreator;
 
   // ── Handlers ──────────────────────────────────────────────────────────────
   const handleFreezeList = async () => {
@@ -528,6 +531,7 @@ export default function SingleListView() {
                     bucketList={bucketList}
                     message={panelMessage}
                     canEdit={canEdit}
+                    canManageDates={canManageDates}
                     isOwner={isOwner}
                     canVote={canVote}
                     voteScore={effectiveVoteState.voteScore}
@@ -627,6 +631,7 @@ export default function SingleListView() {
                 bucketList={bucketList}
                 message={panelMessage}
                 canEdit={canEdit}
+                canManageDates={canManageDates}
                 isOwner={isOwner}
                 canVote={canVote}
                 voteScore={effectiveVoteState.voteScore}

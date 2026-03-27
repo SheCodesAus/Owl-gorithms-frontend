@@ -52,9 +52,9 @@ export default function BucketListItemCard({
   const status = item.status ?? "proposed";
   const statusConfig = STATUS_CONFIG[status] ?? STATUS_CONFIG.proposed;
 
-  const shouldShowVoteControls = !(
-    userRole === "viewer" && !allowViewerVoting
-  );
+  const shouldShowVoteControls =
+    status !== "complete" &&
+    !(userRole === "viewer" && !allowViewerVoting);
 
   return (
     <motion.article
@@ -132,16 +132,16 @@ export default function BucketListItemCard({
               onDoubleClick={(e) => e.stopPropagation()}
             >
               {!isFrozen && (
-              <VoteControls
-                itemTitle={item.title}
-                score={voteScore ?? 0}
-                activeVote={userVote ?? null}
-                isVoting={isVoting}
-                onUpvote={onUpvote}
-                onDownvote={onDownvote}
-                variant="panel"
-                frozen={isFrozen}
-              />
+                <VoteControls
+                  itemTitle={item.title}
+                  score={voteScore ?? 0}
+                  activeVote={userVote ?? null}
+                  isVoting={isVoting}
+                  onUpvote={onUpvote}
+                  onDownvote={onDownvote}
+                  variant="panel"
+                  frozen={isFrozen}
+                />
               )}
             </div>
           ) : null}

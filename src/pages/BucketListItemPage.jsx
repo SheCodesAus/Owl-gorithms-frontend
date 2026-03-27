@@ -3,6 +3,7 @@ import { useNavigate, useParams } from "react-router-dom";
 import { motion } from "framer-motion";
 import { ArrowLeft, Sparkles } from "lucide-react";
 import { useBucketList } from "../hooks/useBucketList";
+import { useVotes } from "../hooks/useVotes";
 import { useAuth } from "../hooks/use-auth";
 import { updateItem, deleteItem } from "../api/items";
 
@@ -12,12 +13,26 @@ import StatusUpdateModal from "../components/modals/StatusUpdateModal";
 import ItemDateModal from "../components/modals/ItemDateModal";
 import EditItemModal from "../components/modals/EditItemModal";
 import DeleteItemModal from "../components/modals/DeleteItemModal";
+import CalendarExportModal from "../components/modals/CalendarExportModal";
+
+function getNextVoteState(currentVote, currentScore, clickedVote) {
+  const nextVote = currentVote === clickedVote ? null : clickedVote;
+  let nextScore = currentScore;
+
+  if (currentVote === "upvote") nextScore -= 1;
+  if (currentVote === "downvote") nextScore += 1;
+  if (nextVote === "upvote") nextScore += 1;
+  if (nextVote === "downvote") nextScore -= 1;
+
+  return { nextVote, nextScore };
+}
 
 export default function BucketListItemPage() {
   const { listId, itemId } = useParams();
   const navigate = useNavigate();
   const { auth } = useAuth();
   const { bucketList, loadBucketList } = useBucketList(Number(listId));
+  const { voteOnItem, clearVote } = useVotes();
   const currentUser = auth?.user;
 
   const [item, setItem] = useState(null);
@@ -25,14 +40,20 @@ export default function BucketListItemPage() {
   const [showDateModal, setShowDateModal] = useState(false);
   const [showEditModal, setShowEditModal] = useState(false);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [showCalendarModal, setShowCalendarModal] = useState(false);
   const [isSavingStatus, setIsSavingStatus] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
+  const [isSavingDate, setIsSavingDate] = useState(false);
+  const [isVoting, setIsVoting] = useState(false);
   const [statusError, setStatusError] = useState("");
+  const [dateErrors, setDateErrors] = useState({});
+  const [voteOverride, setVoteOverride] = useState(null);
 
   useEffect(() => {
     if (bucketList?.items) {
       const found = bucketList.items.find((it) => it.id === Number(itemId));
       setItem(found || null);
+      setVoteOverride(null);
     }
   }, [bucketList, itemId]);
 
@@ -53,13 +74,17 @@ export default function BucketListItemPage() {
   const memberRole = currentUserMembership?.role ?? null;
 
   const isCreator =
-    item?.created_by?.id && currentUser?.id
-      ? Number(item.created_by.id) === Number(currentUser.id)
+  item?.created_by?.id && currentUser?.id
+    ? Number(item.created_by.id) === Number(currentUser.id)
+    : item?.creator?.id && currentUser?.id
+      ? Number(item.creator.id) === Number(currentUser.id)
       : false;
 
-  const canEdit =
-    isOwner ||
-    (!bucketList?.is_frozen && memberRole === "editor" && isCreator);
+const canEdit =
+  isOwner ||
+  (!bucketList?.is_frozen && memberRole === "editor" && isCreator);
+
+const canManageDates = isOwner || isCreator;
 
   const canVote = useMemo(() => {
     if (!currentUser) return false;
@@ -70,11 +95,56 @@ export default function BucketListItemPage() {
     return false;
   }, [currentUser, bucketList, isOwner, memberRole]);
 
+  const baseVoteScore =
+    item?.vote_score ?? item?.votes_count ?? item?.score ?? 0;
+
+  const baseUserVote =
+    item?.user_vote ?? item?.current_user_vote ?? item?.vote_type ?? null;
+
+  const effectiveVoteScore = voteOverride?.voteScore ?? baseVoteScore;
+  const effectiveUserVote = voteOverride?.userVote ?? baseUserVote;
+
+  const handleVote = async (clickedVote) => {
+    if (!item || !canVote || item.status === "complete") return;
+
+    const previousState = {
+      voteScore: effectiveVoteScore,
+      userVote: effectiveUserVote,
+    };
+
+    const { nextVote, nextScore } = getNextVoteState(
+      previousState.userVote,
+      previousState.voteScore,
+      clickedVote,
+    );
+
+    setVoteOverride({
+      voteScore: nextScore,
+      userVote: nextVote,
+    });
+    setIsVoting(true);
+
+    try {
+      if (nextVote === null) {
+        await clearVote(item.id);
+      } else {
+        await voteOnItem(item.id, nextVote);
+      }
+      await loadBucketList();
+    } catch (error) {
+      setVoteOverride(previousState);
+      console.error(error);
+    } finally {
+      setIsVoting(false);
+    }
+  };
+
   const handleStatusUpdate = async (val) => {
     if (!item) return;
     const newStatus = typeof val === "string" ? val : val?.status;
     if (!newStatus) return;
     setIsSavingStatus(true);
+    setStatusError("");
     try {
       await updateItem(item.id, { status: newStatus }, auth?.access);
       await loadBucketList();
@@ -88,12 +158,25 @@ export default function BucketListItemPage() {
 
   const handleSaveDate = async (dateData) => {
     if (!item) return;
+    setIsSavingDate(true);
+    setDateErrors({});
     try {
-      await updateItem(item.id, dateData, auth?.access);
+      const shouldAutoLock =
+        isOwner &&
+        item?.status === "proposed" &&
+        !!(dateData?.start_date ?? item?.start_date);
+
+      const payload = shouldAutoLock
+        ? { ...dateData, status: "locked_in" }
+        : dateData;
+
+      await updateItem(item.id, payload, auth?.access);
       await loadBucketList();
       setShowDateModal(false);
     } catch (error) {
-      console.error(error);
+      setDateErrors({ non_field_errors: error.message });
+    } finally {
+      setIsSavingDate(false);
     }
   };
 
@@ -167,7 +250,7 @@ export default function BucketListItemPage() {
             <button
               type="button"
               onClick={() => navigate(`/bucketlists/${listId}`)}
-              className="mt-8 inline-flex items-center gap-2 rounded-2xl bg-gradient-to-r from-[#ff8c78] via-[#ff6f86] to-[#8c61ff] px-5 py-3 text-sm font-bold text-white shadow-[0_18px_36px_rgba(73,32,136,0.34)] transition hover:-translate-y-0.5"
+              className="mt-8 inline-flex cursor-pointer items-center gap-2 rounded-2xl bg-gradient-to-r from-[#ff8c78] via-[#ff6f86] to-[#8c61ff] px-5 py-3 text-sm font-bold text-white shadow-[0_18px_36px_rgba(73,32,136,0.34)] transition hover:-translate-y-0.5"
             >
               <ArrowLeft size={16} />
               Back to list
@@ -187,7 +270,7 @@ export default function BucketListItemPage() {
           <div className="absolute bottom-[-5rem] left-[20%] h-72 w-72 rounded-full bg-[#ffb085]/15 blur-3xl" />
         </div>
 
-        <div className="relative mx-auto max-w-7xl">
+        <div className="relative mx-auto w-full max-w-5xl xl:max-w-7xl">
           <motion.div
             className="overflow-hidden rounded-[2rem] border border-white/10 bg-[linear-gradient(180deg,rgba(255,255,255,0.05),rgba(255,255,255,0.03))] shadow-[0_30px_80px_rgba(7,4,19,0.32)] backdrop-blur-xl"
             initial={{ opacity: 0, y: 18 }}
@@ -198,10 +281,10 @@ export default function BucketListItemPage() {
               <div className="flex flex-col gap-5 lg:flex-row lg:items-end lg:justify-between">
                 <div className="min-w-0">
                   <p className="text-[0.74rem] font-semibold uppercase tracking-[0.24em] text-white/55">
-                    Bucket list item
+                    Item
                   </p>
 
-                  <h1 className="mt-3 max-w-4xl text-4xl font-bold leading-[0.95] tracking-[-0.05em] text-[#fff8fb] sm:text-5xl md:text-6xl">
+                  <h1 className="mt-3 max-w-4xl text-2xl font-bold leading-tight tracking-[-0.02em] text-[#fff8fb] sm:text-4xl sm:leading-[0.95] sm:tracking-[-0.05em] md:text-5xl lg:text-6xl">
                     {item.title}
                   </h1>
 
@@ -224,7 +307,7 @@ export default function BucketListItemPage() {
                 <button
                   type="button"
                   onClick={() => navigate(`/bucketlists/${listId}`)}
-                  className="inline-flex items-center justify-center gap-2 rounded-2xl border border-white/14 bg-white/10 px-5 py-3 text-sm font-bold text-white backdrop-blur-md transition hover:bg-white/14"
+                  className="inline-flex cursor-pointer items-center justify-center gap-2 rounded-2xl border border-white/14 bg-white/10 px-5 py-3 text-sm font-bold text-white backdrop-blur-md transition hover:bg-white/14"
                 >
                   <ArrowLeft size={16} />
                   Back to list
@@ -233,30 +316,35 @@ export default function BucketListItemPage() {
             </div>
 
             <div className="px-4 py-4 sm:px-6 sm:py-6 lg:px-8 lg:py-8">
-              <div className="grid gap-5 xl:grid-cols-[minmax(0,1.05fr)_minmax(320px,0.95fr)] xl:items-start">
+              <div className="grid gap-4 sm:gap-5 xl:grid-cols-[minmax(0,1.05fr)_minmax(320px,0.95fr)] xl:items-start">
                 <motion.div
                   initial={{ opacity: 0, y: 12 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ delay: 0.06, duration: 0.35 }}
                 >
-                  <div className="rounded-[1.75rem] border border-white/10 bg-white/8 p-2 shadow-[0_20px_50px_rgba(12,6,30,0.22)] backdrop-blur-md">
+                  <div className="rounded-[1.75rem] border border-white/10 bg-white/8 p-3 shadow-[0_20px_50px_rgba(12,6,30,0.22)] backdrop-blur-md sm:p-2">
                     <ItemDetailCard
                       bucketList={bucketList}
                       item={item}
                       canEdit={canEdit}
+                      canManageDates={canManageDates}
                       isOwner={isOwner}
                       canVote={canVote}
-                      voteScore={item.score ?? 0}
-                      userVote={item.user_vote ?? null}
-                      isVoting={false}
+                      voteScore={effectiveVoteScore}
+                      userVote={effectiveUserVote}
+                      isVoting={isVoting}
                       onBack={() => navigate(`/bucketlists/${listId}`)}
+                      onUpvote={() => handleVote("upvote")}
+                      onDownvote={() => handleVote("downvote")}
+                      onAddToCalendar={() => setShowCalendarModal(true)}
                       onAddDate={() => setShowDateModal(true)}
+                      onEdit={() => setShowEditModal(true)}
+                      onDelete={() => setShowDeleteModal(true)}
                       onUpdateStatus={(val) => {
                         if (typeof val === "string") handleStatusUpdate(val);
                         else setShowStatusModal(true);
                       }}
-                      onEdit={() => setShowEditModal(true)}
-                      onDelete={() => setShowDeleteModal(true)}
+                      showBreadcrumb={false}
                     />
                   </div>
                 </motion.div>
@@ -266,7 +354,7 @@ export default function BucketListItemPage() {
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ delay: 0.12, duration: 0.35 }}
                 >
-                  <div className="rounded-[1.75rem] border border-white/10 bg-white/8 p-2 shadow-[0_20px_50px_rgba(12,6,30,0.22)] backdrop-blur-md">
+                  <div className="rounded-[1.75rem] border border-white/10 bg-white/8 p-3 shadow-[0_20px_50px_rgba(12,6,30,0.22)] backdrop-blur-md sm:p-2">
                     <ExtendedItemCard itemTitle={item.title} />
                   </div>
                 </motion.div>
@@ -275,6 +363,12 @@ export default function BucketListItemPage() {
           </motion.div>
         </div>
       </main>
+
+      <CalendarExportModal
+        item={item}
+        isOpen={showCalendarModal}
+        onClose={() => setShowCalendarModal(false)}
+      />
 
       <StatusUpdateModal
         item={item}
@@ -289,7 +383,12 @@ export default function BucketListItemPage() {
         item={item}
         isOpen={showDateModal}
         onSave={handleSaveDate}
-        onClose={() => setShowDateModal(false)}
+        onClose={() => {
+          setShowDateModal(false);
+          setDateErrors({});
+        }}
+        isSaving={isSavingDate}
+        errors={dateErrors}
       />
 
       <EditItemModal

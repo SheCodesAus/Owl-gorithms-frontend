@@ -8,6 +8,7 @@ export default function ItemDetailPanel({
   bucketList,
   message,
   canEdit,
+  canManageDates,
   isOwner,
   canVote,
   voteScore,
@@ -69,6 +70,7 @@ export default function ItemDetailPanel({
                 bucketList={bucketList}
                 item={item}
                 canEdit={canEdit}
+                canManageDates={canManageDates}
                 isOwner={isOwner}
                 canVote={canVote}
                 voteScore={voteScore}

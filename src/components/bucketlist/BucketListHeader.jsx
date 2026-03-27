@@ -137,7 +137,7 @@ export default function BucketListHeader({
                     Dashboard
                   </Link>
                   <ChevronRight size={13} aria-hidden="true" />
-                  <span className="text-black/90">Bucket List</span>
+                  <span className="text-black/90">{bucketList.title}</span>
                 </nav>
 
                 <div className="flex flex-wrap items-center gap-2">
