@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import {
   Copy,
   RefreshCw,
@@ -6,7 +6,11 @@ import {
   Pencil,
   Eye,
   Sparkles,
+  QrCode,
+  X,
+  Download,
 } from "lucide-react";
+import QRCodeLib from "qrcode";
 import FormModal from "../UI/FormModal";
 import ConfirmActionModal from "../modals/ConfirmActionModal";
 import { useInvites } from "../../hooks/useInvites";
@@ -71,6 +75,70 @@ function getInviteStatus(invite) {
   return "active";
 }
 
+function QRCodeModal({ isOpen, onClose, url, roleLabel }) {
+  const canvasRef = useRef(null);
+
+  useEffect(() => {
+    if (!isOpen || !url || !canvasRef.current) return;
+    QRCodeLib.toCanvas(canvasRef.current, url, {
+      width: 240,
+      margin: 2,
+      color: { dark: "#1f1838", light: "#ffffff" },
+    });
+  }, [isOpen, url]);
+
+  function handleDownload() {
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+    const link = document.createElement("a");
+    link.download = `invite-${roleLabel.toLowerCase()}-qr.png`;
+    link.href = canvas.toDataURL("image/png");
+    link.click();
+  }
+
+  if (!isOpen) return null;
+
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4">
+      <div className="w-full max-w-xs rounded-[1.6rem] border border-black/10 bg-white p-6 shadow-xl">
+        <div className="mb-4 flex items-center justify-between">
+          <h3 className="text-base font-semibold text-[var(--heading-text)]">
+            {roleLabel} QR code
+          </h3>
+          <button
+            type="button"
+            onClick={onClose}
+            className="inline-flex h-8 w-8 items-center justify-center rounded-xl border border-black/10 text-[var(--muted-text)] hover:bg-slate-50"
+          >
+            <X size={16} />
+          </button>
+        </div>
+
+        <div className="flex justify-center rounded-2xl border border-black/8 bg-white p-4">
+          <canvas ref={canvasRef} />
+        </div>
+
+        <p className="mt-3 text-center text-xs text-[var(--muted-text)]">
+          Scan to join as {roleLabel.toLowerCase()}
+        </p>
+
+        <div className="mt-4">
+          <button
+            type="button"
+            onClick={handleDownload}
+            className="secondary-modal-button w-full"
+          >
+            <span className="inline-flex items-center justify-center gap-2">
+              <Download size={16} />
+              Download PNG
+            </span>
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 function InviteRoleCard({
   role,
   invite,
@@ -85,6 +153,7 @@ function InviteRoleCard({
   const Icon = config.icon;
   const status = getInviteStatus(invite);
   const isBusy = actionLoading === role;
+  const [qrOpen, setQrOpen] = useState(false);
 
   const statusLabel = useMemo(() => {
     if (status === "active") return "Active";
@@ -110,128 +179,151 @@ function InviteRoleCard({
   }, [status]);
 
   return (
-    <section className="rounded-[1.6rem] border border-black/10 bg-white/90 p-4 shadow-[0_12px_30px_rgba(31,24,56,0.08)] sm:p-5">
-      <div className="flex flex-col gap-4">
-        <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
-          <div className="min-w-0 flex-1">
-            <div className="flex items-start gap-3">
-              <div className="inline-flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl border border-black/8 bg-white text-[var(--heading-text)] shadow-sm">
-                <Icon size={18} />
-              </div>
-
-              <div className="min-w-0">
-                <div className="flex flex-wrap items-center gap-2">
-                  <h3 className="text-base font-semibold text-[var(--heading-text)] sm:text-lg">
-                    {config.title}
-                  </h3>
-
-                  <span
-                    className={`inline-flex rounded-full border px-2.5 py-1 text-[11px] font-semibold ${statusClassName}`}
-                  >
-                    {statusLabel}
-                  </span>
+    <>
+      <section className="rounded-[1.6rem] border border-black/10 bg-white/90 p-4 shadow-[0_12px_30px_rgba(31,24,56,0.08)] sm:p-5">
+        <div className="flex flex-col gap-4">
+          <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+            <div className="min-w-0 flex-1">
+              <div className="flex items-start gap-3">
+                <div className="inline-flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl border border-black/8 bg-white text-[var(--heading-text)] shadow-sm">
+                  <Icon size={18} />
                 </div>
 
-                <p className="mt-1 text-sm leading-6 text-[var(--muted-text)]">
-                  {config.description}
-                </p>
+                <div className="min-w-0">
+                  <div className="flex flex-wrap items-center gap-2">
+                    <h3 className="text-base font-semibold text-[var(--heading-text)] sm:text-lg">
+                      {config.title}
+                    </h3>
+
+                    <span
+                      className={`inline-flex rounded-full border px-2.5 py-1 text-[11px] font-semibold ${statusClassName}`}
+                    >
+                      {statusLabel}
+                    </span>
+                  </div>
+
+                  <p className="mt-1 text-sm leading-6 text-[var(--muted-text)]">
+                    {config.description}
+                  </p>
+                </div>
               </div>
             </div>
           </div>
-        </div>
 
-        <div className="rounded-[1.25rem] border border-black/8 bg-[var(--surface-soft)]/70 p-3 sm:p-4">
-          <label
-            htmlFor={`${role}-invite-link`}
-            className="mb-2 block text-xs font-semibold uppercase tracking-[0.14em] text-[var(--muted-text)]"
-          >
-            Share
-          </label>
+          <div className="rounded-[1.25rem] border border-black/8 bg-[var(--surface-soft)]/70 p-3 sm:p-4">
+            <label
+              htmlFor={`${role}-invite-link`}
+              className="mb-2 block text-xs font-semibold uppercase tracking-[0.14em] text-[var(--muted-text)]"
+            >
+              Share
+            </label>
 
-          <div className="flex flex-col gap-3 lg:flex-row">
-            <div className="relative min-w-0 flex-1">
-              <LinkIcon
-                size={16}
-                className="pointer-events-none absolute left-4 top-1/2 -translate-y-1/2 text-[var(--muted-text)]"
-              />
+            <div className="flex flex-col gap-3 lg:flex-row">
+              <div className="relative min-w-0 flex-1">
+                <LinkIcon
+                  size={16}
+                  className="pointer-events-none absolute left-4 top-1/2 -translate-y-1/2 text-[var(--muted-text)]"
+                />
 
-              <input
-                id={`${role}-invite-link`}
-                type="text"
-                readOnly
-                value={invite?.invite_url ?? ""}
-                placeholder={isLoading ? "Loading..." : "No link generated yet"}
-                className="w-full rounded-2xl border border-black/10 bg-white py-3 pl-11 pr-4 text-sm font-medium text-[var(--heading-text)] outline-none placeholder:text-[var(--muted-text)]"
-              />
+                <input
+                  id={`${role}-invite-link`}
+                  type="text"
+                  readOnly
+                  value={invite?.invite_url ?? ""}
+                  placeholder={isLoading ? "Loading..." : "No link generated yet"}
+                  className="w-full rounded-2xl border border-black/10 bg-white py-3 pl-11 pr-4 text-sm font-medium text-[var(--heading-text)] outline-none placeholder:text-[var(--muted-text)]"
+                />
+              </div>
+
+              {invite ? (
+                <div className="flex gap-2">
+                  <button
+                    type="button"
+                    onClick={() => onCopy(role, invite.invite_url)}
+                    className="secondary-modal-button"
+                    disabled={isBusy}
+                  >
+                    <span className="inline-flex items-center gap-2">
+                      <Copy size={16} />
+                      {copiedRole === role ? "Copied!" : "Copy"}
+                    </span>
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={() => setQrOpen(true)}
+                    className="secondary-modal-button"
+                    disabled={isBusy}
+                  >
+                    <span className="inline-flex items-center gap-2">
+                      <QrCode size={16} />
+                      QR
+                    </span>
+                  </button>
+                </div>
+              ) : (
+                <button
+                  type="button"
+                  onClick={() => onGenerate(role)}
+                  className="primary-gradient-button"
+                  disabled={isBusy || isLoading}
+                >
+                  {isBusy ? "Generating..." : "Generate link"}
+                </button>
+              )}
             </div>
+          </div>
 
-            {invite ? (
+          {invite ? (
+            <div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
+              <div className="flex min-w-0 flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-center">
+                <div className="rounded-2xl border border-black/8 bg-white px-4 py-3">
+                  <p className="text-sm font-semibold text-[var(--heading-text)]">
+                    {formatExpiryText(invite.expires_at)}
+                  </p>
+                  {formatExactExpiry(invite.expires_at) ? (
+                    <p className="mt-1 text-xs text-[var(--muted-text)]">
+                      Exact expiry: {formatExactExpiry(invite.expires_at)}
+                    </p>
+                  ) : null}
+                </div>
+
+                <div className="rounded-2xl border border-amber-200 bg-amber-50 px-4 py-3">
+                  <p className="text-xs leading-5 text-amber-800 sm:text-sm">
+                    Regenerating will immediately replace the current link.
+                  </p>
+                </div>
+              </div>
+
               <button
                 type="button"
-                onClick={() => onCopy(role, invite.invite_url)}
+                onClick={() => onRequestRegenerate(role)}
                 className="secondary-modal-button"
                 disabled={isBusy}
               >
                 <span className="inline-flex items-center gap-2">
-                  <Copy size={16} />
-                  {copiedRole === role ? "Copied!" : "Copy"}
+                  <RefreshCw size={16} className={isBusy ? "animate-spin" : ""} />
+                  {isBusy ? "Regenerating..." : "Regenerate"}
                 </span>
               </button>
-            ) : (
-              <button
-                type="button"
-                onClick={() => onGenerate(role)}
-                className="primary-gradient-button"
-                disabled={isBusy || isLoading}
-              >
-                {isBusy ? "Generating..." : "Generate link"}
-              </button>
-            )}
-          </div>
-        </div>
-
-        {invite ? (
-          <div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
-            <div className="flex min-w-0 flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-center">
-              <div className="rounded-2xl border border-black/8 bg-white px-4 py-3">
-                <p className="text-sm font-semibold text-[var(--heading-text)]">
-                  {formatExpiryText(invite.expires_at)}
-                </p>
-                {formatExactExpiry(invite.expires_at) ? (
-                  <p className="mt-1 text-xs text-[var(--muted-text)]">
-                    Exact expiry: {formatExactExpiry(invite.expires_at)}
-                  </p>
-                ) : null}
-              </div>
-
-              <div className="rounded-2xl border border-amber-200 bg-amber-50 px-4 py-3">
-                <p className="text-xs leading-5 text-amber-800 sm:text-sm">
-                  Regenerating will immediately replace the current link.
-                </p>
-              </div>
             </div>
+          ) : (
+            <div className="rounded-2xl border border-dashed border-black/10 bg-[var(--surface-soft)]/55 px-4 py-3">
+              <p className="text-sm text-[var(--muted-text)]">
+                No link has been generated for this role yet.
+              </p>
+            </div>
+          )}
+        </div>
+      </section>
 
-            <button
-              type="button"
-              onClick={() => onRequestRegenerate(role)}
-              className="secondary-modal-button"
-              disabled={isBusy}
-            >
-              <span className="inline-flex items-center gap-2">
-                <RefreshCw size={16} className={isBusy ? "animate-spin" : ""} />
-                {isBusy ? "Regenerating..." : "Regenerate"}
-              </span>
-            </button>
-          </div>
-        ) : (
-          <div className="rounded-2xl border border-dashed border-black/10 bg-[var(--surface-soft)]/55 px-4 py-3">
-            <p className="text-sm text-[var(--muted-text)]">
-              No link has been generated for this role yet.
-            </p>
-          </div>
-        )}
-      </div>
-    </section>
+      <QRCodeModal
+        isOpen={qrOpen}
+        onClose={() => setQrOpen(false)}
+        url={invite?.invite_url ?? ""}
+        roleLabel={config.title.replace(" access", "")}
+      />
+    </>
   );
 }
 
