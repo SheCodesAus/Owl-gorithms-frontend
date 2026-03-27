@@ -425,7 +425,7 @@ function Dashboard({ user }) {
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.35, ease: "easeOut" }}
       >
-        {/* Banner — no vote props needed any more */}
+        
         <DashboardBanner message={dashboardMessage} />
 
         {/* Desktop layout */}

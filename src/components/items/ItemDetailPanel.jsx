@@ -37,7 +37,7 @@ export default function ItemDetailPanel({
         key={item.id}
         className="dashboard-focus-band"
         style={{
-          backgroundImage: "url('/deep-dusk2.jpg')",
+          backgroundImage: "url('/wave.png')",
           overflowY: "auto",
           scrollbarWidth: "thin",
           scrollbarColor: "rgba(107,78,170,0.22) transparent",

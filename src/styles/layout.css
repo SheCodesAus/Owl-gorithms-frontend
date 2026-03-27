@@ -55,12 +55,12 @@ color: none;
 
 /* Dashboard focus panel photo */
 .focus-band-dashboard {
-  background-image: url("/cloud-pink.jpg");
+  background-image: url("/wave.png");
 }
 
 /* Item detail panel photo */
 .focus-band-item {
-  background-image: url("/deep-dusk2.jpg");
+  background-image: url("/wave.png");
 }
 
 /* Frosted glass inner container — sits on top of the photo */

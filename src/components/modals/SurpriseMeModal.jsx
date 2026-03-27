@@ -144,7 +144,7 @@ export default function SurpriseMeModal({ isOpen, onClose, bucketLists, onNaviga
         {/* Background — matches your dashboard-focus-band aesthetic */}
         <div
           className="dashboard-focus-band"
-          style={{ backgroundImage: "url('/colorwave.png')" }}
+          style={{ backgroundImage: "url('/wave.png')" }}
         >
           <div className="px-6 py-7">
 
