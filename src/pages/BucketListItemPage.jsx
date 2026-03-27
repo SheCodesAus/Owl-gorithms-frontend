@@ -1,5 +1,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
+import { motion } from "framer-motion";
+import { ArrowLeft, Sparkles } from "lucide-react";
 import { useBucketList } from "../hooks/useBucketList";
 import { useAuth } from "../hooks/use-auth";
 import { updateItem, deleteItem } from "../api/items";
@@ -34,39 +36,40 @@ export default function BucketListItemPage() {
     }
   }, [bucketList, itemId]);
 
-  // ── Permissions ───────────────────────────────────────────────────────────
   const currentUserMembership = useMemo(() => {
     if (!currentUser?.id || !bucketList?.memberships) return null;
-    return bucketList.memberships.find(
-      (m) => Number(m.user?.id) === Number(currentUser.id)
-    ) ?? null;
+    return (
+      bucketList.memberships.find(
+        (m) => Number(m.user?.id) === Number(currentUser.id),
+      ) ?? null
+    );
   }, [bucketList, currentUser]);
 
-  const isOwner = bucketList?.owner?.id && currentUser?.id
-    ? Number(bucketList.owner.id) === Number(currentUser.id)
-    : false;
+  const isOwner =
+    bucketList?.owner?.id && currentUser?.id
+      ? Number(bucketList.owner.id) === Number(currentUser.id)
+      : false;
 
   const memberRole = currentUserMembership?.role ?? null;
 
-  const isCreator = item?.created_by?.id && currentUser?.id
-    ? Number(item.created_by.id) === Number(currentUser.id)
-    : false;
+  const isCreator =
+    item?.created_by?.id && currentUser?.id
+      ? Number(item.created_by.id) === Number(currentUser.id)
+      : false;
 
-  // Owner always. Editor can edit their own items on unfrozen lists.
-  const canEdit = isOwner || (
-    !bucketList?.is_frozen && memberRole === "editor" && isCreator
-  );
+  const canEdit =
+    isOwner ||
+    (!bucketList?.is_frozen && memberRole === "editor" && isCreator);
 
-  // Frozen = no votes. Owner/editor = yes. Viewer = only if allow_viewer_voting.
   const canVote = useMemo(() => {
     if (!currentUser) return false;
     if (bucketList?.is_frozen) return false;
     if (isOwner || memberRole === "editor") return true;
-    if (memberRole === "viewer") return bucketList?.allow_viewer_voting ?? false;
+    if (memberRole === "viewer")
+      return bucketList?.allow_viewer_voting ?? false;
     return false;
   }, [currentUser, bucketList, isOwner, memberRole]);
 
-  // ── Handlers ──────────────────────────────────────────────────────────────
   const handleStatusUpdate = async (val) => {
     if (!item) return;
     const newStatus = typeof val === "string" ? val : val?.status;
@@ -118,33 +121,160 @@ export default function BucketListItemPage() {
     }
   };
 
-  if (!item) return null;
+  if (!bucketList) {
+    return (
+      <main className="relative min-h-screen overflow-hidden bg-[radial-gradient(circle_at_top,_rgba(122,84,199,0.18),_transparent_24%),linear-gradient(180deg,#2a0d54_0%,#1b083a_58%,#15072f_100%)] px-4 py-8 text-white sm:px-6 sm:py-10">
+        <div className="pointer-events-none absolute inset-0">
+          <div className="absolute left-[-6rem] top-[-4rem] h-72 w-72 rounded-full bg-[#ff8f8f]/20 blur-3xl" />
+          <div className="absolute right-[-5rem] top-[10%] h-80 w-80 rounded-full bg-[#8c61ff]/20 blur-3xl" />
+          <div className="absolute bottom-[-5rem] left-[20%] h-72 w-72 rounded-full bg-[#ffb085]/15 blur-3xl" />
+        </div>
+
+        <div className="relative mx-auto flex min-h-[60vh] max-w-6xl items-center justify-center">
+          <div className="rounded-[2rem] border border-white/10 bg-white/8 px-8 py-10 text-center shadow-[0_30px_80px_rgba(7,4,19,0.32)] backdrop-blur-xl">
+            <div className="mx-auto h-12 w-12 animate-spin rounded-full border-4 border-white/20 border-t-white/80" />
+            <p className="mt-4 text-base font-medium text-white/80">
+              Loading item details...
+            </p>
+          </div>
+        </div>
+      </main>
+    );
+  }
+
+  if (!item) {
+    return (
+      <main className="relative min-h-screen overflow-hidden bg-[radial-gradient(circle_at_top,_rgba(122,84,199,0.18),_transparent_24%),linear-gradient(180deg,#2a0d54_0%,#1b083a_58%,#15072f_100%)] px-4 py-8 text-white sm:px-6 sm:py-10">
+        <div className="pointer-events-none absolute inset-0">
+          <div className="absolute left-[-6rem] top-[-4rem] h-72 w-72 rounded-full bg-[#ff8f8f]/20 blur-3xl" />
+          <div className="absolute right-[-5rem] top-[10%] h-80 w-80 rounded-full bg-[#8c61ff]/20 blur-3xl" />
+          <div className="absolute bottom-[-5rem] left-[20%] h-72 w-72 rounded-full bg-[#ffb085]/15 blur-3xl" />
+        </div>
+
+        <div className="relative mx-auto max-w-5xl">
+          <div className="rounded-[2rem] border border-white/10 bg-white/8 px-6 py-10 shadow-[0_30px_80px_rgba(7,4,19,0.32)] backdrop-blur-xl sm:px-10">
+            <p className="text-sm uppercase tracking-[0.22em] text-white/55">
+              Item not found
+            </p>
+            <h1 className="mt-3 text-4xl font-bold tracking-[-0.04em] text-[#fff8fb] sm:text-5xl">
+              This item has wandered off.
+            </h1>
+            <p className="mt-4 max-w-2xl text-base leading-7 text-white/75">
+              The item you were looking for couldn’t be found in this bucket
+              list. Head back and keep the momentum going.
+            </p>
+
+            <button
+              type="button"
+              onClick={() => navigate(`/bucketlists/${listId}`)}
+              className="mt-8 inline-flex items-center gap-2 rounded-2xl bg-gradient-to-r from-[#ff8c78] via-[#ff6f86] to-[#8c61ff] px-5 py-3 text-sm font-bold text-white shadow-[0_18px_36px_rgba(73,32,136,0.34)] transition hover:-translate-y-0.5"
+            >
+              <ArrowLeft size={16} />
+              Back to list
+            </button>
+          </div>
+        </div>
+      </main>
+    );
+  }
 
   return (
     <>
-      <section className="page-shell">
-        <div className="page-width item-page-stack">
-          <ItemDetailCard
-            bucketList={bucketList}
-            item={item}
-            canEdit={canEdit}
-            isOwner={isOwner}
-            canVote={canVote}
-            voteScore={item.score ?? 0}
-            userVote={item.user_vote ?? null}
-            isVoting={false}
-            onBack={() => navigate(`/bucketlists/${listId}`)}
-            onAddDate={() => setShowDateModal(true)}
-            onUpdateStatus={(val) => {
-              if (typeof val === "string") handleStatusUpdate(val);
-              else setShowStatusModal(true);
-            }}
-            onEdit={() => setShowEditModal(true)}
-            onDelete={() => setShowDeleteModal(true)}
-          />
-          <ExtendedItemCard itemTitle={item.title} />
+      <main className="relative min-h-screen overflow-hidden bg-[radial-gradient(circle_at_top,_rgba(122,84,199,0.18),_transparent_24%),linear-gradient(180deg,#2a0d54_0%,#1b083a_58%,#15072f_100%)] px-4 py-8 sm:px-6 sm:py-10">
+        <div className="pointer-events-none absolute inset-0">
+          <div className="absolute left-[-6rem] top-[-4rem] h-72 w-72 rounded-full bg-[#ff8f8f]/20 blur-3xl" />
+          <div className="absolute right-[-5rem] top-[10%] h-80 w-80 rounded-full bg-[#8c61ff]/20 blur-3xl" />
+          <div className="absolute bottom-[-5rem] left-[20%] h-72 w-72 rounded-full bg-[#ffb085]/15 blur-3xl" />
         </div>
-      </section>
+
+        <div className="relative mx-auto max-w-7xl">
+          <motion.div
+            className="overflow-hidden rounded-[2rem] border border-white/10 bg-[linear-gradient(180deg,rgba(255,255,255,0.05),rgba(255,255,255,0.03))] shadow-[0_30px_80px_rgba(7,4,19,0.32)] backdrop-blur-xl"
+            initial={{ opacity: 0, y: 18 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.45, ease: "easeOut" }}
+          >
+            <div className="border-b border-white/8 bg-[radial-gradient(circle_at_top_center,rgba(255,255,255,0.06),transparent_36%),linear-gradient(180deg,rgba(255,255,255,0.02),rgba(255,255,255,0.01))] px-5 py-5 sm:px-8 sm:py-7">
+              <div className="flex flex-col gap-5 lg:flex-row lg:items-end lg:justify-between">
+                <div className="min-w-0">
+                  <p className="text-[0.74rem] font-semibold uppercase tracking-[0.24em] text-white/55">
+                    Bucket list item
+                  </p>
+
+                  <h1 className="mt-3 max-w-4xl text-4xl font-bold leading-[0.95] tracking-[-0.05em] text-[#fff8fb] sm:text-5xl md:text-6xl">
+                    {item.title}
+                  </h1>
+
+                  <p className="mt-4 max-w-3xl text-sm leading-7 text-white/78 sm:text-base">
+                    Deep dive into the details, update progress, and keep this
+                    plan moving.
+                  </p>
+
+                  <div className="mt-5 flex flex-wrap gap-3">
+                    <span className="inline-flex items-center rounded-full border border-white/12 bg-white/8 px-4 py-2 text-sm font-semibold text-white/88 backdrop-blur-md">
+                      {bucketList.title}
+                    </span>
+                    <span className="inline-flex items-center gap-2 rounded-full border border-white/12 bg-white/8 px-4 py-2 text-sm font-semibold text-white/88 backdrop-blur-md">
+                      <Sparkles size={14} />
+                      {bucketList.is_frozen ? "Frozen list" : "Active list"}
+                    </span>
+                  </div>
+                </div>
+
+                <button
+                  type="button"
+                  onClick={() => navigate(`/bucketlists/${listId}`)}
+                  className="inline-flex items-center justify-center gap-2 rounded-2xl border border-white/14 bg-white/10 px-5 py-3 text-sm font-bold text-white backdrop-blur-md transition hover:bg-white/14"
+                >
+                  <ArrowLeft size={16} />
+                  Back to list
+                </button>
+              </div>
+            </div>
+
+            <div className="px-4 py-4 sm:px-6 sm:py-6 lg:px-8 lg:py-8">
+              <div className="grid gap-5 xl:grid-cols-[minmax(0,1.05fr)_minmax(320px,0.95fr)] xl:items-start">
+                <motion.div
+                  initial={{ opacity: 0, y: 12 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: 0.06, duration: 0.35 }}
+                >
+                  <div className="rounded-[1.75rem] border border-white/10 bg-white/8 p-2 shadow-[0_20px_50px_rgba(12,6,30,0.22)] backdrop-blur-md">
+                    <ItemDetailCard
+                      bucketList={bucketList}
+                      item={item}
+                      canEdit={canEdit}
+                      isOwner={isOwner}
+                      canVote={canVote}
+                      voteScore={item.score ?? 0}
+                      userVote={item.user_vote ?? null}
+                      isVoting={false}
+                      onBack={() => navigate(`/bucketlists/${listId}`)}
+                      onAddDate={() => setShowDateModal(true)}
+                      onUpdateStatus={(val) => {
+                        if (typeof val === "string") handleStatusUpdate(val);
+                        else setShowStatusModal(true);
+                      }}
+                      onEdit={() => setShowEditModal(true)}
+                      onDelete={() => setShowDeleteModal(true)}
+                    />
+                  </div>
+                </motion.div>
+
+                <motion.div
+                  initial={{ opacity: 0, y: 12 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: 0.12, duration: 0.35 }}
+                >
+                  <div className="rounded-[1.75rem] border border-white/10 bg-white/8 p-2 shadow-[0_20px_50px_rgba(12,6,30,0.22)] backdrop-blur-md">
+                    <ExtendedItemCard itemTitle={item.title} />
+                  </div>
+                </motion.div>
+              </div>
+            </div>
+          </motion.div>
+        </div>
+      </main>
 
       <StatusUpdateModal
         item={item}
@@ -154,12 +284,14 @@ export default function BucketListItemPage() {
         isSaving={isSavingStatus}
         error={statusError}
       />
+
       <ItemDateModal
         item={item}
         isOpen={showDateModal}
         onSave={handleSaveDate}
         onClose={() => setShowDateModal(false)}
       />
+
       <EditItemModal
         item={item}
         isOpen={showEditModal}
@@ -167,6 +299,7 @@ export default function BucketListItemPage() {
         onClose={() => setShowEditModal(false)}
         isSaving={isSaving}
       />
+
       <DeleteItemModal
         item={item}
         isOpen={showDeleteModal}
