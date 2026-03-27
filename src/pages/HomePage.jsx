@@ -150,10 +150,10 @@ function HomePage() {
                     loop
                     playsInline
                     preload="metadata"
-                    poster="/bucket-poster.jpg"
+                    poster="/celebrate-still.png"
                     aria-label="Animated Kickit bucket character"
                   >
-                    <source src="/celebrate.webm" type="video/webm" />
+                    {/* <source src="/celebrate.webm" type="video/webm" /> */}
                     <source src="/celebrate.mp4" type="video/mp4" />
                   </video>
                 </motion.div>

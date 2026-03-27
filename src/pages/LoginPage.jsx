@@ -98,10 +98,10 @@ function LoginPage() {
                   loop
                   playsInline
                   preload="metadata"
-                  poster="/login-poster.jpg"
+                  poster="/hello-still.png"
                   aria-label="Animated Kickit mascot video"
                 >
-                  <source src="/hello.webm" type="video/webm" />
+                  {/* <source src="/hello.webm" type="video/webm" /> */}
                   <source src="/hello.mp4" type="video/mp4" />
                 </video>
               </motion.div>
