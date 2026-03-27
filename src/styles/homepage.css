@@ -506,10 +506,6 @@
   border-top: none;
 }
 
-.homepage-footer .container {
-  position: relative;
-}
-
 .homepage-footer__inner {
   display: flex;
   align-items: center;

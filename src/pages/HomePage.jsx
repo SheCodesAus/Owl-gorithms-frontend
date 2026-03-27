@@ -254,35 +254,6 @@ function HomePage() {
           </div>
         </div>
       </motion.section>
-
-      <footer className="homepage-footer">
-        <div className="container">
-          <div className="homepage-footer__inner">
-            <div className="homepage-footer__logo">
-              <img src={logo} alt="Kickit" />
-            </div>
-
-            <ul className="homepage-footer__links">
-              <li>
-                <Link to="/about">About</Link>
-              </li>
-              <li>
-                <Link to="/privacy">Privacy</Link>
-              </li>
-              <li>
-                <Link to="/terms">Terms</Link>
-              </li>
-              <li>
-                <Link to="/contact">Contact</Link>
-              </li>
-            </ul>
-
-            <p className="homepage-footer__copy">
-              © 2026 Kickit. All rights reserved.
-            </p>
-          </div>
-        </div>
-      </footer>
     </>
   );
 }

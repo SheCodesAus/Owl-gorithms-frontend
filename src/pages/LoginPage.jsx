@@ -73,24 +73,10 @@ function LoginPage() {
           </section>
 
           <section className="login-page__visual">
-            <motion.div
-              className="login-page__visual-shell"
-              initial={{ opacity: 0, scale: 0.96, y: 24 }}
-              animate={{ opacity: 1, scale: 1, y: 0 }}
-              transition={{ delay: 0.12, duration: 0.7, ease: [0.22, 1, 0.36, 1] }}
-              whileHover={{ y: -4 }}
-            >
+            <div className="login-page__visual-shell">
               <div className="login-page__visual-glow" />
 
-              <motion.div
-                className="login-page__visual-frame"
-                animate={{ y: [0, -6, 0] }}
-                transition={{
-                  duration: 6,
-                  repeat: Infinity,
-                  ease: "easeInOut",
-                }}
-              >
+              <div className="login-page__visual-frame">
                 <video
                   className="login-page__video"
                   autoPlay
@@ -101,12 +87,10 @@ function LoginPage() {
                   poster="/hello-still.png"
                   aria-label="Animated Kickit mascot video"
                 >
-                  {/* <source src="/hello.webm" type="video/webm" /> */}
                   <source src="/hello.mp4" type="video/mp4" />
                 </video>
-              </motion.div>
-
-            </motion.div>
+              </div>
+            </div>
           </section>
         </motion.div>
       </div>
