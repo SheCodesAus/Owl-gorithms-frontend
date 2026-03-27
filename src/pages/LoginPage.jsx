@@ -1,7 +1,41 @@
 import { motion } from "framer-motion";
+import { useEffect, useRef } from "react";
 import GoogleLogin from "../components/GoogleLogin";
 
 function LoginPage() {
+  const videoRef = useRef(null);
+
+  useEffect(() => {
+    const video = videoRef.current;
+    if (!video) return;
+
+    video.muted = true;
+    video.defaultMuted = true;
+    video.playsInline = true;
+    video.setAttribute("muted", "");
+    video.setAttribute("playsinline", "");
+    video.setAttribute("webkit-playsinline", "");
+
+    const tryPlay = async () => {
+      try {
+        await video.play();
+      } catch (error) {
+        console.error("Login video autoplay failed:", error);
+      }
+    };
+
+    const onLoaded = () => {
+      tryPlay();
+    };
+
+    video.addEventListener("loadeddata", onLoaded);
+    tryPlay();
+
+    return () => {
+      video.removeEventListener("loadeddata", onLoaded);
+    };
+  }, []);
+
   return (
     <main className="login-page">
       <div className="login-page__bg" aria-hidden="true">
@@ -78,12 +112,14 @@ function LoginPage() {
 
               <div className="login-page__visual-frame">
                 <video
+                  ref={videoRef}
                   className="login-page__video"
                   autoPlay
                   muted
+                  defaultMuted
                   loop
                   playsInline
-                  preload="metadata"
+                  preload="auto"
                   poster="/hello-still.png"
                   aria-label="Animated Kickit mascot video"
                 >

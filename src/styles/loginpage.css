@@ -195,7 +195,6 @@
   box-shadow:
     0 40px 80px rgba(7, 4, 19, 0.45),
     0 0 0 1px rgba(255, 255, 255, 0.04) inset;
-  backdrop-filter: blur(16px);
   overflow: hidden;
 }
 
@@ -228,11 +227,8 @@
   aspect-ratio: 0.95 / 1;
   object-fit: cover;
   object-position: center;
-  transform: scale(1.06);
   border-radius: 1.55rem;
   background: transparent;
-  -webkit-mask-image: radial-gradient(circle at center, black 78%, transparent 100%);
-  mask-image: radial-gradient(circle at center, black 78%, transparent 100%);
 }
 
 .login-page__badge {
