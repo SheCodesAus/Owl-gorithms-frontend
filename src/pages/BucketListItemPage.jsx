@@ -74,17 +74,17 @@ export default function BucketListItemPage() {
   const memberRole = currentUserMembership?.role ?? null;
 
   const isCreator =
-  item?.created_by?.id && currentUser?.id
-    ? Number(item.created_by.id) === Number(currentUser.id)
-    : item?.creator?.id && currentUser?.id
-      ? Number(item.creator.id) === Number(currentUser.id)
-      : false;
+    item?.created_by?.id && currentUser?.id
+      ? Number(item.created_by.id) === Number(currentUser.id)
+      : item?.creator?.id && currentUser?.id
+        ? Number(item.creator.id) === Number(currentUser.id)
+        : false;
 
-const canEdit =
-  isOwner ||
-  (!bucketList?.is_frozen && memberRole === "editor" && isCreator);
+  const canEdit =
+    isOwner ||
+    (!bucketList?.is_frozen && memberRole === "editor" && isCreator);
 
-const canManageDates = isOwner || isCreator;
+  const canManageDates = isOwner || isCreator;
 
   const canVote = useMemo(() => {
     if (!currentUser) return false;
@@ -206,15 +206,15 @@ const canManageDates = isOwner || isCreator;
 
   if (!bucketList) {
     return (
-      <main className="relative min-h-screen overflow-hidden bg-[radial-gradient(circle_at_top,_rgba(122,84,199,0.18),_transparent_24%),linear-gradient(180deg,#2a0d54_0%,#1b083a_58%,#15072f_100%)] px-4 py-8 text-white sm:px-6 sm:py-10">
+      <main className="relative min-h-screen overflow-x-hidden overflow-y-hidden bg-[radial-gradient(circle_at_top,_rgba(122,84,199,0.18),_transparent_24%),linear-gradient(180deg,#2a0d54_0%,#1b083a_58%,#15072f_100%)] px-4 py-8 text-white sm:px-6 sm:py-10">
         <div className="pointer-events-none absolute inset-0">
           <div className="absolute left-[-6rem] top-[-4rem] h-72 w-72 rounded-full bg-[#ff8f8f]/20 blur-3xl" />
           <div className="absolute right-[-5rem] top-[10%] h-80 w-80 rounded-full bg-[#8c61ff]/20 blur-3xl" />
           <div className="absolute bottom-[-5rem] left-[20%] h-72 w-72 rounded-full bg-[#ffb085]/15 blur-3xl" />
         </div>
 
-        <div className="relative mx-auto flex min-h-[60vh] max-w-6xl items-center justify-center">
-          <div className="rounded-[2rem] border border-white/10 bg-white/8 px-8 py-10 text-center shadow-[0_30px_80px_rgba(7,4,19,0.32)] backdrop-blur-xl">
+        <div className="relative mx-auto flex min-h-[60vh] w-full max-w-6xl items-center justify-center">
+          <div className="w-full max-w-md rounded-[2rem] border border-white/10 bg-white/8 px-6 py-10 text-center shadow-[0_30px_80px_rgba(7,4,19,0.32)] backdrop-blur-xl sm:px-8">
             <div className="mx-auto h-12 w-12 animate-spin rounded-full border-4 border-white/20 border-t-white/80" />
             <p className="mt-4 text-base font-medium text-white/80">
               Loading item details...
@@ -227,15 +227,15 @@ const canManageDates = isOwner || isCreator;
 
   if (!item) {
     return (
-      <main className="relative min-h-screen overflow-hidden bg-[radial-gradient(circle_at_top,_rgba(122,84,199,0.18),_transparent_24%),linear-gradient(180deg,#2a0d54_0%,#1b083a_58%,#15072f_100%)] px-4 py-8 text-white sm:px-6 sm:py-10">
+      <main className="relative min-h-screen overflow-x-hidden overflow-y-hidden bg-[radial-gradient(circle_at_top,_rgba(122,84,199,0.18),_transparent_24%),linear-gradient(180deg,#2a0d54_0%,#1b083a_58%,#15072f_100%)] px-4 py-8 text-white sm:px-6 sm:py-10">
         <div className="pointer-events-none absolute inset-0">
           <div className="absolute left-[-6rem] top-[-4rem] h-72 w-72 rounded-full bg-[#ff8f8f]/20 blur-3xl" />
           <div className="absolute right-[-5rem] top-[10%] h-80 w-80 rounded-full bg-[#8c61ff]/20 blur-3xl" />
           <div className="absolute bottom-[-5rem] left-[20%] h-72 w-72 rounded-full bg-[#ffb085]/15 blur-3xl" />
         </div>
 
-        <div className="relative mx-auto max-w-5xl">
-          <div className="rounded-[2rem] border border-white/10 bg-white/8 px-6 py-10 shadow-[0_30px_80px_rgba(7,4,19,0.32)] backdrop-blur-xl sm:px-10">
+        <div className="relative mx-auto w-full max-w-5xl">
+          <div className="mx-auto w-full max-w-3xl rounded-[2rem] border border-white/10 bg-white/8 px-6 py-10 shadow-[0_30px_80px_rgba(7,4,19,0.32)] backdrop-blur-xl sm:px-10">
             <p className="text-sm uppercase tracking-[0.22em] text-white/55">
               Item not found
             </p>
@@ -263,14 +263,14 @@ const canManageDates = isOwner || isCreator;
 
   return (
     <>
-      <main className="relative min-h-screen overflow-hidden bg-[radial-gradient(circle_at_top,_rgba(122,84,199,0.18),_transparent_24%),linear-gradient(180deg,#2a0d54_0%,#1b083a_58%,#15072f_100%)] px-4 py-8 sm:px-6 sm:py-10">
+      <main className="relative min-h-screen overflow-x-hidden overflow-y-hidden bg-[radial-gradient(circle_at_top,_rgba(122,84,199,0.18),_transparent_24%),linear-gradient(180deg,#2a0d54_0%,#1b083a_58%,#15072f_100%)] px-4 py-8 sm:px-6 sm:py-10">
         <div className="pointer-events-none absolute inset-0">
           <div className="absolute left-[-6rem] top-[-4rem] h-72 w-72 rounded-full bg-[#ff8f8f]/20 blur-3xl" />
           <div className="absolute right-[-5rem] top-[10%] h-80 w-80 rounded-full bg-[#8c61ff]/20 blur-3xl" />
           <div className="absolute bottom-[-5rem] left-[20%] h-72 w-72 rounded-full bg-[#ffb085]/15 blur-3xl" />
         </div>
 
-        <div className="relative mx-auto w-full max-w-5xl xl:max-w-7xl">
+        <div className="relative mx-auto w-full max-w-7xl">
           <motion.div
             className="overflow-hidden rounded-[2rem] border border-white/10 bg-[linear-gradient(180deg,rgba(255,255,255,0.05),rgba(255,255,255,0.03))] shadow-[0_30px_80px_rgba(7,4,19,0.32)] backdrop-blur-xl"
             initial={{ opacity: 0, y: 18 }}
@@ -307,7 +307,7 @@ const canManageDates = isOwner || isCreator;
                 <button
                   type="button"
                   onClick={() => navigate(`/bucketlists/${listId}`)}
-                  className="inline-flex cursor-pointer items-center justify-center gap-2 rounded-2xl border border-white/14 bg-white/10 px-5 py-3 text-sm font-bold text-white backdrop-blur-md transition hover:bg-white/14"
+                  className="inline-flex w-full cursor-pointer items-center justify-center gap-2 self-start rounded-2xl border border-white/14 bg-white/10 px-5 py-3 text-sm font-bold text-white backdrop-blur-md transition hover:bg-white/14 sm:w-auto lg:self-auto"
                 >
                   <ArrowLeft size={16} />
                   Back to list
@@ -318,11 +318,12 @@ const canManageDates = isOwner || isCreator;
             <div className="px-4 py-4 sm:px-6 sm:py-6 lg:px-8 lg:py-8">
               <div className="grid gap-4 sm:gap-5 xl:grid-cols-[minmax(0,1.05fr)_minmax(320px,0.95fr)] xl:items-start">
                 <motion.div
+                  className="min-w-0"
                   initial={{ opacity: 0, y: 12 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ delay: 0.06, duration: 0.35 }}
                 >
-                  <div className="rounded-[1.75rem] border border-white/10 bg-white/8 p-3 shadow-[0_20px_50px_rgba(12,6,30,0.22)] backdrop-blur-md sm:p-2">
+                  <div className="w-full rounded-[1.75rem] border border-white/10 bg-white/8 p-3 shadow-[0_20px_50px_rgba(12,6,30,0.22)] backdrop-blur-md sm:p-2">
                     <ItemDetailCard
                       bucketList={bucketList}
                       item={item}
@@ -350,11 +351,12 @@ const canManageDates = isOwner || isCreator;
                 </motion.div>
 
                 <motion.div
+                  className="min-w-0"
                   initial={{ opacity: 0, y: 12 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ delay: 0.12, duration: 0.35 }}
                 >
-                  <div className="rounded-[1.75rem] border border-white/10 bg-white/8 p-3 shadow-[0_20px_50px_rgba(12,6,30,0.22)] backdrop-blur-md sm:p-2">
+                  <div className="w-full rounded-[1.75rem] border border-white/10 bg-white/8 p-3 shadow-[0_20px_50px_rgba(12,6,30,0.22)] backdrop-blur-md sm:p-2">
                     <ExtendedItemCard itemTitle={item.title} />
                   </div>
                 </motion.div>
