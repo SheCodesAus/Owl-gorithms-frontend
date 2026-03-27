@@ -202,31 +202,49 @@ export default function BucketListHeader({
                   </button>
 
                   {showOptionsMenu && (
-                    <div className="absolute right-0 top-12 z-30 w-56 rounded-2xl bg-white shadow-lg">
-                      <button onClick={handleCopy} className="menu-item">
-                        <Copy size={16} /> Copy link
+                    <div className="absolute right-0 top-12 z-30 w-56 overflow-hidden rounded-2xl border border-black/10 bg-white/95 shadow-[0_18px_50px_rgba(0,0,0,0.16)] backdrop-blur-xl">
+                      <button
+                        type="button"
+                        onClick={handleCopy}
+                        className="flex w-full cursor-pointer items-center gap-3 px-4 py-3 text-left text-sm font-medium text-[var(--body-text)] transition hover:bg-black/5"
+                      >
+                        <Copy size={16} aria-hidden="true" />
+                        Copy link
                       </button>
 
                       {isOwner && (
                         <>
-                          <button onClick={handleEdit} className="menu-item">
-                            <Pencil size={16} /> Edit
+                          <button
+                            type="button"
+                            onClick={handleEdit}
+                            className="flex w-full cursor-pointer items-center gap-3 px-4 py-3 text-left text-sm font-medium text-[var(--body-text)] transition hover:bg-black/5"
+                          >
+                            <Pencil size={16} aria-hidden="true" />
+                            Edit
                           </button>
 
-                          <button onClick={handleFreeze} className="menu-item">
+                          <button
+                            type="button"
+                            onClick={handleFreeze}
+                            className="flex w-full cursor-pointer items-center gap-3 px-4 py-3 text-left text-sm font-medium text-[var(--body-text)] transition hover:bg-black/5"
+                          >
                             {isFrozen ? (
-                              <Flame size={16} />
+                              <Flame size={16} aria-hidden="true" />
                             ) : (
-                              <Snowflake size={16} />
+                              <Snowflake size={16} aria-hidden="true" />
                             )}
                             {isFrozen ? "Unfreeze list" : "Freeze list"}
                           </button>
 
+                          <div className="mx-3 h-px bg-black/8" />
+
                           <button
+                            type="button"
                             onClick={handleDelete}
-                            className="menu-item text-red-500"
+                            className="flex w-full cursor-pointer items-center gap-3 px-4 py-3 text-left text-sm font-medium text-rose-600 transition hover:bg-rose-50"
                           >
-                            <Trash2 size={16} /> Delete
+                            <Trash2 size={16} aria-hidden="true" />
+                            Delete
                           </button>
                         </>
                       )}
