@@ -122,7 +122,7 @@ function ItemDetailCard({
   }, []);
 
   const handleOpen = () => {
-    navigate(`/bucketlists/${bucketList.id}`);
+    navigate(`/bucketlists/${bucketList.id}/items/${item.id}`);
     setShowOptionsMenu(false);
   };
 
@@ -138,17 +138,17 @@ function ItemDetailCard({
 
   return (
     <article className="item-detail-card">
-      <div className={`item-detail-hero ${isMobileOverlay ? "pt-12" : ""}`}>
+      <div className={`item-detail-hero ${isMobileOverlay ? "pt-12" : ""}`}> 
         {showBreadcrumb && (
           <div className="item-breadcrumb item-breadcrumb-light">
             <button
               type="button"
-              className="item-breadcrumb-button item-breadcrumb-button-light"
+              className="item-breadcrumb-button cursor-pointer item-breadcrumb-button-light"
               onClick={onBack}
             >
               {bucketList?.title}
             </button>
-            <span className="item-breadcrumb-separator">›</span>
+            <span className="item-breadcrumb-separator"> › </span>
             <span>{item.title}</span>
           </div>
         )}
@@ -276,7 +276,7 @@ function ItemDetailCard({
             </button>
 
             {showOptionsMenu ? (
-              <div className="absolute left-0 right-0 top-[calc(100%+0.5rem)] z-30 overflow-hidden rounded-2xl border border-black/10 bg-white/95 shadow-[0_18px_50px_rgba(0,0,0,0.16)] backdrop-blur-xl">
+              <div className="absolute left-0 right-0 top-[calc(100%+0.5rem)] z-50 overflow-hidden rounded-2xl border border-black/10 bg-white/95 shadow-[0_18px_50px_rgba(0,0,0,0.16)] backdrop-blur-xl">
                 <button
                   type="button"
                   onClick={handleOpen}

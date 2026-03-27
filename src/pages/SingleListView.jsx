@@ -38,7 +38,8 @@ export default function SingleListView() {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const { auth } = useAuth();
-  const { bucketList, isLoading, bucketListError, loadBucketList } = useBucketList(Number(id));
+  const { bucketList, isLoading, bucketListError, loadBucketList } =
+    useBucketList(Number(id));
   const { voteOnItem, clearVote } = useVotes();
 
   const [selectedItemId, setSelectedItemId] = useState(null);
@@ -82,7 +83,10 @@ export default function SingleListView() {
   // On mobile, scroll to top of detail panel when a new item is selected
   useEffect(() => {
     if (isMobile && selectedItemId && panelScrollRef.current) {
-      panelScrollRef.current.scrollIntoView({ behavior: "smooth", block: "start" });
+      panelScrollRef.current.scrollIntoView({
+        behavior: "smooth",
+        block: "start",
+      });
     }
   }, [selectedItemId, isMobile]);
 
@@ -92,29 +96,36 @@ export default function SingleListView() {
   // ── Permissions ───────────────────────────────────────────────────────────
   const currentUserMembership = useMemo(() => {
     if (!currentUser?.id || !bucketList?.memberships) return null;
-    return bucketList.memberships.find(
-      (m) => Number(m.user?.id) === Number(currentUser.id)
-    ) ?? null;
+    return (
+      bucketList.memberships.find(
+        (m) => Number(m.user?.id) === Number(currentUser.id),
+      ) ?? null
+    );
   }, [bucketList, currentUser]);
 
-  const isOwner = bucketList?.owner?.id && currentUser?.id
-    ? Number(bucketList.owner.id) === Number(currentUser.id)
-    : false;
+  const isOwner =
+    bucketList?.owner?.id && currentUser?.id
+      ? Number(bucketList.owner.id) === Number(currentUser.id)
+      : false;
 
   const memberRole = currentUserMembership?.role ?? null;
+  const isFrozen = bucketList?.is_frozen ?? false;
 
   // canVote: frozen = no. Owner/editor = yes. Viewer = only if allow_viewer_voting.
   const canVote = useMemo(() => {
     if (!currentUser) return false;
     if (bucketList?.is_frozen) return false;
     if (isOwner || memberRole === "editor") return true;
-    if (memberRole === "viewer") return bucketList?.allow_viewer_voting ?? false;
+    if (memberRole === "viewer")
+      return bucketList?.allow_viewer_voting ?? false;
     return false;
   }, [currentUser, bucketList, isOwner, memberRole]);
 
   // ── Vote helpers ──────────────────────────────────────────────────────────
-  const getBaseVoteScore = (item) => item.vote_score ?? item.votes_count ?? item.score ?? 0;
-  const getBaseUserVote = (item) => item.user_vote ?? item.current_user_vote ?? item.vote_type ?? null;
+  const getBaseVoteScore = (item) =>
+    item.vote_score ?? item.votes_count ?? item.score ?? 0;
+  const getBaseUserVote = (item) =>
+    item.user_vote ?? item.current_user_vote ?? item.vote_type ?? null;
 
   const getEffectiveVoteState = (item) => {
     const override = voteOverrides[item.id];
@@ -125,7 +136,10 @@ export default function SingleListView() {
   };
 
   const setVoteOverride = (itemId, voteScore, userVote) => {
-    setVoteOverrides((prev) => ({ ...prev, [itemId]: { voteScore, userVote } }));
+    setVoteOverrides((prev) => ({
+      ...prev,
+      [itemId]: { voteScore, userVote },
+    }));
   };
 
   // ── Items ─────────────────────────────────────────────────────────────────
@@ -136,7 +150,8 @@ export default function SingleListView() {
         ...item,
         is_completed: item.status === "complete",
         created_by: item.created_by ?? item.creator ?? null,
-        date_created: item.date_created ?? item.created_at ?? item.created ?? null,
+        date_created:
+          item.date_created ?? item.created_at ?? item.created ?? null,
         vote_score: effectiveVote.voteScore,
         score: effectiveVote.voteScore,
         user_vote: effectiveVote.userVote,
@@ -160,7 +175,9 @@ export default function SingleListView() {
 
   useEffect(() => {
     if (!selectedItemId) return;
-    const selectedStillExists = items.some((item) => item.id === selectedItemId);
+    const selectedStillExists = items.some(
+      (item) => item.id === selectedItemId,
+    );
     if (!selectedStillExists) setSelectedItemId(null);
   }, [items, selectedItemId]);
 
@@ -174,9 +191,12 @@ export default function SingleListView() {
     let result = [...items];
 
     // ── Filter by status ──
-    if (filter === "complete")  result = result.filter((i) => i.status === "complete");
-    else if (filter === "locked_in") result = result.filter((i) => i.status === "locked_in");
-    else if (filter === "pending") result = result.filter((i) => i.status !== "complete");
+    if (filter === "complete")
+      result = result.filter((i) => i.status === "complete");
+    else if (filter === "locked_in")
+      result = result.filter((i) => i.status === "locked_in");
+    else if (filter === "pending")
+      result = result.filter((i) => i.status !== "complete");
 
     // ── Search ──
     if (search.trim()) {
@@ -184,42 +204,54 @@ export default function SingleListView() {
       result = result.filter(
         (i) =>
           i.title?.toLowerCase().includes(q) ||
-          i.description?.toLowerCase().includes(q)
+          i.description?.toLowerCase().includes(q),
       );
     }
 
     // ── Sort ──
-    if (sort === "most_votes")  result.sort((a, b) => (b.vote_score ?? 0) - (a.vote_score ?? 0));
-    else if (sort === "least_votes") result.sort((a, b) => (a.vote_score ?? 0) - (b.vote_score ?? 0));
-    else if (sort === "newest") result.sort((a, b) => new Date(b.date_created) - new Date(a.date_created));
-    else if (sort === "oldest") result.sort((a, b) => new Date(a.date_created) - new Date(b.date_created));
-    else if (sort === "az")     result.sort((a, b) => a.title?.localeCompare(b.title));
-    else if (sort === "mine")   result = result.filter((i) =>
-      i.created_by?.id && currentUser?.id &&
-      Number(i.created_by.id) === Number(currentUser.id)
-    );
+    if (sort === "most_votes")
+      result.sort((a, b) => (b.vote_score ?? 0) - (a.vote_score ?? 0));
+    else if (sort === "least_votes")
+      result.sort((a, b) => (a.vote_score ?? 0) - (b.vote_score ?? 0));
+    else if (sort === "newest")
+      result.sort(
+        (a, b) => new Date(b.date_created) - new Date(a.date_created),
+      );
+    else if (sort === "oldest")
+      result.sort(
+        (a, b) => new Date(a.date_created) - new Date(b.date_created),
+      );
+    else if (sort === "az")
+      result.sort((a, b) => a.title?.localeCompare(b.title));
+    else if (sort === "mine")
+      result = result.filter(
+        (i) =>
+          i.created_by?.id &&
+          currentUser?.id &&
+          Number(i.created_by.id) === Number(currentUser.id),
+      );
 
     return result;
   }, [items, filter, search, sort, currentUser]);
 
   const selectedItem = useMemo(
     () => items.find((item) => item.id === selectedItemId) ?? null,
-    [items, selectedItemId]
+    [items, selectedItemId],
   );
 
   const completedCount = useMemo(
     () => items.filter((item) => item.status === "complete").length,
-    [items]
+    [items],
   );
 
-  const isCreator = selectedItem?.created_by?.id && currentUser?.id
-    ? Number(selectedItem.created_by.id) === Number(currentUser.id)
-    : false;
+  const isCreator =
+    selectedItem?.created_by?.id && currentUser?.id
+      ? Number(selectedItem.created_by.id) === Number(currentUser.id)
+      : false;
 
   // Owner can always edit. Editors can edit their own items on unfrozen lists.
-  const canEdit = isOwner || (
-    !bucketList?.is_frozen && memberRole === "editor" && isCreator
-  );
+  const canEdit =
+    isOwner || (!bucketList?.is_frozen && memberRole === "editor" && isCreator);
 
   // ── Handlers ──────────────────────────────────────────────────────────────
   const handleFreezeList = async () => {
@@ -237,7 +269,7 @@ export default function SingleListView() {
     if (!bucketList.is_public) return;
     try {
       await navigator.clipboard.writeText(
-        `${window.location.origin}/bucketlists/${bucketList.id}`
+        `${window.location.origin}/bucketlists/${bucketList.id}`,
       );
     } catch (err) {
       console.error("Copy failed:", err);
@@ -249,8 +281,14 @@ export default function SingleListView() {
   const handleChangeMemberRole = async (membershipId, newRole) => {
     setIsUpdatingMemberId(membershipId);
     try {
-      const { default: updateMembershipRole } = await import("../api/memberships/update-membership");
-      await updateMembershipRole(bucketList.id, membershipId, { role: newRole }, auth?.access);
+      const { default: updateMembershipRole } =
+        await import("../api/memberships/update-membership");
+      await updateMembershipRole(
+        bucketList.id,
+        membershipId,
+        { role: newRole },
+        auth?.access,
+      );
       await loadBucketList();
     } catch (err) {
       console.error("Role change failed:", err);
@@ -262,7 +300,8 @@ export default function SingleListView() {
   const handleRemoveMember = async (membership) => {
     setIsUpdatingMemberId(membership.id);
     try {
-      const { default: deleteMembership } = await import("../api/memberships/delete-membership");
+      const { default: deleteMembership } =
+        await import("../api/memberships/delete-membership");
       await deleteMembership(membership.id, auth?.access);
       await loadBucketList();
     } catch (err) {
@@ -275,7 +314,8 @@ export default function SingleListView() {
   const handleLeaveList = async (membership) => {
     setIsUpdatingMemberId(membership.id);
     try {
-      const { default: deleteMembership } = await import("../api/memberships/delete-membership");
+      const { default: deleteMembership } =
+        await import("../api/memberships/delete-membership");
       await deleteMembership(membership.id, auth?.access);
       navigate("/dashboard");
     } catch (err) {
@@ -287,7 +327,11 @@ export default function SingleListView() {
   const handleVote = async (item, clickedVote) => {
     if (!canVote) return;
     const previousState = getEffectiveVoteState(item);
-    const { nextVote, nextScore } = getNextVoteState(previousState.userVote, previousState.voteScore, clickedVote);
+    const { nextVote, nextScore } = getNextVoteState(
+      previousState.userVote,
+      previousState.voteScore,
+      clickedVote,
+    );
     setVoteOverride(item.id, nextScore, nextVote);
     setIsVotingItemId(item.id);
     try {
@@ -350,7 +394,9 @@ export default function SingleListView() {
         isOwner &&
         selectedItem?.status === "proposed" &&
         !!(dateData?.start_date ?? selectedItem?.start_date);
-      const payload = shouldAutoLock ? { ...dateData, status: "locked_in" } : dateData;
+      const payload = shouldAutoLock
+        ? { ...dateData, status: "locked_in" }
+        : dateData;
       await updateItem(selectedItem.id, payload, auth?.access);
       await loadBucketList();
       setShowDateModal(false);
@@ -381,128 +427,62 @@ export default function SingleListView() {
   };
 
   // ── Render ────────────────────────────────────────────────────────────────
-  if (isLoading) return (
-    <div style={{ width: "min(100%, 860px)", margin: "0 auto" }}>
-      <div className="empty-state-card">Loading bucket list...</div>
-    </div>
-  );
+  if (isLoading)
+    return (
+      <div style={{ width: "min(100%, 860px)", margin: "0 auto" }}>
+        <div className="empty-state-card">Loading bucket list...</div>
+      </div>
+    );
 
-  if (bucketListError || !bucketList) return (
-    <div style={{ width: "min(100%, 860px)", margin: "0 auto" }}>
-      <div className="error-state-card">{bucketListError || "Something went wrong."}</div>
-    </div>
-  );
+  if (bucketListError || !bucketList)
+    return (
+      <div style={{ width: "min(100%, 860px)", margin: "0 auto" }}>
+        <div className="error-state-card">
+          {bucketListError || "Something went wrong."}
+        </div>
+      </div>
+    );
 
   const panelOpen = !!selectedItem;
 
   return (
     <>
       <motion.section
-          animate={{ maxWidth: panelOpen ? "1440px" : "860px" }}
-          style={{ width: "100%", margin: "0 auto" }}
-          transition={{ duration: 0.4, ease: [0.4, 0, 0.2, 1] }}
-        >
-          {/* ── Desktop layout ─────────────────────────────────────────────── */}
-          {!isMobile && (
-            <div className="flex items-stretch gap-5">
-              {/* Left column — scrolls only when taller than focus panel */}
-              <motion.div
-                className="flex flex-col gap-5 min-w-0"
-                animate={{ width: panelOpen ? "45%" : "100%" }}
-                transition={{ duration: 0.4, ease: [0.4, 0, 0.2, 1] }}
-                style={panelOpen ? {
-                  overflowY: "auto",
-                  scrollbarWidth: "thin",
-                  scrollbarColor: "rgba(107,78,170,0.22) transparent",
-                } : {}}
-              >
-                <BucketListHeader
-                  bucketList={bucketList}
-                  isOwner={isOwner}
-                  onAddItemClick={() => setShowAddItemModal(true)}
-                  onViewMembersClick={() => setShowMembersModal(true)}
-                  onInviteMembersClick={isOwner ? () => setShowInviteModal(true) : undefined}
-                  onEditBucketList={() => setShowEditListModal(true)}
-                  onFreezeBucketList={handleFreezeList}
-                  onDeleteBucketList={() => setShowDeleteListModal(true)}
-                  onCopyLink={handleCopyLink}
-                />
-                <BucketListActionBar
-                  completedCount={completedCount}
-                  totalCount={items.length}
-                  filter={filter}
-                  onFilterChange={setFilter}
-                  sort={sort}
-                  onSortChange={setSort}
-                  search={search}
-                  onSearchChange={setSearch}
-                />
-                <BucketListItemsPanel
-                  items={filteredItems}
-                  selectedItemId={selectedItemId}
-                  onSelectItem={setSelectedItemId}
-                  onDoubleSelectItem={(itemId) => navigate(`/bucketlists/${id}/items/${itemId}`)}
-                  getItemVoteState={getEffectiveVoteState}
-                  isVotingItemId={isVotingItemId}
-                  onVote={canVote ? handleVote : undefined}
-                />
-              </motion.div>
-
-              {/* Right column — natural height, panel scrolls internally */}
-              <AnimatePresence>
-                {panelOpen && (
-                  <motion.div
-                    key="focus-panel-desktop"
-                    ref={panelScrollRef}
-                    className="shrink-0"
-                    style={{ width: "53%" }}
-                    initial={{ opacity: 0, x: 40 }}
-                    animate={{ opacity: 1, x: 0 }}
-                    exit={{ opacity: 0, x: 40 }}
-                    transition={{ duration: 0.35, ease: [0.4, 0, 0.2, 1] }}
-                  >
-                    <ItemDetailPanel
-                      item={selectedItem}
-                      bucketList={bucketList}
-                      message={panelMessage}
-                      canEdit={canEdit}
-                      isOwner={isOwner}
-                      canVote={canVote}
-                      voteScore={effectiveVoteState.voteScore}
-                      userVote={effectiveVoteState.userVote}
-                      isVoting={isVotingItemId === selectedItem?.id}
-                      onUpvote={() => selectedItem && handleVote(selectedItem, "upvote")}
-                      onDownvote={() => selectedItem && handleVote(selectedItem, "downvote")}
-                      onAddToCalendar={() => setShowCalendarModal(true)}
-                      onAddDate={() => setShowDateModal(true)}
-                      onEditDate={() => setShowDateModal(true)}
-                      onEdit={() => setShowEditModal(true)}
-                      onDelete={() => setShowDeleteModal(true)}
-                      onUpdateStatus={(val) => {
-                        if (typeof val === "string") handleStatusUpdate(val);
-                        else setShowStatusModal(true);
-                      }}
-                      onClose={() => setSelectedItemId(null)}
-                    />
-                  </motion.div>
-                )}
-              </AnimatePresence>
-            </div>
-          )}
-
-          {/* ── Mobile layout — full width list ────────────────────────────── */}
-          {isMobile && (
-            <div className="flex flex-col gap-5 pb-10">
+        animate={{ maxWidth: panelOpen ? "1440px" : "860px" }}
+        style={{ width: "100%", margin: "0 auto" }}
+        transition={{ duration: 0.4, ease: [0.4, 0, 0.2, 1] }}
+      >
+        {/* ── Desktop layout ─────────────────────────────────────────────── */}
+        {!isMobile && (
+          <div className="flex items-stretch gap-5">
+            {/* Left column — scrolls only when taller than focus panel */}
+            <motion.div
+              className="flex flex-col gap-5 min-w-0"
+              animate={{ width: panelOpen ? "45%" : "100%" }}
+              transition={{ duration: 0.4, ease: [0.4, 0, 0.2, 1] }}
+              style={
+                panelOpen
+                  ? {
+                      overflowY: "auto",
+                      scrollbarWidth: "thin",
+                      scrollbarColor: "rgba(107,78,170,0.22) transparent",
+                    }
+                  : {}
+              }
+            >
               <BucketListHeader
                 bucketList={bucketList}
                 isOwner={isOwner}
                 onAddItemClick={() => setShowAddItemModal(true)}
                 onViewMembersClick={() => setShowMembersModal(true)}
-                onInviteMembersClick={isOwner ? () => setShowInviteModal(true) : undefined}
+                onInviteMembersClick={
+                  isOwner ? () => setShowInviteModal(true) : undefined
+                }
                 onEditBucketList={() => setShowEditListModal(true)}
                 onFreezeBucketList={handleFreezeList}
                 onDeleteBucketList={() => setShowDeleteListModal(true)}
                 onCopyLink={handleCopyLink}
+                isFrozen={isFrozen}
               />
               <BucketListActionBar
                 completedCount={completedCount}
@@ -518,14 +498,108 @@ export default function SingleListView() {
                 items={filteredItems}
                 selectedItemId={selectedItemId}
                 onSelectItem={setSelectedItemId}
-                onDoubleSelectItem={(itemId) => navigate(`/bucketlists/${id}/items/${itemId}`)}
+                onDoubleSelectItem={(itemId) =>
+                  navigate(`/bucketlists/${id}/items/${itemId}`)
+                }
                 getItemVoteState={getEffectiveVoteState}
                 isVotingItemId={isVotingItemId}
                 onVote={canVote ? handleVote : undefined}
+                memberRole={memberRole}
+                allowViewerVoting={bucketList?.allow_viewer_voting ?? false}
+                isFrozen={isFrozen}
               />
-            </div>
-          )}
-        </motion.section>
+            </motion.div>
+
+            {/* Right column — natural height, panel scrolls internally */}
+            <AnimatePresence>
+              {panelOpen && (
+                <motion.div
+                  key="focus-panel-desktop"
+                  ref={panelScrollRef}
+                  className="shrink-0"
+                  style={{ width: "53%" }}
+                  initial={{ opacity: 0, x: 40 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  exit={{ opacity: 0, x: 40 }}
+                  transition={{ duration: 0.35, ease: [0.4, 0, 0.2, 1] }}
+                >
+                  <ItemDetailPanel
+                    item={selectedItem}
+                    bucketList={bucketList}
+                    message={panelMessage}
+                    canEdit={canEdit}
+                    isOwner={isOwner}
+                    canVote={canVote}
+                    voteScore={effectiveVoteState.voteScore}
+                    userVote={effectiveVoteState.userVote}
+                    isVoting={isVotingItemId === selectedItem?.id}
+                    onUpvote={() =>
+                      selectedItem && handleVote(selectedItem, "upvote")
+                    }
+                    onDownvote={() =>
+                      selectedItem && handleVote(selectedItem, "downvote")
+                    }
+                    onAddToCalendar={() => setShowCalendarModal(true)}
+                    onAddDate={() => setShowDateModal(true)}
+                    onEditDate={() => setShowDateModal(true)}
+                    onEdit={() => setShowEditModal(true)}
+                    onDelete={() => setShowDeleteModal(true)}
+                    onUpdateStatus={(val) => {
+                      if (typeof val === "string") handleStatusUpdate(val);
+                      else setShowStatusModal(true);
+                    }}
+                    onClose={() => setSelectedItemId(null)}
+                  />
+                </motion.div>
+              )}
+            </AnimatePresence>
+          </div>
+        )}
+
+        {/* ── Mobile layout — full width list ────────────────────────────── */}
+        {isMobile && (
+          <div className="flex flex-col gap-5 pb-10">
+            <BucketListHeader
+              bucketList={bucketList}
+              isOwner={isOwner}
+              onAddItemClick={() => setShowAddItemModal(true)}
+              onViewMembersClick={() => setShowMembersModal(true)}
+              onInviteMembersClick={
+                isOwner ? () => setShowInviteModal(true) : undefined
+              }
+              onEditBucketList={() => setShowEditListModal(true)}
+              onFreezeBucketList={handleFreezeList}
+              onDeleteBucketList={() => setShowDeleteListModal(true)}
+              onCopyLink={handleCopyLink}
+              isFrozen={isFrozen}
+            />
+            <BucketListActionBar
+              completedCount={completedCount}
+              totalCount={items.length}
+              filter={filter}
+              onFilterChange={setFilter}
+              sort={sort}
+              onSortChange={setSort}
+              search={search}
+              onSearchChange={setSearch}
+            />
+            <BucketListItemsPanel
+              items={filteredItems}
+              selectedItemId={selectedItemId}
+              onSelectItem={setSelectedItemId}
+              onDoubleSelectItem={(itemId) =>
+                navigate(`/bucketlists/${id}/items/${itemId}`)
+              }
+              getItemVoteState={getEffectiveVoteState}
+              isVotingItemId={isVotingItemId}
+              onVote={canVote ? handleVote : undefined}
+              memberRole={memberRole}
+              allowViewerVoting={bucketList?.allow_viewer_voting ?? false}
+              isFrozen={isFrozen}
+            />
+          </div>
+        )}
+      </motion.section>
 
       {/* ── Mobile overlay — slides in from right ──────────────────────────── */}
       <AnimatePresence>
@@ -558,8 +632,12 @@ export default function SingleListView() {
                 voteScore={effectiveVoteState.voteScore}
                 userVote={effectiveVoteState.userVote}
                 isVoting={isVotingItemId === selectedItem?.id}
-                onUpvote={() => selectedItem && handleVote(selectedItem, "upvote")}
-                onDownvote={() => selectedItem && handleVote(selectedItem, "downvote")}
+                onUpvote={() =>
+                  selectedItem && handleVote(selectedItem, "upvote")
+                }
+                onDownvote={() =>
+                  selectedItem && handleVote(selectedItem, "downvote")
+                }
                 onAddToCalendar={() => setShowCalendarModal(true)}
                 onAddDate={() => setShowDateModal(true)}
                 onEditDate={() => setShowDateModal(true)}
@@ -577,11 +655,24 @@ export default function SingleListView() {
         )}
       </AnimatePresence>
 
-      <FormModal isOpen={showAddItemModal} onClose={() => setShowAddItemModal(false)} title="Drop in a fresh idea" subtitle="Add something wild to this list.">
-        <CreateItemForm bucketListId={bucketList?.id} onClose={() => setShowAddItemModal(false)} onSuccess={handleAddItemSuccess} />
+      <FormModal
+        isOpen={showAddItemModal}
+        onClose={() => setShowAddItemModal(false)}
+        title="Drop in a fresh idea"
+        subtitle="Add something wild to this list."
+      >
+        <CreateItemForm
+          bucketListId={bucketList?.id}
+          onClose={() => setShowAddItemModal(false)}
+          onSuccess={handleAddItemSuccess}
+        />
       </FormModal>
 
-      <InviteMembersModal isOpen={showInviteModal} onClose={() => setShowInviteModal(false)} bucketListId={bucketList?.id} />
+      <InviteMembersModal
+        isOpen={showInviteModal}
+        onClose={() => setShowInviteModal(false)}
+        bucketListId={bucketList?.id}
+      />
 
       <ViewMembersModal
         isOpen={showMembersModal}
@@ -593,24 +684,40 @@ export default function SingleListView() {
         onLeaveList={handleLeaveList}
         isUpdatingMemberId={isUpdatingMemberId}
       />
-      <CalendarExportModal item={selectedItem} isOpen={showCalendarModal} onClose={() => setShowCalendarModal(false)} />
+      <CalendarExportModal
+        item={selectedItem}
+        isOpen={showCalendarModal}
+        onClose={() => setShowCalendarModal(false)}
+      />
 
       <EditItemModal
         item={selectedItem}
         isOpen={showEditModal}
         onSave={handleSave}
-        onClose={() => { setShowEditModal(false); setEditErrors({}); }}
+        onClose={() => {
+          setShowEditModal(false);
+          setEditErrors({});
+        }}
         isSaving={isSaving}
         errors={editErrors}
       />
 
-      <DeleteItemModal item={selectedItem} isOpen={showDeleteModal} isDeleting={isDeleting} onClose={() => setShowDeleteModal(false)} onConfirm={handleDelete} />
+      <DeleteItemModal
+        item={selectedItem}
+        isOpen={showDeleteModal}
+        isDeleting={isDeleting}
+        onClose={() => setShowDeleteModal(false)}
+        onConfirm={handleDelete}
+      />
 
       <ItemDateModal
         item={selectedItem}
         isOpen={showDateModal}
         onSave={handleSaveDate}
-        onClose={() => { setShowDateModal(false); setDateErrors({}); }}
+        onClose={() => {
+          setShowDateModal(false);
+          setDateErrors({});
+        }}
         isSaving={isSavingDate}
         errors={dateErrors}
       />
@@ -619,7 +726,10 @@ export default function SingleListView() {
         item={selectedItem}
         isOpen={showStatusModal}
         onSave={handleStatusUpdate}
-        onClose={() => { setShowStatusModal(false); setStatusError(""); }}
+        onClose={() => {
+          setShowStatusModal(false);
+          setStatusError("");
+        }}
         isSaving={isSavingStatus}
         error={statusError}
       />
@@ -629,7 +739,8 @@ export default function SingleListView() {
         isOpen={showEditListModal}
         onClose={() => setShowEditListModal(false)}
         onSave={async (data) => {
-          const { default: updateBucketList } = await import("../api/bucketlists/update-bucketlist");
+          const { default: updateBucketList } =
+            await import("../api/bucketlists/update-bucketlist");
           await updateBucketList(bucketList.id, data, auth?.access);
           await loadBucketList();
           setShowEditListModal(false);
@@ -640,7 +751,8 @@ export default function SingleListView() {
         isOpen={showDeleteListModal}
         onClose={() => setShowDeleteListModal(false)}
         onConfirm={async () => {
-          const { default: deleteBucketList } = await import("../api/bucketlists/delete-bucketlist");
+          const { default: deleteBucketList } =
+            await import("../api/bucketlists/delete-bucketlist");
           await deleteBucketList(bucketList.id, auth?.access);
           navigate("/dashboard");
         }}

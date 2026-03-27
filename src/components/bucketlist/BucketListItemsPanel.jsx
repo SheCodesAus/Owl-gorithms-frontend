@@ -10,6 +10,9 @@ export default function BucketListItemsPanel({
   isVotingItemId,
   onVote,
   onReactionUpdate,
+  memberRole,
+  allowViewerVoting,
+  isFrozen,
 }) {
   return (
     <section className="bucketlist-items-panel">
@@ -34,7 +37,10 @@ export default function BucketListItemsPanel({
           ) : (
             <div className="bucketlist-items-stack">
               {items.map((item, index) => {
-                const voteState = getItemVoteState?.(item) ?? { voteScore: 0, userVote: null };
+                const voteState = getItemVoteState?.(item) ?? {
+                  voteScore: 0,
+                  userVote: null,
+                };
 
                 return (
                   <motion.div
@@ -55,6 +61,9 @@ export default function BucketListItemsPanel({
                       isVoting={isVotingItemId === item.id}
                       onUpvote={() => onVote?.(item, "upvote")}
                       onDownvote={() => onVote?.(item, "downvote")}
+                      userRole={memberRole}
+                      allowViewerVoting={allowViewerVoting}
+                      isFrozen={isFrozen}
                     />
                   </motion.div>
                 );
